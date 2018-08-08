@@ -8,10 +8,14 @@ android {
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
+        buildConfigField "String", "SETLISTFM_KEY", setlistfmKey
     }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-moshi:2.4.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.10.0'
 }
