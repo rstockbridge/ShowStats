@@ -1,5 +1,6 @@
 package com.github.rstockbridge.showstats;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -84,7 +85,7 @@ public class UserActivity extends AppCompatActivity {
 
     private void processSuccessfulResponse(final User user) {
         if (user != null && user.getUserId().equals(getUserIdText())) {
-            // start next activity
+            startActivity(TabbedActivity.newIntent(this, getUserIdText()));
         } else {
             makeToast(getString(R.string.unresolveable_userId_message));
         }
