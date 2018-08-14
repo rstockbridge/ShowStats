@@ -1,8 +1,9 @@
-package com.github.rstockbridge.showstats.api;
+package com.github.rstockbridge.showstats.api.models;
 
 import android.support.annotation.NonNull;
 
-public class User {
+public final class User {
+
     @NonNull
     private String userId;
 
