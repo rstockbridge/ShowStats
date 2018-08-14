@@ -6,4 +6,20 @@
     <string name="unresolveable_userId_message">Unresolveable User ID!</string>
     <string name="unknown_userId_message">Unknown User ID!</string>
     <string name="unknown_userId">unknown userId</string>
+    <string name="no_setlist_data">No artistSetlist data to analyze!</string>
+    <string name="distribution_of_shows_by_month">Distribution of Shows by Month</string>
+    <string name="gaps_between_shows">Gap Between Shows</string>
+    <string name="gaps_between_same_artist">Gap Between Same Artist</string>
+    <string name="longest">&lt;b>Longest:&lt;/b> %s</string>
+    <string name="shortest">&lt;b>Shortest:&lt;/b> %s</string>
+    <string name="most_visited_venues">Top 5 Venues By Visit</string>
+    <string name="other">Other</string>
+    <plurals name="day_plural" >
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="artist_plural" >
+        <item quantity="one">&lt;b>Artist:&lt;/b> %s</item>
+        <item quantity="other">&lt;b>Artists:&lt;/b> %s</item>
+    </plurals>
 </resources>

@@ -5,23 +5,34 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 
-public class ViewPagerAdapter extends FragmentPagerAdapter {
+import com.github.rstockbridge.showstats.api.models.Setlist;
 
+import java.util.ArrayList;
+
+public final class ViewPagerAdapter extends FragmentPagerAdapter {
+
+    @NonNull
     private String userId;
 
-    ViewPagerAdapter(@NonNull final FragmentManager fm, @NonNull final String userId) {
+    @NonNull
+    private ArrayList<Setlist> setlists;
+
+    ViewPagerAdapter(
+            @NonNull final FragmentManager fm,
+            @NonNull final String userId,
+            @NonNull final ArrayList<Setlist> setlists) {
         super(fm);
 
         this.userId = userId;
+        this.setlists = setlists;
     }
 
     @Override
     public Fragment getItem(final int position) {
         switch (position) {
             case 0:
-                return StatsFragment.newInstance(userId);
+                return StatsFragment.newInstance(setlists);
             case 1:
                 return CompareFragment.newInstance(userId);
         }
