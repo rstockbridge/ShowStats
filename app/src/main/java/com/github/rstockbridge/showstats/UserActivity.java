@@ -1,10 +1,9 @@
 package com.github.rstockbridge.showstats;
 
-import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -14,19 +13,23 @@ import android.widget.Toast;
 
 import com.github.rstockbridge.showstats.api.RetrofitInstance;
 import com.github.rstockbridge.showstats.api.SetlistfmService;
-import com.github.rstockbridge.showstats.api.User;
+import com.github.rstockbridge.showstats.api.models.Setlist;
+import com.github.rstockbridge.showstats.api.models.SetlistData;
+import com.github.rstockbridge.showstats.api.models.User;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
-public class UserActivity extends AppCompatActivity {
+public final class UserActivity extends AppCompatActivity {
 
     private EditText userIdText;
+
+    private ArrayList<Setlist> storedSetlists;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -56,13 +59,14 @@ public class UserActivity extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                makeNetworkCall(getUserIdText());
+                submit.setEnabled(false);
+                storedSetlists = new ArrayList<>();
+                makeUserNetworkCall(getUserIdText());
             }
         });
-
     }
 
-    private void makeNetworkCall(@NonNull final String userId) {
+    private void makeUserNetworkCall(@NonNull final String userId) {
         final SetlistfmService service = RetrofitInstance.getRetrofitInstance().create(SetlistfmService.class);
         final Call<User> call = service.verifyUserId(userId);
 
@@ -70,9 +74,9 @@ public class UserActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull final Call<User> call, @NonNull final Response<User> response) {
                 if (response.isSuccessful()) {
-                    processSuccessfulResponse(response.body());
+                    processSuccessfulUserResponse(response.body());
                 } else {
-                    processUnsuccessfulResponse(response.errorBody());
+                    processUnsuccessfulUserResponse(response.errorBody());
                 }
             }
 
@@ -83,15 +87,15 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
-    private void processSuccessfulResponse(final User user) {
+    private void processSuccessfulUserResponse(final User user) {
         if (user != null && user.getUserId().equals(getUserIdText())) {
-            startActivity(TabbedActivity.newIntent(this, getUserIdText()));
+            makeSetlistsNetworkCall(user.getUserId(), 1);
         } else {
             makeToast(getString(R.string.unresolveable_userId_message));
         }
     }
 
-    private void processUnsuccessfulResponse(final ResponseBody errorBody) {
+    private void processUnsuccessfulUserResponse(final ResponseBody errorBody) {
         try {
             if (errorBody != null && errorBody.string().contains(getString(R.string.unknown_userId))) {
                 makeToast(getString(R.string.unknown_userId_message));
@@ -101,6 +105,34 @@ public class UserActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void makeSetlistsNetworkCall(@NonNull final String userId, final int pageIndex) {
+        final SetlistfmService service = RetrofitInstance.getRetrofitInstance().create(SetlistfmService.class);
+        final Call<SetlistData> call = service.getSetlistData(userId, pageIndex);
+
+        call.enqueue(new Callback<SetlistData>() {
+            @Override
+            public void onResponse(@NonNull final Call<SetlistData> call, @NonNull final Response<SetlistData> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    final SetlistData setlistData = response.body();
+                    storedSetlists.addAll(setlistData.getSetlists());
+
+                    if (pageIndex < setlistData.getNumberOfPages()) {
+                        makeSetlistsNetworkCall(userId, pageIndex + 1);
+                    } else {
+                        startActivity(TabbedActivity.newIntent(UserActivity.this, userId, storedSetlists));
+                    }
+                } else {
+                    makeToast(getString(R.string.no_setlist_data));
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull final Call<SetlistData> call, @NonNull final Throwable t) {
+                makeToast(getString(R.string.wrong_message));
+            }
+        });
     }
 
     private void makeToast(@NonNull final String message) {

@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class CompareFragment extends Fragment {
+public final class CompareFragment extends Fragment {
 
     private static final String ARG_USER_ID = "userId";
 
