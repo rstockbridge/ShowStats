@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.text.Html;
 import android.text.Spanned;
+import android.widget.EditText;
 
 import com.github.rstockbridge.showstats.R;
 
@@ -19,6 +20,11 @@ public final class TextUtil {
 
     public TextUtil(@NonNull final Resources resources) {
         this.resources = resources;
+    }
+
+    @NonNull
+    public static String getText(final EditText editText) {
+        return editText.getText().toString();
     }
 
     @NonNull
