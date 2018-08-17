@@ -6,7 +6,7 @@
     <string name="unresolveable_userId_message">Unresolveable User ID!</string>
     <string name="unknown_userId_message">Unknown User ID!</string>
     <string name="unknown_userId">unknown userId</string>
-    <string name="no_setlist_data">No artistSetlist data to analyze!</string>
+    <string name="no_setlist_data">No setlist data to analyze!</string>
     <string name="distribution_of_shows_by_month">Distribution of Shows by Month</string>
     <string name="gaps_between_shows">Gap Between Shows</string>
     <string name="gaps_between_same_artist">Gap Between Same Artist</string>
