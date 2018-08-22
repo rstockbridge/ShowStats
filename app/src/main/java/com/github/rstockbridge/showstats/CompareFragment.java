@@ -9,14 +9,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.github.rstockbridge.showstats.appmodels.UserStatistics;
+
 public final class CompareFragment extends Fragment {
 
-    private static final String ARG_USER_ID = "userId";
+    private static final String ARG_FIRST_USER_STATISTICS = "firstUserStatistics";
 
     @NonNull
-    public static CompareFragment newInstance(@NonNull final String userId) {
+    public static CompareFragment newInstance(@NonNull final UserStatistics firstUserStatistics) {
         final Bundle args = new Bundle();
-        args.putString(ARG_USER_ID, userId);
+        args.putParcelable(ARG_FIRST_USER_STATISTICS, firstUserStatistics);
 
         final CompareFragment fragment = new CompareFragment();
         fragment.setArguments(args);
@@ -32,10 +34,10 @@ public final class CompareFragment extends Fragment {
 
         final View v = inflater.inflate(R.layout.fragment_compare, container, false);
 
-        final String userId = getArguments().getString(ARG_USER_ID);
+        final UserStatistics firstUserStatistics = getArguments().getParcelable(ARG_FIRST_USER_STATISTICS);
 
         final TextView label = v.findViewById(R.id.compare_label);
-        label.setText(userId); // temporary display until fragment is built to spec
+        label.setText(firstUserStatistics.getUserId()); // temporary display until fragment is built to spec
 
         return v;
     }
