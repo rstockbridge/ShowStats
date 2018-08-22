@@ -14,7 +14,7 @@ public final class ArtistSetlist {
     @NonNull
     private String venue;
 
-    public ArtistSetlist(@NonNull final LocalDate eventDate, @NonNull final String venue) {
+    ArtistSetlist(@NonNull final LocalDate eventDate, @NonNull final String venue) {
         this.eventDate = eventDate;
         this.venue = venue;
     }
