@@ -68,13 +68,13 @@ public final class BarChartMaker {
 
     @NonNull
     private BarDataSet getBarDataSet() {
-        final ArrayList<BarEntry> barEntries = new ArrayList<>();
+        final ArrayList<BarEntry> entries = new ArrayList<>();
 
         for (int i = 0; i < NUMBER_OF_MONTHS; i++) {
-            barEntries.add(new BarEntry(i, dataByMonth[i]));
+            entries.add(new BarEntry(i, dataByMonth[i]));
         }
 
-        return new BarDataSet(barEntries, "");
+        return new BarDataSet(entries, "");
     }
 
     @NonNull

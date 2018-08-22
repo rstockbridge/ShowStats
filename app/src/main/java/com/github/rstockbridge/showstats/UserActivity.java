@@ -15,6 +15,7 @@ import com.github.rstockbridge.showstats.api.SetlistfmService;
 import com.github.rstockbridge.showstats.api.models.Setlist;
 import com.github.rstockbridge.showstats.api.models.SetlistData;
 import com.github.rstockbridge.showstats.api.models.User;
+import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 import com.github.rstockbridge.showstats.utility.MessageUtil;
 import com.github.rstockbridge.showstats.utility.TextUtil;
 
@@ -124,7 +125,7 @@ public final class UserActivity extends AppCompatActivity {
                     if (pageIndex < setlistData.getNumberOfPages()) {
                         makeSetlistsNetworkCall(userId, pageIndex + 1, storedSetlists);
                     } else {
-                        startActivity(TabbedActivity.newIntent(UserActivity.this, userId, storedSetlists));
+                        startActivity(TabbedActivity.newIntent(UserActivity.this, new UserStatistics(userId, storedSetlists)));
                     }
                 } else {
                     MessageUtil.makeToast(UserActivity.this, getString(R.string.no_setlist_data));

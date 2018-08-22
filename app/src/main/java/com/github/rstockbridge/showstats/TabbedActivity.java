@@ -10,23 +10,21 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.github.rstockbridge.showstats.api.models.Setlist;
+import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 
 import java.util.ArrayList;
 
 public final class TabbedActivity extends AppCompatActivity {
 
-    private static final String EXTRA_USER_ID = "userId";
-    private static final String EXTRA_SETLISTS = "setlists";
+    private static final String EXTRA_USER_STATISTICS = "statistics";
 
     @NonNull
     public static Intent newIntent(
             @NonNull final Context context,
-            @NonNull final String userId,
-            @NonNull final ArrayList<Setlist> setlists) {
+            @NonNull final UserStatistics userStatistics) {
 
         final Intent intent = new Intent(context, TabbedActivity.class);
-        intent.putExtra(EXTRA_USER_ID, userId);
-        intent.putParcelableArrayListExtra(EXTRA_SETLISTS, setlists);
+        intent.putExtra(EXTRA_USER_STATISTICS, userStatistics);
         return intent;
     }
 
@@ -35,11 +33,10 @@ public final class TabbedActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tabbed);
 
-        final String userId = getIntent().getStringExtra(EXTRA_USER_ID);
-        final ArrayList<Setlist> setlists = getIntent().getParcelableArrayListExtra(EXTRA_SETLISTS);
+        final UserStatistics statistics = getIntent().getParcelableExtra(EXTRA_USER_STATISTICS);
 
         final ViewPager viewPager = findViewById(R.id.view_pager);
-        viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager(), userId, setlists));
+        viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager(), statistics));
 
         final TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
