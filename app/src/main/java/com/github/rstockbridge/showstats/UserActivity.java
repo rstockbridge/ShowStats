@@ -16,8 +16,8 @@ import com.github.rstockbridge.showstats.api.models.Setlist;
 import com.github.rstockbridge.showstats.api.models.SetlistData;
 import com.github.rstockbridge.showstats.api.models.User;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
-import com.github.rstockbridge.showstats.utility.MessageUtil;
-import com.github.rstockbridge.showstats.utility.TextUtil;
+import com.github.rstockbridge.showstats.ui.MessageUtil;
+import com.github.rstockbridge.showstats.ui.TextUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;

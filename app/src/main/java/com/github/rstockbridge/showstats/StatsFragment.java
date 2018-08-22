@@ -12,9 +12,9 @@ import android.widget.TextView;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
-import com.github.rstockbridge.showstats.utility.BarChartMaker;
-import com.github.rstockbridge.showstats.utility.PieChartMaker;
-import com.github.rstockbridge.showstats.utility.TextUtil;
+import com.github.rstockbridge.showstats.ui.BarChartMaker;
+import com.github.rstockbridge.showstats.ui.PieChartMaker;
+import com.github.rstockbridge.showstats.ui.TextUtil;
 
 public final class StatsFragment extends Fragment {
 

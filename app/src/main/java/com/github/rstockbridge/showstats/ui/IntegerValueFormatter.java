@@ -1,4 +1,4 @@
-package com.github.rstockbridge.showstats.utility;
+package com.github.rstockbridge.showstats.ui;
 
 import android.support.annotation.NonNull;
 
