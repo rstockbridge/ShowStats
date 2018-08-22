@@ -50,9 +50,13 @@ public final class UserStatistics implements Parcelable {
     private Integer longestArtistGap = null;
     @Nullable
     private Integer shortestArtistGap = null;
+    @Nullable
+    private Integer averageShowGap = null;
 
     @NonNull
     private Map<String, Integer> topVenueVisits = new HashMap<>();
+
+    private int numberOfShows;
 
     public UserStatistics(@NonNull final String userId, @NonNull final List<Setlist> setlists) {
         this.userId = userId;
@@ -62,6 +66,7 @@ public final class UserStatistics implements Parcelable {
         calculateShowGaps();
         calculateArtistGaps();
         calculateTopVenueVisits();
+        calculateNumberOfShows();
     }
 
     @NonNull
@@ -109,18 +114,51 @@ public final class UserStatistics implements Parcelable {
         return topVenueVisits;
     }
 
+    @NonNull
+    public List<Setlist> getSetlists() {
+        return setlists;
+    }
+
+    public int getNumberOfShows() {
+        return numberOfShows;
+    }
+
+    public int getAverageShowGap() {
+        return averageShowGap;
+    }
+
+    // methods to calculate statistics
+
     private void calculateDistributionByMonth() {
+
+        final List<List<Pair<String, LocalDate>>> processedVenuesByMonth = new ArrayList<>();
+
+        for (int i = 0; i < NUMBER_OF_MONTHS; i++) {
+            processedVenuesByMonth.add(new ArrayList<Pair<String, LocalDate>>());
+        }
+
         for (final Setlist setlist : setlists) {
-            final int setlistMonth = setlist.getEventDate().getMonthValue();
-            distributionByMonth[NUMBER_OF_MONTHS - setlistMonth]++; // invert for display purposes
+            final int month = setlist.getEventDate().getMonthValue();
+            final List<Pair<String, LocalDate>> monthProcessedVenues = processedVenuesByMonth.get(month - 1);
+
+            final Pair<String, LocalDate> venueDatePair =
+                    new Pair<>(setlist.getVenue().getName(), setlist.getEventDate());
+
+            // multiple shows appearing at the same venue on the same day only count as one visit
+            if (!monthProcessedVenues.contains(venueDatePair)) {
+                monthProcessedVenues.add(venueDatePair);
+                distributionByMonth[NUMBER_OF_MONTHS - month]++; // invert for display purposes
+            }
         }
     }
 
     private void calculateShowGaps() {
-        // longestShowGap/shortestShowGap remain null if the only shows
-        // are on the same day at the same venue
+        // longestShowGap/shortestShowGap/averageShowGap remain null if either only one show or
+        // if the only shows are on the same day at the same venue
 
         if (setlists.size() > 1) {
+            int sumOfShowGaps = 0;
+
             for (int i = 0; i < setlists.size() - 1; i++) {
                 final Setlist setlist1 = setlists.get(i);
                 final Setlist setlist2 = setlists.get(i + 1);
@@ -133,6 +171,8 @@ public final class UserStatistics implements Parcelable {
                 final SetlistVenue venue2 = setlist2.getVenue();
 
                 if (gap > 0 || (gap == 0 && !venue1.equals(venue2))) {
+                    sumOfShowGaps += gap;
+
                     if (longestShowGap == null || gap > longestShowGap) {
                         longestShowGap = gap;
                     }
@@ -141,14 +181,16 @@ public final class UserStatistics implements Parcelable {
                     }
                 }
             }
+
+            averageShowGap = sumOfShowGaps / (setlists.size() - 1); // integer division on purpose
         }
     }
 
     private void calculateArtistGaps() {
-        // longestArtistGap/shortestArtistGap remain null if only gap is 0
-        // (i.e. there are shows on the same day)
+        // longestArtistGap/shortestArtistGap remain null if either only one show or
+        // if the only shows are on the same day at the same venue
 
-        for (final Artist artist : constructArtistIndexedData(setlists)) {
+        for (final Artist artist : constructArtistIndexedData()) {
             final List<ArtistSetlist> artistSetlists = artist.getSetlists();
 
             if (artistSetlists.size() > 1) {
@@ -186,7 +228,7 @@ public final class UserStatistics implements Parcelable {
         Collections.sort(shortestArtistGapArtists);
     }
 
-    private List<Artist> constructArtistIndexedData(final List<Setlist> setlists) {
+    private List<Artist> constructArtistIndexedData() {
         final List<Artist> result = new ArrayList<>();
 
         for (final Setlist setlist : setlists) {
@@ -246,6 +288,13 @@ public final class UserStatistics implements Parcelable {
         return MapUtil.sortMapByValues(result);
     }
 
+    private void calculateNumberOfShows() {
+        for (int i = 0; i < NUMBER_OF_MONTHS; i++) {
+            numberOfShows += distributionByMonth[i];
+        }
+    }
+
+
     @Override
     public int describeContents() {
         return 0;
@@ -262,11 +311,13 @@ public final class UserStatistics implements Parcelable {
         dest.writeStringList(this.shortestArtistGapArtists);
         dest.writeValue(this.longestArtistGap);
         dest.writeValue(this.shortestArtistGap);
+        dest.writeValue(this.averageShowGap);
         dest.writeInt(this.topVenueVisits.size());
         for (Map.Entry<String, Integer> entry : this.topVenueVisits.entrySet()) {
             dest.writeString(entry.getKey());
             dest.writeValue(entry.getValue());
         }
+        dest.writeInt(this.numberOfShows);
     }
 
     private UserStatistics(final Parcel in) {
@@ -279,6 +330,7 @@ public final class UserStatistics implements Parcelable {
         this.shortestArtistGapArtists = in.createStringArrayList();
         this.longestArtistGap = (Integer) in.readValue(Integer.class.getClassLoader());
         this.shortestArtistGap = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.averageShowGap = (Integer) in.readValue(Integer.class.getClassLoader());
         int topVenueVisitsSize = in.readInt();
         this.topVenueVisits = new HashMap<>(topVenueVisitsSize);
         for (int i = 0; i < topVenueVisitsSize; i++) {
@@ -286,9 +338,10 @@ public final class UserStatistics implements Parcelable {
             Integer value = (Integer) in.readValue(Integer.class.getClassLoader());
             this.topVenueVisits.put(key, value);
         }
+        this.numberOfShows = in.readInt();
     }
 
-    public static final Parcelable.Creator<UserStatistics> CREATOR = new Parcelable.Creator<UserStatistics>() {
+    public static final Creator<UserStatistics> CREATOR = new Creator<UserStatistics>() {
         @Override
         public UserStatistics createFromParcel(final Parcel source) {
             return new UserStatistics(source);
