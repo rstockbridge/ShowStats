@@ -7,34 +7,30 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.github.rstockbridge.showstats.api.models.Setlist;
+import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 
 import java.util.ArrayList;
 
 public final class ViewPagerAdapter extends FragmentPagerAdapter {
 
     @NonNull
-    private String userId;
-
-    @NonNull
-    private ArrayList<Setlist> setlists;
+    private UserStatistics statistics;
 
     ViewPagerAdapter(
             @NonNull final FragmentManager fm,
-            @NonNull final String userId,
-            @NonNull final ArrayList<Setlist> setlists) {
+            @NonNull final UserStatistics statistics) {
         super(fm);
 
-        this.userId = userId;
-        this.setlists = setlists;
+        this.statistics = statistics;
     }
 
     @Override
     public Fragment getItem(final int position) {
         switch (position) {
             case 0:
-                return StatsFragment.newInstance(setlists);
+                return StatsFragment.newInstance(statistics);
             case 1:
-                return CompareFragment.newInstance(userId);
+                return CompareFragment.newInstance(statistics);
         }
 
         throw new IllegalStateException("This line should not be reached");
