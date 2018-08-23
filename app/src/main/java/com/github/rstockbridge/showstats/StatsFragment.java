@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
-import com.github.rstockbridge.showstats.ui.BarChartMaker;
+import com.github.rstockbridge.showstats.ui.BarChartMakerShowDistribution;
 import com.github.rstockbridge.showstats.ui.PieChartMaker;
 import com.github.rstockbridge.showstats.ui.TextUtil;
 
@@ -64,7 +64,7 @@ public final class StatsFragment extends Fragment {
         return v;
     }
 
-    private void initializeUI(final View v) {
+    private void initializeUI(@NonNull final View v) {
         barChart = v.findViewById(R.id.bar_chart);
 
         longestShowGapLabel = v.findViewById(R.id.longest_show_gap);
@@ -79,7 +79,7 @@ public final class StatsFragment extends Fragment {
     }
 
     private void displayStats() {
-        final BarChartMaker barChartMaker = new BarChartMaker(barChart, statistics.getDistributionByMonth());
+        final BarChartMakerShowDistribution barChartMaker = new BarChartMakerShowDistribution(barChart, statistics.getDistributionByMonth());
         barChartMaker.displayBarChart();
 
         final PieChartMaker pieChartMaker = new PieChartMaker(pieChart, statistics.getTopVenueVisits());
@@ -95,9 +95,9 @@ public final class StatsFragment extends Fragment {
     }
 
     private void displayArtistGaps() {
-        longestArtistGapArtistLabel.setText(textUtil.getArtistText(statistics.getLongestArtistGap(), statistics.getLongestArtistGapArtists()));
+        longestArtistGapArtistLabel.setText(textUtil.getArtistText(statistics.getLongestArtistGapArtists(), true));
         longestArtistGapLabel.setText(textUtil.getGapText(R.string.longest, statistics.getLongestArtistGap()));
-        shortestArtistGapArtistLabel.setText(textUtil.getArtistText(statistics.getShortestArtistGap(), statistics.getShortestArtistGapArtists()));
+        shortestArtistGapArtistLabel.setText(textUtil.getArtistText(statistics.getShortestArtistGapArtists(), true));
         shortestArtistGapLabel.setText(textUtil.getGapText(R.string.shortest, statistics.getShortestArtistGap()));
     }
 }

@@ -28,10 +28,10 @@ public final class UserStatistics implements Parcelable {
     private static final int NUMBER_OF_MONTHS = 12;
 
     @NonNull
-    private String userId;
+    private List<Setlist> setlists;
 
     @NonNull
-    private List<Setlist> setlists;
+    private String userId;
 
     @NonNull
     private int[] distributionByMonth = new int[NUMBER_OF_MONTHS];
@@ -56,6 +56,18 @@ public final class UserStatistics implements Parcelable {
     @NonNull
     private Map<String, Integer> topVenueVisits = new HashMap<>();
 
+    @NonNull
+    private List<String> artistIds = new ArrayList<>();
+
+    @NonNull
+    private Map<String, String> artistIdNameMap = new HashMap<>();
+
+    @NonNull
+    private List<String> shows = new ArrayList<>();
+
+    @NonNull
+    private List<String> venues = new ArrayList<>();
+
     private int numberOfShows;
 
     public UserStatistics(@NonNull final String userId, @NonNull final List<Setlist> setlists) {
@@ -66,6 +78,10 @@ public final class UserStatistics implements Parcelable {
         calculateShowGaps();
         calculateArtistGaps();
         calculateTopVenueVisits();
+        constructArtistIds();
+        constructArtistIdNameMap();
+        constructShows();
+        constructVenues();
         calculateNumberOfShows();
     }
 
@@ -115,17 +131,34 @@ public final class UserStatistics implements Parcelable {
     }
 
     @NonNull
-    public List<Setlist> getSetlists() {
-        return setlists;
+    public List<String> getArtistIds() {
+        return artistIds;
+    }
+
+    @NonNull
+    public String getArtistNameFromId(final String artistId) {
+        return artistIdNameMap.get(artistId);
+    }
+
+    @NonNull
+    public List<String> getShows() {
+        return shows;
+    }
+
+    @NonNull
+    public List<String> getVenues() {
+        return venues;
     }
 
     public int getNumberOfShows() {
         return numberOfShows;
     }
 
-    public int getAverageShowGap() {
+    @Nullable
+    public Integer getAverageShowGap() {
         return averageShowGap;
     }
+
 
     // methods to calculate statistics
 
@@ -288,11 +321,50 @@ public final class UserStatistics implements Parcelable {
         return MapUtil.sortMapByValues(result);
     }
 
-    private void calculateNumberOfShows() {
-        for (int i = 0; i < NUMBER_OF_MONTHS; i++) {
-            numberOfShows += distributionByMonth[i];
+    private void constructArtistIds() {
+        for (final Setlist setlist : setlists) {
+            final String id = setlist.getArtist().getMbid();
+
+            if (!artistIds.contains(id)) {
+                artistIds.add(id);
+            }
         }
     }
+
+    private void constructArtistIdNameMap() {
+        for (final Artist artist : constructArtistIndexedData()) {
+            artistIdNameMap.put(artist.getId(), artist.getName());
+        }
+    }
+
+    private void constructShows() {
+        for (final Setlist setlist : setlists) {
+            final String venueName = setlist.getVenue().getName();
+            final String date = setlist.getEventDate().toString();
+            final String show = date + ", " + venueName;
+
+            if (!shows.contains(show)) {
+                shows.add(show);
+            }
+        }
+    }
+
+    private void constructVenues() {
+        for (final Setlist setlist : setlists) {
+            final String venueName = setlist.getVenue().getName();
+
+            if (!venues.contains(venueName)) {
+                venues.add(venueName);
+            }
+        }
+    }
+
+    private void calculateNumberOfShows() {
+        numberOfShows = shows.size();
+    }
+
+
+    // Parcelable methods
 
 
     @Override
@@ -301,9 +373,8 @@ public final class UserStatistics implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
+    public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.userId);
-        dest.writeTypedList(this.setlists);
         dest.writeIntArray(this.distributionByMonth);
         dest.writeValue(this.longestShowGap);
         dest.writeValue(this.shortestShowGap);
@@ -317,12 +388,19 @@ public final class UserStatistics implements Parcelable {
             dest.writeString(entry.getKey());
             dest.writeValue(entry.getValue());
         }
+        dest.writeStringList(this.artistIds);
+        dest.writeInt(this.artistIdNameMap.size());
+        for (Map.Entry<String, String> entry : this.artistIdNameMap.entrySet()) {
+            dest.writeString(entry.getKey());
+            dest.writeString(entry.getValue());
+        }
+        dest.writeStringList(this.shows);
+        dest.writeStringList(this.venues);
         dest.writeInt(this.numberOfShows);
     }
 
-    private UserStatistics(final Parcel in) {
+    private UserStatistics(Parcel in) {
         this.userId = in.readString();
-        this.setlists = in.createTypedArrayList(Setlist.CREATOR);
         this.distributionByMonth = in.createIntArray();
         this.longestShowGap = (Integer) in.readValue(Integer.class.getClassLoader());
         this.shortestShowGap = (Integer) in.readValue(Integer.class.getClassLoader());
@@ -338,17 +416,27 @@ public final class UserStatistics implements Parcelable {
             Integer value = (Integer) in.readValue(Integer.class.getClassLoader());
             this.topVenueVisits.put(key, value);
         }
+        this.artistIds = in.createStringArrayList();
+        int artistIdNameMapSize = in.readInt();
+        this.artistIdNameMap = new HashMap<>(artistIdNameMapSize);
+        for (int i = 0; i < artistIdNameMapSize; i++) {
+            String key = in.readString();
+            String value = in.readString();
+            this.artistIdNameMap.put(key, value);
+        }
+        this.shows = in.createStringArrayList();
+        this.venues = in.createStringArrayList();
         this.numberOfShows = in.readInt();
     }
 
     public static final Creator<UserStatistics> CREATOR = new Creator<UserStatistics>() {
         @Override
-        public UserStatistics createFromParcel(final Parcel source) {
+        public UserStatistics createFromParcel(Parcel source) {
             return new UserStatistics(source);
         }
 
         @Override
-        public UserStatistics[] newArray(final int size) {
+        public UserStatistics[] newArray(int size) {
             return new UserStatistics[size];
         }
     };

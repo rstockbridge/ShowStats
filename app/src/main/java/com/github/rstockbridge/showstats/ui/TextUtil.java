@@ -41,16 +41,20 @@ public final class TextUtil {
     }
 
     @NonNull
-    public Spanned getArtistText(@Nullable final Integer gap, @NonNull final List<String> artists) {
+    public Spanned getArtistText(@NonNull final List<String> artists, boolean useHeader) {
         String partialText;
 
-        if (gap != null) {
+        if (artists.size() > 0) {
             partialText = TextUtil.formatArtistsText(artists);
         } else {
             partialText = "n/a";
         }
 
-        return TextUtil.fromHtml(resources.getQuantityString(R.plurals.artist_plural, artists.size(), partialText));
+        if (useHeader) {
+            return TextUtil.fromHtml(resources.getQuantityString(R.plurals.artist_plural, artists.size(), partialText));
+        } else {
+            return TextUtil.fromHtml(partialText);
+        }
     }
 
     @NonNull
@@ -60,12 +64,27 @@ public final class TextUtil {
         } else {
             final StringBuilder result = new StringBuilder();
 
-            for (final String artist : artists) {
-                result.append("<br>").append(artist);
+            for (int i = 0; i < artists.size() - 1; i++) {
+                final String artist = artists.get(i);
+                result.append(artist).append("<br>");
             }
+            result.append(artists.get(artists.size() - 1));
 
             return result.toString();
         }
+    }
+
+    @NonNull
+    public Spanned getUserGapText(@NonNull final String user, @Nullable final Integer gap) {
+        String partialText;
+
+        if (gap != null) {
+            partialText = resources.getQuantityString(R.plurals.day_plural, gap, gap);
+        } else {
+            partialText = "n/a";
+        }
+
+        return TextUtil.fromHtml(resources.getString(R.string.user, user, partialText));
     }
 
     @SuppressWarnings("deprecation")
