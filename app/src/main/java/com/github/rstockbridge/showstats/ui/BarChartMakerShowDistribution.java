@@ -1,4 +1,4 @@
-package com.github.rstockbridge.showstats.utility;
+package com.github.rstockbridge.showstats.ui;
 
 import android.support.annotation.NonNull;
 
@@ -17,7 +17,7 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class BarChartMaker {
+public final class BarChartMakerShowDistribution {
 
     private static final int NUMBER_OF_MONTHS = 12;
 
@@ -44,11 +44,11 @@ public final class BarChartMaker {
 
     @NonNull
     private BarChart barChart;
-    
+
     @NonNull
     private int[] dataByMonth;
 
-    public BarChartMaker(@NonNull final BarChart barChart, @NonNull final int[] dataByMonth) {
+    public BarChartMakerShowDistribution(@NonNull final BarChart barChart, @NonNull final int[] dataByMonth) {
         this.barChart = barChart;
         this.dataByMonth = dataByMonth;
     }
@@ -68,13 +68,13 @@ public final class BarChartMaker {
 
     @NonNull
     private BarDataSet getBarDataSet() {
-        final ArrayList<BarEntry> barEntries = new ArrayList<>();
+        final ArrayList<BarEntry> entries = new ArrayList<>();
 
         for (int i = 0; i < NUMBER_OF_MONTHS; i++) {
-            barEntries.add(new BarEntry(i, dataByMonth[i]));
+            entries.add(new BarEntry(i, dataByMonth[i]));
         }
 
-        return new BarDataSet(barEntries, "");
+        return new BarDataSet(entries, "");
     }
 
     @NonNull

@@ -16,7 +16,7 @@ public final class Artist {
     @NonNull
     private List<ArtistSetlist> setlists;
 
-    public Artist(final String id, final String name, final ArtistSetlist setlist) {
+    Artist(@NonNull final String id, @NonNull final String name, @NonNull final ArtistSetlist setlist) {
         this.id = id;
         this.name = name;
 
