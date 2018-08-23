@@ -17,7 +17,7 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class BarChartMaker {
+public final class BarChartMakerShowDistribution {
 
     private static final int NUMBER_OF_MONTHS = 12;
 
@@ -44,11 +44,11 @@ public final class BarChartMaker {
 
     @NonNull
     private BarChart barChart;
-    
+
     @NonNull
     private int[] dataByMonth;
 
-    public BarChartMaker(@NonNull final BarChart barChart, @NonNull final int[] dataByMonth) {
+    public BarChartMakerShowDistribution(@NonNull final BarChart barChart, @NonNull final int[] dataByMonth) {
         this.barChart = barChart;
         this.dataByMonth = dataByMonth;
     }
