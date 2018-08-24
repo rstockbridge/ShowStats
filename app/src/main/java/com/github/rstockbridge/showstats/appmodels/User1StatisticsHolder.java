@@ -19,7 +19,7 @@ public class User1StatisticsHolder {
         return user1StatisticsHolder;
     }
 
-    public void initialize(@NonNull final UserStatistics user1Statistics) {
+    public void setStatistics(@NonNull final UserStatistics user1Statistics) {
         this.statistics = user1Statistics;
     }
 
