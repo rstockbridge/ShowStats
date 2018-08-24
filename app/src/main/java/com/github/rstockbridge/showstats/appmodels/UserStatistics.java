@@ -1,7 +1,5 @@
 package com.github.rstockbridge.showstats.appmodels;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
@@ -65,7 +63,7 @@ public final class UserStatistics {
     private Map<String, String> artistIdNameMap = new HashMap<>();
 
     @NonNull
-    private Set<String> shows = new HashSet<>();
+    private List<Show> shows = new ArrayList<>();
 
     @NonNull
     private Set<String> venues = new HashSet<>();
@@ -143,7 +141,7 @@ public final class UserStatistics {
     }
 
     @NonNull
-    public Set<String> getShows() {
+    public List<Show> getShows() {
         return shows;
     }
 
@@ -337,7 +335,17 @@ public final class UserStatistics {
 
     private void constructShows() {
         for (final Setlist setlist : setlists) {
-            shows.add(setlist.getEventDate().toString()+ ", " + setlist.getVenue().getName());
+            final String eventDate = setlist.getEventDate().toString();
+            final String venueName = setlist.getVenue().getName();
+            final String artistId = setlist.getArtist().getMbid();
+            final String artist = setlist.getArtist().getName();
+            final Show show = new Show(eventDate, venueName);
+
+            if (!shows.contains(show)) {
+                shows.add(show);
+            }
+
+            shows.get(shows.indexOf(show)).addArtist(artistId, artist);
         }
     }
 
