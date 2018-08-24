@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">ShowStats</string>
     <string name="enter_userId">Enter User ID here</string>
+    <string name="clear">Clear</string>
     <string name="submit">Submit</string>
     <string name="wrong_message">Something has gone wrong!</string>
     <string name="unresolveable_userId_message">Unresolveable User ID!</string>
