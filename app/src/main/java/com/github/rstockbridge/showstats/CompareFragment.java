@@ -30,6 +30,7 @@ import com.github.rstockbridge.showstats.utility.ActivityFragmentUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,7 +42,6 @@ import retrofit2.Response;
 public final class CompareFragment extends Fragment {
 
     private UserStatistics user1Statistics;
-    private UserStatistics user2Statistics;
 
     private List<String> commonArtists;
     private List<String> commonShows;
@@ -213,9 +213,8 @@ public final class CompareFragment extends Fragment {
                     if (pageIndex < setlistData.getNumberOfPages()) {
                         makeSetlistsNetworkCall(userId, pageIndex + 1, storedSetlists);
                     } else {
-                        user2Statistics = new UserStatistics(userId, storedSetlists);
                         enableViews(true);
-                        displayStats();
+                        displayStats(new UserStatistics(userId, storedSetlists));
                     }
                 } else {
                     MessageUtil.makeToast(getActivity(), getString(R.string.no_setlist_data));
@@ -235,31 +234,31 @@ public final class CompareFragment extends Fragment {
         });
     }
 
-    private void displayStats() {
+    private void displayStats(final UserStatistics user2Statistics) {
         scrollview.setVisibility(View.VISIBLE);
 
         final BarChartMakerUserTotalShows barChartMaker = new BarChartMakerUserTotalShows(
                 barChart, user1Statistics, user2Statistics);
         barChartMaker.displayBarChart();
 
-        calculateCommonStatistics();
+        calculateCommonStatistics(user2Statistics);
 
         displayCommonArtists();
         displayCommonVenues();
         displayCommonShows();
-        displayShowGaps();
+        displayShowGaps(user2Statistics);
     }
 
-    private void calculateCommonStatistics() {
-        calculateCommonArtists();
-        calculateCommonVenues();
-        calculateCommonShows();
+    private void calculateCommonStatistics(final UserStatistics user2Statistics) {
+        calculateCommonArtists(user2Statistics);
+        calculateCommonVenues(user2Statistics);
+        calculateCommonShows(user2Statistics);
     }
 
-    private void calculateCommonArtists() {
+    private void calculateCommonArtists(final UserStatistics user2Statistics) {
         commonArtists = new ArrayList<>();
 
-        final Set<String> commonArtistIds = user1Statistics.getArtistIds();
+        final Set<String> commonArtistIds = new HashSet<>(user1Statistics.getArtistIds());
         commonArtistIds.retainAll(user2Statistics.getArtistIds());
 
         for (final String commonArtistId : commonArtistIds) {
@@ -269,23 +268,23 @@ public final class CompareFragment extends Fragment {
         Collections.sort(commonArtists);
     }
 
-    private void calculateCommonVenues() {
-        final Set<String> commonVenuesAsSet = user1Statistics.getVenues();
+    private void calculateCommonVenues(final UserStatistics user2Statistics) {
+        final Set<String> commonVenuesAsSet = new HashSet<>(user1Statistics.getVenues());
         commonVenuesAsSet.retainAll(user2Statistics.getVenues());
 
         commonVenues = new ArrayList<>(commonVenuesAsSet);
         Collections.sort(commonVenues);
     }
 
-    private void calculateCommonShows() {
-        final Set<String> commonShowsAsSet = user1Statistics.getShows();
+    private void calculateCommonShows(final UserStatistics user2Statistics) {
+        final Set<String> commonShowsAsSet = new HashSet<>(user1Statistics.getShows());
         commonShowsAsSet.retainAll(user2Statistics.getShows());
 
         commonShows = new ArrayList<>(commonShowsAsSet);
         Collections.sort(commonShows);
     }
 
-    private void displayShowGaps() {
+    private void displayShowGaps(final UserStatistics user2Statistics) {
         averageShowGapLabel1.setText(textUtil.getUserGapText(user1Statistics.getUserId(), user1Statistics.getAverageShowGap()));
         averageShowGapLabel2.setText(textUtil.getUserGapText(user2Statistics.getUserId(), user2Statistics.getAverageShowGap()));
     }
