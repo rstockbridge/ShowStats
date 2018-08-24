@@ -48,6 +48,7 @@ public final class CompareFragment extends Fragment {
     private List<String> commonVenues;
 
     private EditText user2IdText;
+    private Button submit;
 
     private ScrollView scrollview;
     private BarChart barChart;
@@ -81,7 +82,7 @@ public final class CompareFragment extends Fragment {
 
     private void initializeUI(@NonNull final View v) {
         user2IdText = v.findViewById(R.id.edit_user2_userId_text);
-        final Button submit = v.findViewById(R.id.submit_button);
+        submit = v.findViewById(R.id.submit_button);
 
         user2IdText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -103,7 +104,7 @@ public final class CompareFragment extends Fragment {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                submit.setEnabled(false);
+                enableViews(false);
                 scrollview.setVisibility(View.INVISIBLE);
 
                 if (TextUtil.getText(user2IdText).equals(user1Statistics.getUserId())) {
@@ -150,6 +151,7 @@ public final class CompareFragment extends Fragment {
                 }
 
                 MessageUtil.makeToast(getActivity(), getString(R.string.wrong_message));
+                enableViews(true);
             }
         });
     }
@@ -160,6 +162,7 @@ public final class CompareFragment extends Fragment {
             makeSetlistsNetworkCall(user.getUserId(), 1, storedSetlists);
         } else {
             MessageUtil.makeToast(getActivity(), getString(R.string.unresolveable_userId_message));
+            enableViews(true);
         }
     }
 
@@ -170,6 +173,8 @@ public final class CompareFragment extends Fragment {
             } else {
                 MessageUtil.makeToast(getActivity(), getString(R.string.wrong_message));
             }
+
+            enableViews(true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -198,10 +203,12 @@ public final class CompareFragment extends Fragment {
                         makeSetlistsNetworkCall(userId, pageIndex + 1, storedSetlists);
                     } else {
                         user2Statistics = new UserStatistics(userId, storedSetlists);
+                        enableViews(true);
                         displayStats();
                     }
                 } else {
                     MessageUtil.makeToast(getActivity(), getString(R.string.no_setlist_data));
+                    enableViews(true);
                 }
             }
 
@@ -212,6 +219,7 @@ public final class CompareFragment extends Fragment {
                 }
 
                 MessageUtil.makeToast(getActivity(), getString(R.string.wrong_message));
+                enableViews(true);
             }
         });
     }
@@ -281,5 +289,10 @@ public final class CompareFragment extends Fragment {
 
     private void displayCommonVenues() {
         commonVenuesLabel.setText(textUtil.getListText(commonVenues, false));
+    }
+
+    private void enableViews(final boolean enable) {
+        user2IdText.setEnabled(enable);
+        submit.setEnabled(enable);
     }
 }
