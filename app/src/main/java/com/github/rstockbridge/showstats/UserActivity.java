@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,6 +33,7 @@ import retrofit2.Response;
 public final class UserActivity extends AppCompatActivity {
 
     private EditText userIdText;
+    private Button submit;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -39,7 +41,7 @@ public final class UserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user);
 
         userIdText = findViewById(R.id.edit_userId_text);
-        final Button submit = findViewById(R.id.submit_button);
+        submit = findViewById(R.id.submit_button);
 
         userIdText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -61,7 +63,7 @@ public final class UserActivity extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                submit.setEnabled(false);
+                enableViews(false);
                 makeUserNetworkCall(TextUtil.getText(userIdText));
             }
         });
@@ -84,6 +86,7 @@ public final class UserActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull final Call<User> call, @NonNull final Throwable t) {
                 MessageUtil.makeToast(UserActivity.this, getString(R.string.wrong_message));
+                enableViews(true);
             }
         });
     }
@@ -94,6 +97,7 @@ public final class UserActivity extends AppCompatActivity {
             makeSetlistsNetworkCall(user.getUserId(), 1, storedSetlists);
         } else {
             MessageUtil.makeToast(this, getString(R.string.unresolveable_userId_message));
+            enableViews(true);
         }
     }
 
@@ -104,6 +108,8 @@ public final class UserActivity extends AppCompatActivity {
             } else {
                 MessageUtil.makeToast(this, getString(R.string.wrong_message));
             }
+
+            enableViews(true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -131,16 +137,24 @@ public final class UserActivity extends AppCompatActivity {
 
                         final Intent intent = new Intent(UserActivity.this, TabbedActivity.class);
                         startActivity(intent);
+                        enableViews(true);
                     }
                 } else {
                     MessageUtil.makeToast(UserActivity.this, getString(R.string.no_setlist_data));
+                    enableViews(true);
                 }
             }
 
             @Override
             public void onFailure(@NonNull final Call<SetlistData> call, @NonNull final Throwable t) {
                 MessageUtil.makeToast(UserActivity.this, getString(R.string.wrong_message));
+                enableViews(true);
             }
         });
+    }
+
+    private void enableViews(final boolean enable) {
+        userIdText.setEnabled(enable);
+        submit.setEnabled(enable);
     }
 }
