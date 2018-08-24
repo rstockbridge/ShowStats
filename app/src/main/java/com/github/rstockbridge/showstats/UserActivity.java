@@ -33,6 +33,8 @@ import retrofit2.Response;
 public final class UserActivity extends AppCompatActivity {
 
     private EditText userIdText;
+
+    private Button clear;
     private Button submit;
 
     @Override
@@ -41,6 +43,7 @@ public final class UserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user);
 
         userIdText = findViewById(R.id.edit_userId_text);
+        clear = findViewById(R.id.clear_button);
         submit = findViewById(R.id.submit_button);
 
         userIdText.addTextChangedListener(new TextWatcher() {
@@ -51,12 +54,20 @@ public final class UserActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+                clear.setEnabled(s.length() > 0);
                 submit.setEnabled(s.length() > 0);
             }
 
             @Override
             public void afterTextChanged(final Editable s) {
                 //method intentionally left blank
+            }
+        });
+
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                userIdText.setText("");
             }
         });
 
@@ -155,6 +166,7 @@ public final class UserActivity extends AppCompatActivity {
 
     private void enableViews(final boolean enable) {
         userIdText.setEnabled(enable);
+        clear.setEnabled(enable);
         submit.setEnabled(enable);
     }
 }
