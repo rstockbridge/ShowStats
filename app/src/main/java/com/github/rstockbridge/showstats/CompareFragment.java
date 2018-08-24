@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import com.github.rstockbridge.showstats.api.SetlistfmService;
 import com.github.rstockbridge.showstats.api.models.Setlist;
 import com.github.rstockbridge.showstats.api.models.SetlistData;
 import com.github.rstockbridge.showstats.api.models.User;
+import com.github.rstockbridge.showstats.appmodels.Show;
 import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 import com.github.rstockbridge.showstats.ui.BarChartMakerUserTotalShows;
@@ -44,8 +46,8 @@ public final class CompareFragment extends Fragment {
     private UserStatistics user1Statistics;
 
     private List<String> commonArtists;
-    private List<String> commonShows;
     private List<String> commonVenues;
+    private List<Show> commonShows;
 
     private EditText user2IdText;
 
@@ -277,11 +279,28 @@ public final class CompareFragment extends Fragment {
     }
 
     private void calculateCommonShows(final UserStatistics user2Statistics) {
-        final Set<String> commonShowsAsSet = new HashSet<>(user1Statistics.getShows());
-        commonShowsAsSet.retainAll(user2Statistics.getShows());
+        commonShows = new ArrayList<>();
 
-        commonShows = new ArrayList<>(commonShowsAsSet);
-        Collections.sort(commonShows);
+        final List<Show> user1Shows = user1Statistics.getShows();
+        final List<Show> user2Shows = user2Statistics.getShows();
+
+        for (final Show user1Show : user1Shows) {
+            if (user2Shows.contains(user1Show)) {
+                final Show user2Show = user2Shows.get(user2Shows.indexOf(user1Show));
+                final Show commonShow = new Show(user1Show.getEventDate(), user1Show.getVenueName());
+
+                for (final String user1ArtistId : user1Show.getArtistIds()) {
+                    if (user2Show.getArtistIds().contains(user1ArtistId)) {
+                        final String user1Artist = user1Statistics.getArtistNameFromId(user1ArtistId);
+                        commonShow.addArtist(user1ArtistId, user1Artist);
+                    }
+                }
+
+                if (commonShow.getArtistIds().size() > 0) {
+                    commonShows.add(commonShow);
+                }
+            }
+        }
     }
 
     private void displayShowGaps(final UserStatistics user2Statistics) {
@@ -294,7 +313,7 @@ public final class CompareFragment extends Fragment {
     }
 
     private void displayCommonShows() {
-        commonShowsLabel.setText(textUtil.getListText(commonShows, false));
+        commonShowsLabel.setText(textUtil.getCommonShowsText(commonShows));
     }
 
     private void displayCommonVenues() {
