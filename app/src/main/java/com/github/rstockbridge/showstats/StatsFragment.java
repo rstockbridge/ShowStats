@@ -84,9 +84,9 @@ public final class StatsFragment extends Fragment {
     }
 
     private void displayArtistGaps() {
-        longestArtistGapArtistLabel.setText(textUtil.getArtistText(statistics.getLongestArtistGapArtists(), true));
+        longestArtistGapArtistLabel.setText(textUtil.getListText(statistics.getLongestArtistGapArtists(), true));
         longestArtistGapLabel.setText(textUtil.getGapText(R.string.longest, statistics.getLongestArtistGap()));
-        shortestArtistGapArtistLabel.setText(textUtil.getArtistText(statistics.getShortestArtistGapArtists(), true));
+        shortestArtistGapArtistLabel.setText(textUtil.getListText(statistics.getShortestArtistGapArtists(), true));
         shortestArtistGapLabel.setText(textUtil.getGapText(R.string.shortest, statistics.getShortestArtistGap()));
     }
 }

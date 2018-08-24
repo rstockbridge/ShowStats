@@ -41,34 +41,38 @@ public final class TextUtil {
     }
 
     @NonNull
-    public Spanned getArtistText(@NonNull final List<String> artists, boolean useHeader) {
-        String partialText;
+    public Spanned getListText(@NonNull final List<String> list, boolean useArtistHeader) {
+        String partialText = "";
 
-        if (artists.size() > 0) {
-            partialText = TextUtil.formatArtistsText(artists);
+        if (list.size() > 0) {
+            if (useArtistHeader && list.size() > 1) {
+                partialText += "<br>";
+            }
+
+            partialText += TextUtil.formatList(list);
         } else {
             partialText = "n/a";
         }
 
-        if (useHeader) {
-            return TextUtil.fromHtml(resources.getQuantityString(R.plurals.artist_plural, artists.size(), partialText));
+        if (useArtistHeader) {
+            return TextUtil.fromHtml(resources.getQuantityString(R.plurals.artist_plural, list.size(), partialText));
         } else {
             return TextUtil.fromHtml(partialText);
         }
     }
 
     @NonNull
-    private static String formatArtistsText(@NonNull final List<String> artists) {
-        if (artists.size() == 1) {
-            return artists.get(0);
+    private static String formatList(@NonNull final List<String> list) {
+        if (list.size() == 1) {
+            return list.get(0);
         } else {
             final StringBuilder result = new StringBuilder();
 
-            for (int i = 0; i < artists.size() - 1; i++) {
-                final String artist = artists.get(i);
-                result.append(artist).append("<br>");
+            for (int i = 0; i < list.size() - 1; i++) {
+                final String item = list.get(i);
+                result.append(item).append("<br>");
             }
-            result.append(artists.get(artists.size() - 1));
+            result.append(list.get(list.size() - 1));
 
             return result.toString();
         }
