@@ -272,14 +272,14 @@ public final class CompareFragment extends Fragment {
     }
 
     private void displayCommonArtists() {
-        commonArtistsLabel.setText(textUtil.getArtistText(commonArtists, false));
+        commonArtistsLabel.setText(textUtil.getListText(commonArtists, false));
     }
 
     private void displayCommonShows() {
-        commonShowsLabel.setText(textUtil.getArtistText(commonShows, false));
+        commonShowsLabel.setText(textUtil.getListText(commonShows, false));
     }
 
     private void displayCommonVenues() {
-        commonVenuesLabel.setText(textUtil.getArtistText(commonVenues, false));
+        commonVenuesLabel.setText(textUtil.getListText(commonVenues, false));
     }
 }
