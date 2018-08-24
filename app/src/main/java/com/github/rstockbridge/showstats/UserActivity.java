@@ -127,7 +127,7 @@ public final class UserActivity extends AppCompatActivity {
                     if (pageIndex < setlistData.getNumberOfPages()) {
                         makeSetlistsNetworkCall(userId, pageIndex + 1, storedSetlists);
                     } else {
-                        User1StatisticsHolder.getSharedInstance().initialize(new UserStatistics(userId, storedSetlists));
+                        User1StatisticsHolder.getSharedInstance().setStatistics(new UserStatistics(userId, storedSetlists));
 
                         final Intent intent = new Intent(UserActivity.this, TabbedActivity.class);
                         startActivity(intent);
