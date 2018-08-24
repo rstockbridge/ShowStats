@@ -1,12 +1,10 @@
 package com.github.rstockbridge.showstats.api.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import org.threeten.bp.LocalDate;
 
-public final class Setlist implements Parcelable {
+public final class Setlist {
 
     @NonNull
     private String eventDate;
@@ -16,36 +14,6 @@ public final class Setlist implements Parcelable {
 
     @NonNull
     private SetlistVenue venue;
-
-    private Setlist(final Parcel in) {
-        eventDate = in.readString();
-        artist = in.readParcelable(SetlistArtist.class.getClassLoader());
-        venue = in.readParcelable(SetlistVenue.class.getClassLoader());
-    }
-
-    public static final Creator<Setlist> CREATOR = new Creator<Setlist>() {
-        @Override
-        public Setlist createFromParcel(final Parcel in) {
-            return new Setlist(in);
-        }
-
-        @Override
-        public Setlist[] newArray(final int size) {
-            return new Setlist[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(eventDate);
-        dest.writeParcelable(artist, flags);
-        dest.writeParcelable(venue, flags);
-    }
 
     @NonNull
     public LocalDate getEventDate() {

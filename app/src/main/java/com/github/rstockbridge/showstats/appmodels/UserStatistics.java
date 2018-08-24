@@ -17,13 +17,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 
-public final class UserStatistics implements Parcelable {
+public final class UserStatistics {
 
     private static final int NUMBER_OF_MONTHS = 12;
 
@@ -57,16 +59,16 @@ public final class UserStatistics implements Parcelable {
     private Map<String, Integer> topVenueVisits = new HashMap<>();
 
     @NonNull
-    private List<String> artistIds = new ArrayList<>();
+    private Set<String> artistIds = new HashSet<>();
 
     @NonNull
     private Map<String, String> artistIdNameMap = new HashMap<>();
 
     @NonNull
-    private List<String> shows = new ArrayList<>();
+    private Set<String> shows = new HashSet<>();
 
     @NonNull
-    private List<String> venues = new ArrayList<>();
+    private Set<String> venues = new HashSet<>();
 
     private int numberOfShows;
 
@@ -131,7 +133,7 @@ public final class UserStatistics implements Parcelable {
     }
 
     @NonNull
-    public List<String> getArtistIds() {
+    public Set<String> getArtistIds() {
         return artistIds;
     }
 
@@ -141,12 +143,12 @@ public final class UserStatistics implements Parcelable {
     }
 
     @NonNull
-    public List<String> getShows() {
+    public Set<String> getShows() {
         return shows;
     }
 
     @NonNull
-    public List<String> getVenues() {
+    public Set<String> getVenues() {
         return venues;
     }
 
@@ -323,11 +325,7 @@ public final class UserStatistics implements Parcelable {
 
     private void constructArtistIds() {
         for (final Setlist setlist : setlists) {
-            final String id = setlist.getArtist().getMbid();
-
-            if (!artistIds.contains(id)) {
-                artistIds.add(id);
-            }
+            artistIds.add(setlist.getArtist().getMbid());
         }
     }
 
@@ -339,105 +337,17 @@ public final class UserStatistics implements Parcelable {
 
     private void constructShows() {
         for (final Setlist setlist : setlists) {
-            final String venueName = setlist.getVenue().getName();
-            final String date = setlist.getEventDate().toString();
-            final String show = date + ", " + venueName;
-
-            if (!shows.contains(show)) {
-                shows.add(show);
-            }
+            shows.add(setlist.getEventDate().toString()+ ", " + setlist.getVenue().getName());
         }
     }
 
     private void constructVenues() {
         for (final Setlist setlist : setlists) {
-            final String venueName = setlist.getVenue().getName();
-
-            if (!venues.contains(venueName)) {
-                venues.add(venueName);
-            }
+            venues.add(setlist.getVenue().getName());
         }
     }
 
     private void calculateNumberOfShows() {
         numberOfShows = shows.size();
     }
-
-
-    // Parcelable methods
-
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.userId);
-        dest.writeIntArray(this.distributionByMonth);
-        dest.writeValue(this.longestShowGap);
-        dest.writeValue(this.shortestShowGap);
-        dest.writeStringList(this.longestArtistGapArtists);
-        dest.writeStringList(this.shortestArtistGapArtists);
-        dest.writeValue(this.longestArtistGap);
-        dest.writeValue(this.shortestArtistGap);
-        dest.writeValue(this.averageShowGap);
-        dest.writeInt(this.topVenueVisits.size());
-        for (Map.Entry<String, Integer> entry : this.topVenueVisits.entrySet()) {
-            dest.writeString(entry.getKey());
-            dest.writeValue(entry.getValue());
-        }
-        dest.writeStringList(this.artistIds);
-        dest.writeInt(this.artistIdNameMap.size());
-        for (Map.Entry<String, String> entry : this.artistIdNameMap.entrySet()) {
-            dest.writeString(entry.getKey());
-            dest.writeString(entry.getValue());
-        }
-        dest.writeStringList(this.shows);
-        dest.writeStringList(this.venues);
-        dest.writeInt(this.numberOfShows);
-    }
-
-    private UserStatistics(Parcel in) {
-        this.userId = in.readString();
-        this.distributionByMonth = in.createIntArray();
-        this.longestShowGap = (Integer) in.readValue(Integer.class.getClassLoader());
-        this.shortestShowGap = (Integer) in.readValue(Integer.class.getClassLoader());
-        this.longestArtistGapArtists = in.createStringArrayList();
-        this.shortestArtistGapArtists = in.createStringArrayList();
-        this.longestArtistGap = (Integer) in.readValue(Integer.class.getClassLoader());
-        this.shortestArtistGap = (Integer) in.readValue(Integer.class.getClassLoader());
-        this.averageShowGap = (Integer) in.readValue(Integer.class.getClassLoader());
-        int topVenueVisitsSize = in.readInt();
-        this.topVenueVisits = new HashMap<>(topVenueVisitsSize);
-        for (int i = 0; i < topVenueVisitsSize; i++) {
-            String key = in.readString();
-            Integer value = (Integer) in.readValue(Integer.class.getClassLoader());
-            this.topVenueVisits.put(key, value);
-        }
-        this.artistIds = in.createStringArrayList();
-        int artistIdNameMapSize = in.readInt();
-        this.artistIdNameMap = new HashMap<>(artistIdNameMapSize);
-        for (int i = 0; i < artistIdNameMapSize; i++) {
-            String key = in.readString();
-            String value = in.readString();
-            this.artistIdNameMap.put(key, value);
-        }
-        this.shows = in.createStringArrayList();
-        this.venues = in.createStringArrayList();
-        this.numberOfShows = in.readInt();
-    }
-
-    public static final Creator<UserStatistics> CREATOR = new Creator<UserStatistics>() {
-        @Override
-        public UserStatistics createFromParcel(Parcel source) {
-            return new UserStatistics(source);
-        }
-
-        @Override
-        public UserStatistics[] newArray(int size) {
-            return new UserStatistics[size];
-        }
-    };
 }
