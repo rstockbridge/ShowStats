@@ -48,6 +48,8 @@ public final class CompareFragment extends Fragment {
     private List<String> commonVenues;
 
     private EditText user2IdText;
+
+    private Button clear;
     private Button submit;
 
     private ScrollView scrollview;
@@ -82,6 +84,7 @@ public final class CompareFragment extends Fragment {
 
     private void initializeUI(@NonNull final View v) {
         user2IdText = v.findViewById(R.id.edit_user2_userId_text);
+        clear = v.findViewById(R.id.clear_button);
         submit = v.findViewById(R.id.submit_button);
 
         user2IdText.addTextChangedListener(new TextWatcher() {
@@ -92,12 +95,20 @@ public final class CompareFragment extends Fragment {
 
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+                clear.setEnabled(s.length() > 0);
                 submit.setEnabled(s.length() > 0);
             }
 
             @Override
             public void afterTextChanged(final Editable s) {
                 //method intentionally left blank
+            }
+        });
+
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                user2IdText.setText("");
             }
         });
 
@@ -293,6 +304,7 @@ public final class CompareFragment extends Fragment {
 
     private void enableViews(final boolean enable) {
         user2IdText.setEnabled(enable);
+        clear.setEnabled(enable);
         submit.setEnabled(enable);
     }
 }
