@@ -21,6 +21,8 @@
     <string name="artists_in_common">Artists In Common</string>
     <string name="venues_in_common">Venues In Common</string>
     <string name="shows_in_common">Shows In Common</string>
+    <string name="date">&lt;b>Date:&lt;/b> %s</string>
+    <string name="venue">&lt;b>Venue:&lt;/b> %s</string>
     <plurals name="day_plural" >
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
