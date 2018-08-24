@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 
 import java.util.Objects;
 
-public final class SetlistVenue implements Parcelable {
+public final class SetlistVenue {
 
     @NonNull
     private String name;
@@ -14,28 +14,6 @@ public final class SetlistVenue implements Parcelable {
     private SetlistVenue(final Parcel in) {
         name = in.readString();
     }
-
-    @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(name);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<SetlistVenue> CREATOR = new Creator<SetlistVenue>() {
-        @Override
-        public SetlistVenue createFromParcel(final Parcel in) {
-            return new SetlistVenue(in);
-        }
-
-        @Override
-        public SetlistVenue[] newArray(final int size) {
-            return new SetlistVenue[size];
-        }
-    };
 
     @NonNull
     public String getName() {

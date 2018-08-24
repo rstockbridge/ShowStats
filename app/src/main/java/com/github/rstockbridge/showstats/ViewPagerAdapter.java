@@ -13,24 +13,17 @@ import java.util.ArrayList;
 
 public final class ViewPagerAdapter extends FragmentPagerAdapter {
 
-    @NonNull
-    private UserStatistics statistics;
-
-    ViewPagerAdapter(
-            @NonNull final FragmentManager fm,
-            @NonNull final UserStatistics statistics) {
+    ViewPagerAdapter(@NonNull final FragmentManager fm) {
         super(fm);
-
-        this.statistics = statistics;
     }
 
     @Override
     public Fragment getItem(final int position) {
         switch (position) {
             case 0:
-                return StatsFragment.newInstance(statistics);
+                return new StatsFragment();
             case 1:
-                return CompareFragment.newInstance(statistics);
+                return new CompareFragment();
         }
 
         throw new IllegalStateException("This line should not be reached");

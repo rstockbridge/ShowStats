@@ -20,6 +20,7 @@ import com.github.rstockbridge.showstats.api.SetlistfmService;
 import com.github.rstockbridge.showstats.api.models.Setlist;
 import com.github.rstockbridge.showstats.api.models.SetlistData;
 import com.github.rstockbridge.showstats.api.models.User;
+import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 import com.github.rstockbridge.showstats.ui.BarChartMakerUserTotalShows;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -37,18 +39,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public final class CompareFragment extends Fragment {
-
-    private static final String ARG_USER1_STATISTICS = "user1Statistics";
-
-    @NonNull
-    public static CompareFragment newInstance(@NonNull final UserStatistics user1Statistics) {
-        final Bundle args = new Bundle();
-        args.putParcelable(ARG_USER1_STATISTICS, user1Statistics);
-
-        final CompareFragment fragment = new CompareFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     private UserStatistics user1Statistics;
     private UserStatistics user2Statistics;
@@ -84,7 +74,7 @@ public final class CompareFragment extends Fragment {
 
         textUtil = new TextUtil(getResources());
 
-        user1Statistics = getArguments().getParcelable(ARG_USER1_STATISTICS);
+        user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
 
         return v;
     }
@@ -250,38 +240,30 @@ public final class CompareFragment extends Fragment {
     private void calculateCommonArtists() {
         commonArtists = new ArrayList<>();
 
-        for (final String user1ArtistId : user1Statistics.getArtistIds()) {
-            if (user2Statistics.getArtistIds().contains(user1ArtistId)) {
-                commonArtists.add(user1Statistics.getArtistNameFromId(user1ArtistId));
-            }
+        final Set<String> commonArtistIds = user1Statistics.getArtistIds();
+        commonArtistIds.retainAll(user2Statistics.getArtistIds());
 
-            Collections.sort(commonArtists);
+        for (final String commonArtistId : commonArtistIds) {
+            commonArtists.add(user1Statistics.getArtistNameFromId(commonArtistId));
         }
+
+        Collections.sort(commonArtists);
     }
 
     private void calculateCommonVenues() {
-        commonVenues = new ArrayList<>();
+        final Set<String> commonVenuesAsSet = user1Statistics.getVenues();
+        commonVenuesAsSet.retainAll(user2Statistics.getVenues());
 
-        for (final String user1Venue : user1Statistics.getVenues()) {
-            if (user2Statistics.getVenues().contains(user1Venue)) {
-                commonVenues.add(user1Venue);
-            }
-
-            Collections.sort(commonVenues);
-        }
+        commonVenues = new ArrayList<>(commonVenuesAsSet);
+        Collections.sort(commonVenues);
     }
 
     private void calculateCommonShows() {
-        commonShows = new ArrayList<>();
+        final Set<String> commonShowsAsSet = user1Statistics.getShows();
+        commonShowsAsSet.retainAll(user2Statistics.getShows());
 
-        for (final String show : user1Statistics.getShows()) {
-
-            if (user2Statistics.getShows().contains(show)) {
-                commonShows.add(show);
-            }
-
-            Collections.sort(commonShows);
-        }
+        commonShows = new ArrayList<>(commonShowsAsSet);
+        Collections.sort(commonShows);
     }
 
     private void displayShowGaps() {
@@ -290,14 +272,14 @@ public final class CompareFragment extends Fragment {
     }
 
     private void displayCommonArtists() {
-        commonArtistsLabel.setText(textUtil.getArtistText(commonArtists, false));
+        commonArtistsLabel.setText(textUtil.getListText(commonArtists, false));
     }
 
     private void displayCommonShows() {
-        commonShowsLabel.setText(textUtil.getArtistText(commonShows, false));
+        commonShowsLabel.setText(textUtil.getListText(commonShows, false));
     }
 
     private void displayCommonVenues() {
-        commonVenuesLabel.setText(textUtil.getArtistText(commonVenues, false));
+        commonVenuesLabel.setText(textUtil.getListText(commonVenues, false));
     }
 }
