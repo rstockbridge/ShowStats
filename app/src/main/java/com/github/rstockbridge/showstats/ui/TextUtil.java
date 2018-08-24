@@ -6,14 +6,20 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.text.Html;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.widget.EditText;
 
 import com.github.rstockbridge.showstats.R;
+import com.github.rstockbridge.showstats.appmodels.Show;
 
 import java.util.List;
 
 public final class TextUtil {
+
+    private static final String notApplicable = "n/a";
+    private static final String newlineHtml = "<br>";
 
     @NonNull
     private Resources resources;
@@ -34,10 +40,10 @@ public final class TextUtil {
         if (gap != null) {
             partialText = resources.getQuantityString(R.plurals.day_plural, gap, gap);
         } else {
-            partialText = "n/a";
+            partialText = notApplicable;
         }
 
-        return TextUtil.fromHtml(resources.getString(id, partialText));
+        return fromHtml(resources.getString(id, partialText));
     }
 
     @NonNull
@@ -46,18 +52,18 @@ public final class TextUtil {
 
         if (list.size() > 0) {
             if (useArtistHeader && list.size() > 1) {
-                partialText += "<br>";
+                partialText += newlineHtml;
             }
 
             partialText += TextUtil.formatList(list);
         } else {
-            partialText = "n/a";
+            partialText = notApplicable;
         }
 
         if (useArtistHeader) {
-            return TextUtil.fromHtml(resources.getQuantityString(R.plurals.artist_plural, list.size(), partialText));
+            return fromHtml(resources.getQuantityString(R.plurals.artist_plural, list.size(), partialText));
         } else {
-            return TextUtil.fromHtml(partialText);
+            return fromHtml(partialText);
         }
     }
 
@@ -70,7 +76,7 @@ public final class TextUtil {
 
             for (int i = 0; i < list.size() - 1; i++) {
                 final String item = list.get(i);
-                result.append(item).append("<br>");
+                result.append(item).append(newlineHtml);
             }
             result.append(list.get(list.size() - 1));
 
@@ -85,10 +91,39 @@ public final class TextUtil {
         if (gap != null) {
             partialText = resources.getQuantityString(R.plurals.day_plural, gap, gap);
         } else {
-            partialText = "n/a";
+            partialText = notApplicable;
         }
 
-        return TextUtil.fromHtml(resources.getString(R.string.user, user, partialText));
+        return fromHtml(resources.getString(R.string.user, user, partialText));
+    }
+
+    @NonNull
+    public Spanned getCommonShowsText(@NonNull final List<Show> shows) {
+        final SpannableStringBuilder resultBuilder = new SpannableStringBuilder();
+
+        for (int i = 0; i < shows.size() - 1; i++) {
+            final Show show = shows.get(i);
+
+            final Spanned eventDate = TextUtil.fromHtml(resources.getString(R.string.date, show.getEventDate() + newlineHtml));
+            final Spanned venueName = TextUtil.fromHtml(resources.getString(R.string.venue, show.getVenueName() + newlineHtml));
+            final Spanned artists = getListText(show.getArtistNames(), true);
+
+            resultBuilder.append(TextUtils.concat(eventDate, venueName, artists));
+
+            if (shows.size() > 1) {
+                resultBuilder.append(TextUtils.concat(fromHtml(newlineHtml), fromHtml(newlineHtml)));
+            }
+        }
+
+        final Show show = shows.get(shows.size() - 1);
+
+        final Spanned eventDate = TextUtil.fromHtml(resources.getString(R.string.date, show.getEventDate() + newlineHtml));
+        final Spanned venueName = TextUtil.fromHtml(resources.getString(R.string.venue, show.getVenueName() + newlineHtml));
+        final Spanned artists = getListText(show.getArtistNames(), true);
+
+        resultBuilder.append(TextUtils.concat(eventDate, venueName, artists));
+
+        return resultBuilder;
     }
 
     @SuppressWarnings("deprecation")
