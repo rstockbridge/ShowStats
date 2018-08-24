@@ -58,6 +58,9 @@ public final class RetrofitInstance {
         return httpClient
                 .addInterceptor(httpLoggingInterceptor)
                 .addInterceptor(headerInterceptor)
+                .connectTimeout(200, TimeUnit.SECONDS)
+                .readTimeout(200, TimeUnit.SECONDS)
+                .writeTimeout(200, TimeUnit.SECONDS)
                 .build();
     }
 }

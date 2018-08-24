@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
-public final class SetlistArtist implements Parcelable {
+public final class SetlistArtist {
 
     @NonNull
     private String mbid;
@@ -16,30 +16,6 @@ public final class SetlistArtist implements Parcelable {
         name = in.readString();
         mbid = in.readString();
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(final Parcel dest, final int flags) {
-        dest.writeString(name);
-        dest.writeString(mbid);
-    }
-
-    public static final Creator<SetlistArtist> CREATOR = new Creator<SetlistArtist>() {
-        @Override
-        public SetlistArtist createFromParcel(final Parcel in) {
-            return new SetlistArtist(in);
-        }
-
-        @Override
-        public SetlistArtist[] newArray(final int size) {
-            return new SetlistArtist[size];
-        }
-    };
-
 
     @NonNull
     public String getMbid() {

@@ -1,5 +1,6 @@
 package com.github.rstockbridge.showstats;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +16,7 @@ import com.github.rstockbridge.showstats.api.SetlistfmService;
 import com.github.rstockbridge.showstats.api.models.Setlist;
 import com.github.rstockbridge.showstats.api.models.SetlistData;
 import com.github.rstockbridge.showstats.api.models.User;
+import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 import com.github.rstockbridge.showstats.ui.TextUtil;
@@ -125,7 +127,10 @@ public final class UserActivity extends AppCompatActivity {
                     if (pageIndex < setlistData.getNumberOfPages()) {
                         makeSetlistsNetworkCall(userId, pageIndex + 1, storedSetlists);
                     } else {
-                        startActivity(TabbedActivity.newIntent(UserActivity.this, new UserStatistics(userId, storedSetlists)));
+                        User1StatisticsHolder.getSharedInstance().initialize(new UserStatistics(userId, storedSetlists));
+
+                        final Intent intent = new Intent(UserActivity.this, TabbedActivity.class);
+                        startActivity(intent);
                     }
                 } else {
                     MessageUtil.makeToast(UserActivity.this, getString(R.string.no_setlist_data));

@@ -11,24 +11,13 @@ import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
+import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 import com.github.rstockbridge.showstats.ui.BarChartMakerShowDistribution;
 import com.github.rstockbridge.showstats.ui.PieChartMaker;
 import com.github.rstockbridge.showstats.ui.TextUtil;
 
 public final class StatsFragment extends Fragment {
-
-    private static final String ARG_USER_STATISTICS = "statistics";
-
-    @NonNull
-    public static StatsFragment newInstance(@NonNull final UserStatistics statistics) {
-        final Bundle args = new Bundle();
-        args.putParcelable(ARG_USER_STATISTICS, statistics);
-
-        final StatsFragment fragment = new StatsFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     private UserStatistics statistics;
 
@@ -57,7 +46,7 @@ public final class StatsFragment extends Fragment {
 
         textUtil = new TextUtil(getResources());
 
-        statistics = getArguments().getParcelable(ARG_USER_STATISTICS);
+        statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
 
         displayStats();
 
