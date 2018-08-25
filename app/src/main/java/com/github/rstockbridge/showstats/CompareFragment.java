@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +22,7 @@ import com.github.rstockbridge.showstats.api.models.SetlistData;
 import com.github.rstockbridge.showstats.api.models.User;
 import com.github.rstockbridge.showstats.appmodels.Show;
 import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
+import com.github.rstockbridge.showstats.appmodels.User2StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 import com.github.rstockbridge.showstats.ui.BarChartMakerUserTotalShows;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
@@ -42,8 +42,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public final class CompareFragment extends Fragment {
-
-    private UserStatistics user1Statistics;
 
     private List<String> commonArtists;
     private List<String> commonVenues;
@@ -79,7 +77,12 @@ public final class CompareFragment extends Fragment {
 
         textUtil = new TextUtil(getResources());
 
-        user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
+        final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
+        final UserStatistics user2Statistics = User2StatisticsHolder.getSharedInstance().getStatistics();
+
+        if (user1Statistics != null && user2Statistics != null) {
+            displayStats(user1Statistics, user2Statistics);
+        }
 
         return v;
     }
@@ -119,6 +122,8 @@ public final class CompareFragment extends Fragment {
             public void onClick(final View v) {
                 enableViews(false);
                 scrollview.setVisibility(View.INVISIBLE);
+
+                final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
 
                 if (TextUtil.getText(user2IdText).equals(user1Statistics.getUserId())) {
                     MessageUtil.makeToast(getActivity(), getString(R.string.same_user));
@@ -216,7 +221,12 @@ public final class CompareFragment extends Fragment {
                         makeSetlistsNetworkCall(userId, pageIndex + 1, storedSetlists);
                     } else {
                         enableViews(true);
-                        displayStats(new UserStatistics(userId, storedSetlists));
+                        final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
+
+                        User2StatisticsHolder.getSharedInstance().setStatistics(new UserStatistics(userId, storedSetlists));
+                        final UserStatistics user2Statistics = User2StatisticsHolder.getSharedInstance().getStatistics();
+
+                        displayStats(user1Statistics, user2Statistics);
                     }
                 } else {
                     MessageUtil.makeToast(getActivity(), getString(R.string.no_setlist_data));
@@ -236,28 +246,28 @@ public final class CompareFragment extends Fragment {
         });
     }
 
-    private void displayStats(final UserStatistics user2Statistics) {
+    private void displayStats(@NonNull final UserStatistics user1Statistics, @NonNull final UserStatistics user2Statistics) {
         scrollview.setVisibility(View.VISIBLE);
 
         final BarChartMakerUserTotalShows barChartMaker = new BarChartMakerUserTotalShows(
                 barChart, user1Statistics, user2Statistics);
         barChartMaker.displayBarChart();
 
-        calculateCommonStatistics(user2Statistics);
+        calculateCommonStatistics(user1Statistics, user2Statistics);
 
         displayCommonArtists();
         displayCommonVenues();
         displayCommonShows();
-        displayShowGaps(user2Statistics);
+        displayShowGaps(user1Statistics, user2Statistics);
     }
 
-    private void calculateCommonStatistics(final UserStatistics user2Statistics) {
-        calculateCommonArtists(user2Statistics);
-        calculateCommonVenues(user2Statistics);
-        calculateCommonShows(user2Statistics);
+    private void calculateCommonStatistics(@NonNull final UserStatistics user1Statistics, @NonNull final UserStatistics user2Statistics) {
+        calculateCommonArtists(user1Statistics, user2Statistics);
+        calculateCommonVenues(user1Statistics, user2Statistics);
+        calculateCommonShows(user1Statistics, user2Statistics);
     }
 
-    private void calculateCommonArtists(final UserStatistics user2Statistics) {
+    private void calculateCommonArtists(@NonNull final UserStatistics user1Statistics, @NonNull final UserStatistics user2Statistics) {
         commonArtists = new ArrayList<>();
 
         final Set<String> commonArtistIds = new HashSet<>(user1Statistics.getArtistIds());
@@ -270,7 +280,7 @@ public final class CompareFragment extends Fragment {
         Collections.sort(commonArtists);
     }
 
-    private void calculateCommonVenues(final UserStatistics user2Statistics) {
+    private void calculateCommonVenues(@NonNull final UserStatistics user1Statistics, @NonNull final UserStatistics user2Statistics) {
         final Set<String> commonVenuesAsSet = new HashSet<>(user1Statistics.getVenues());
         commonVenuesAsSet.retainAll(user2Statistics.getVenues());
 
@@ -278,7 +288,7 @@ public final class CompareFragment extends Fragment {
         Collections.sort(commonVenues);
     }
 
-    private void calculateCommonShows(final UserStatistics user2Statistics) {
+    private void calculateCommonShows(@NonNull final UserStatistics user1Statistics, @NonNull final UserStatistics user2Statistics) {
         commonShows = new ArrayList<>();
 
         final List<Show> user1Shows = user1Statistics.getShows();
@@ -303,7 +313,7 @@ public final class CompareFragment extends Fragment {
         }
     }
 
-    private void displayShowGaps(final UserStatistics user2Statistics) {
+    private void displayShowGaps(@NonNull final UserStatistics user1Statistics, @NonNull final UserStatistics user2Statistics) {
         averageShowGapLabel1.setText(textUtil.getUserGapText(user1Statistics.getUserId(), user1Statistics.getAverageShowGap()));
         averageShowGapLabel2.setText(textUtil.getUserGapText(user2Statistics.getUserId(), user2Statistics.getAverageShowGap()));
     }
