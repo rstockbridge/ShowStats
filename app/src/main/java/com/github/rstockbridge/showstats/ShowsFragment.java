@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
+import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 
 public final class ShowsFragment extends Fragment {
 
@@ -26,8 +27,12 @@ public final class ShowsFragment extends Fragment {
         final RecyclerView recyclerView = v.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        final RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(), User1StatisticsHolder.getSharedInstance().getStatistics().getShows());
-        recyclerView.setAdapter(adapter);
+        final UserStatistics statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
+
+        if (statistics != null) {
+            final RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(), statistics.getShows());
+            recyclerView.setAdapter(adapter);
+        }
 
         return v;
     }
