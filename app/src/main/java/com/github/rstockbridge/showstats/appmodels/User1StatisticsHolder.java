@@ -3,7 +3,7 @@ package com.github.rstockbridge.showstats.appmodels;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-public class User1StatisticsHolder {
+public final class User1StatisticsHolder {
 
     @Nullable
     private static User1StatisticsHolder user1StatisticsHolder;
