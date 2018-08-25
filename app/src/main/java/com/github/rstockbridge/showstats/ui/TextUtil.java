@@ -104,8 +104,8 @@ public final class TextUtil {
         for (int i = 0; i < shows.size() - 1; i++) {
             final Show show = shows.get(i);
 
-            final Spanned eventDate = TextUtil.fromHtml(resources.getString(R.string.date, show.getEventDate() + newlineHtml));
-            final Spanned venueName = TextUtil.fromHtml(resources.getString(R.string.venue, show.getVenueName() + newlineHtml));
+            final Spanned eventDate = getDateText(show.getEventDate(), true);
+            final Spanned venueName = getVenueText(show.getVenueName(), true);
             final Spanned artists = getListText(show.getArtistNames(), true);
 
             resultBuilder.append(TextUtils.concat(eventDate, venueName, artists));
@@ -117,13 +117,35 @@ public final class TextUtil {
 
         final Show show = shows.get(shows.size() - 1);
 
-        final Spanned eventDate = TextUtil.fromHtml(resources.getString(R.string.date, show.getEventDate() + newlineHtml));
-        final Spanned venueName = TextUtil.fromHtml(resources.getString(R.string.venue, show.getVenueName() + newlineHtml));
+        final Spanned eventDate = getDateText(show.getEventDate(), true);
+        final Spanned venueName = getVenueText(show.getVenueName(), true);
         final Spanned artists = getListText(show.getArtistNames(), true);
 
         resultBuilder.append(TextUtils.concat(eventDate, venueName, artists));
 
         return resultBuilder;
+    }
+
+    @NonNull
+    public Spanned getDateText(@NonNull final String date, final boolean useNewline) {
+        String partialText = resources.getString(R.string.date, date);
+
+        if (useNewline) {
+            partialText += newlineHtml;
+        }
+
+        return fromHtml(partialText);
+    }
+
+    @NonNull
+    public Spanned getVenueText(@NonNull final String venue, final boolean useNewline) {
+        String partialText = resources.getString(R.string.venue, venue);
+
+        if (useNewline) {
+            partialText += newlineHtml;
+        }
+
+        return fromHtml(partialText);
     }
 
     @SuppressWarnings("deprecation")
