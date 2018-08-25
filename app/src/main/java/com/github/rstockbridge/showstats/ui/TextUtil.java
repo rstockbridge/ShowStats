@@ -99,10 +99,24 @@ public final class TextUtil {
 
     @NonNull
     public Spanned getCommonShowsText(@NonNull final List<Show> shows) {
-        final SpannableStringBuilder resultBuilder = new SpannableStringBuilder();
+        if(shows.size() > 0) {
+            final SpannableStringBuilder resultBuilder = new SpannableStringBuilder();
 
-        for (int i = 0; i < shows.size() - 1; i++) {
-            final Show show = shows.get(i);
+            for (int i = 0; i < shows.size() - 1; i++) {
+                final Show show = shows.get(i);
+
+                final Spanned eventDate = getDateText(show.getEventDate(), true);
+                final Spanned venueName = getVenueText(show.getVenueName(), true);
+                final Spanned artists = getListText(show.getArtistNames(), true);
+
+                resultBuilder.append(TextUtils.concat(eventDate, venueName, artists));
+
+                if (shows.size() > 1) {
+                    resultBuilder.append(TextUtils.concat(fromHtml(newlineHtml), fromHtml(newlineHtml)));
+                }
+            }
+
+            final Show show = shows.get(shows.size() - 1);
 
             final Spanned eventDate = getDateText(show.getEventDate(), true);
             final Spanned venueName = getVenueText(show.getVenueName(), true);
@@ -110,20 +124,10 @@ public final class TextUtil {
 
             resultBuilder.append(TextUtils.concat(eventDate, venueName, artists));
 
-            if (shows.size() > 1) {
-                resultBuilder.append(TextUtils.concat(fromHtml(newlineHtml), fromHtml(newlineHtml)));
-            }
+            return resultBuilder;
+        } else {
+            return fromHtml(notApplicable);
         }
-
-        final Show show = shows.get(shows.size() - 1);
-
-        final Spanned eventDate = getDateText(show.getEventDate(), true);
-        final Spanned venueName = getVenueText(show.getVenueName(), true);
-        final Spanned artists = getListText(show.getArtistNames(), true);
-
-        resultBuilder.append(TextUtils.concat(eventDate, venueName, artists));
-
-        return resultBuilder;
     }
 
     @NonNull
