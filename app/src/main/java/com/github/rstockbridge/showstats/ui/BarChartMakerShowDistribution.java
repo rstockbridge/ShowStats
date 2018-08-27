@@ -119,7 +119,7 @@ public final class BarChartMakerShowDistribution {
         leftYAxis.setDrawAxisLine(false);
         leftYAxis.setDrawGridLines(false);
 
-        rightYAxis.setAxisMaximum(getBarData().getYMax() + 2);
+        rightYAxis.setAxisMaximum(getBarData().getYMax());
         rightYAxis.setEnabled(false);
     }
 }

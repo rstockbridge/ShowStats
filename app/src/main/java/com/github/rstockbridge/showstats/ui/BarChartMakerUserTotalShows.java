@@ -53,14 +53,18 @@ public final class BarChartMakerUserTotalShows {
     }
 
     public void displayBarChart() {
-        barChart.setData(getBarData());
         barChart.setTouchEnabled(false);
         barChart.setFitBars(true);
+
         barChart.getLegend().setEnabled(false);
         barChart.getDescription().setEnabled(false);
+        barChart.setExtraRightOffset(30f);
 
         configureXAxis();
         configureYAxis();
+
+        // must come after configureXAxis() for chart to fit correctly horizontally
+        barChart.setData(getBarData());
 
         barChart.invalidate(); // refresh
     }
