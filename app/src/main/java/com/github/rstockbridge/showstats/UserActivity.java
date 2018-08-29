@@ -10,6 +10,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import com.github.rstockbridge.showstats.api.RetrofitInstance;
 import com.github.rstockbridge.showstats.api.SetlistfmService;
@@ -36,6 +37,8 @@ public final class UserActivity extends AppCompatActivity {
     private Button clear;
     private Button submit;
 
+    private ProgressBar progressBar;
+
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +51,7 @@ public final class UserActivity extends AppCompatActivity {
         userIdText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
-                // method intentionally left blank
+                // this method intentionally left blank
             }
 
             @Override
@@ -59,7 +62,7 @@ public final class UserActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(final Editable s) {
-                //method intentionally left blank
+                // this method intentionally left blank
             }
         });
 
@@ -73,10 +76,12 @@ public final class UserActivity extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                enableViews(false);
+                setViewsForInProgress();
                 makeUserNetworkCall(TextUtil.getText(userIdText));
             }
         });
+
+        progressBar = findViewById(R.id.progress_bar);
     }
 
     private void makeUserNetworkCall(@NonNull final String userId) {
@@ -95,8 +100,8 @@ public final class UserActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull final Call<User> call, @NonNull final Throwable t) {
+                setViewsForUnsuccessfulResponse();
                 MessageUtil.makeToast(UserActivity.this, getString(R.string.wrong_message));
-                enableViews(true);
             }
         });
     }
@@ -106,20 +111,20 @@ public final class UserActivity extends AppCompatActivity {
             final ArrayList<Setlist> storedSetlists = new ArrayList<>();
             makeSetlistsNetworkCall(user.getUserId(), 1, storedSetlists);
         } else {
+            setViewsForUnsuccessfulResponse();
             MessageUtil.makeToast(this, getString(R.string.unresolveable_userId_message));
-            enableViews(true);
         }
     }
 
     private void processUnsuccessfulUserResponse(@Nullable final ResponseBody errorBody) {
         try {
+            setViewsForUnsuccessfulResponse();
+
             if (errorBody != null && errorBody.string().contains(getString(R.string.unknown_userId))) {
                 MessageUtil.makeToast(this, getString(R.string.unknown_userId_message));
             } else {
                 MessageUtil.makeToast(this, getString(R.string.wrong_message));
             }
-
-            enableViews(true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -143,29 +148,47 @@ public final class UserActivity extends AppCompatActivity {
                     if (pageIndex < setlistData.getNumberOfPages()) {
                         makeSetlistsNetworkCall(userId, pageIndex + 1, storedSetlists);
                     } else {
+                        setViewsForSuccessfulResponse();
                         User1StatisticsHolder.getSharedInstance().setStatistics(new UserStatistics(userId, storedSetlists));
 
                         final Intent intent = new Intent(UserActivity.this, TabbedActivity.class);
                         startActivity(intent);
-                        enableViews(true);
                     }
                 } else {
+                    setViewsForUnsuccessfulResponse();
                     MessageUtil.makeToast(UserActivity.this, getString(R.string.no_setlist_data));
-                    enableViews(true);
                 }
             }
 
             @Override
             public void onFailure(@NonNull final Call<SetlistData> call, @NonNull final Throwable t) {
+                setViewsForUnsuccessfulResponse();
                 MessageUtil.makeToast(UserActivity.this, getString(R.string.wrong_message));
-                enableViews(true);
             }
         });
     }
 
-    private void enableViews(final boolean enable) {
-        userIdText.setEnabled(enable);
-        clear.setEnabled(enable);
-        submit.setEnabled(enable);
+    private void setViewsForInProgress() {
+        userIdText.setEnabled(false);
+        clear.setEnabled(false);
+        submit.setEnabled(false);
+
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void setViewsForSuccessfulResponse() {
+        userIdText.setEnabled(true);
+        clear.setEnabled(true);
+        submit.setEnabled(true);
+
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    private void setViewsForUnsuccessfulResponse() {
+        userIdText.setEnabled(true);
+        clear.setEnabled(true);
+        submit.setEnabled(true);
+
+        progressBar.setVisibility(View.INVISIBLE);
     }
 }
