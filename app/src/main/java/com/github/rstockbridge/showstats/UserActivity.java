@@ -84,6 +84,13 @@ public final class UserActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        setViewsForUse();
+    }
+
     private void makeUserNetworkCall(@NonNull final String userId) {
         final SetlistfmService service = RetrofitInstance.getRetrofitInstance().create(SetlistfmService.class);
         final Call<User> call = service.verifyUserId(userId);
@@ -100,7 +107,7 @@ public final class UserActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull final Call<User> call, @NonNull final Throwable t) {
-                setViewsForUnsuccessfulResponse();
+                setViewsForUse();
                 MessageUtil.makeToast(UserActivity.this, getString(R.string.wrong_message));
             }
         });
@@ -111,14 +118,14 @@ public final class UserActivity extends AppCompatActivity {
             final ArrayList<Setlist> storedSetlists = new ArrayList<>();
             makeSetlistsNetworkCall(user.getUserId(), 1, storedSetlists);
         } else {
-            setViewsForUnsuccessfulResponse();
+            setViewsForUse();
             MessageUtil.makeToast(this, getString(R.string.unresolveable_userId_message));
         }
     }
 
     private void processUnsuccessfulUserResponse(@Nullable final ResponseBody errorBody) {
         try {
-            setViewsForUnsuccessfulResponse();
+            setViewsForUse();
 
             if (errorBody != null && errorBody.string().contains(getString(R.string.unknown_userId))) {
                 MessageUtil.makeToast(this, getString(R.string.unknown_userId_message));
@@ -148,21 +155,21 @@ public final class UserActivity extends AppCompatActivity {
                     if (pageIndex < setlistData.getNumberOfPages()) {
                         makeSetlistsNetworkCall(userId, pageIndex + 1, storedSetlists);
                     } else {
-                        setViewsForSuccessfulResponse();
+                        //setViewsForSuccessfulResponse();
                         User1StatisticsHolder.getSharedInstance().setStatistics(new UserStatistics(userId, storedSetlists));
 
                         final Intent intent = new Intent(UserActivity.this, TabbedActivity.class);
                         startActivity(intent);
                     }
                 } else {
-                    setViewsForUnsuccessfulResponse();
+                    setViewsForUse();
                     MessageUtil.makeToast(UserActivity.this, getString(R.string.no_setlist_data));
                 }
             }
 
             @Override
             public void onFailure(@NonNull final Call<SetlistData> call, @NonNull final Throwable t) {
-                setViewsForUnsuccessfulResponse();
+                setViewsForUse();
                 MessageUtil.makeToast(UserActivity.this, getString(R.string.wrong_message));
             }
         });
@@ -176,15 +183,7 @@ public final class UserActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
     }
 
-    private void setViewsForSuccessfulResponse() {
-        userIdText.setEnabled(true);
-        clear.setEnabled(true);
-        submit.setEnabled(true);
-
-        progressBar.setVisibility(View.INVISIBLE);
-    }
-
-    private void setViewsForUnsuccessfulResponse() {
+    private void setViewsForUse() {
         userIdText.setEnabled(true);
         clear.setEnabled(true);
         submit.setEnabled(true);
