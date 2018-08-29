@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -52,7 +53,8 @@ public final class CompareFragment extends Fragment {
     private Button clear;
     private Button submit;
 
-    private ScrollView scrollview;
+    private ProgressBar progressBar;
+    private ScrollView scrollView;
     private BarChart barChart;
 
     private TextUtil textUtil;
@@ -120,12 +122,12 @@ public final class CompareFragment extends Fragment {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                enableViews(false);
-                scrollview.setVisibility(View.INVISIBLE);
+                setViewsForInProgress();
 
                 final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
 
                 if (TextUtil.getText(user2IdText).equals(user1Statistics.getUserId())) {
+                    setViewsForUnsuccessfulResponse();
                     MessageUtil.makeToast(getActivity(), getString(R.string.same_user));
                 } else {
                     makeUserNetworkCall(TextUtil.getText(user2IdText));
@@ -133,7 +135,8 @@ public final class CompareFragment extends Fragment {
             }
         });
 
-        scrollview = v.findViewById(R.id.scrollview);
+        progressBar = v.findViewById(R.id.progress_bar);
+        scrollView = v.findViewById(R.id.scroll_view);
         barChart = v.findViewById(R.id.bar_chart);
 
         commonArtistsLabel = v.findViewById(R.id.common_artists);
@@ -168,8 +171,8 @@ public final class CompareFragment extends Fragment {
                     return;
                 }
 
+                setViewsForUnsuccessfulResponse();
                 MessageUtil.makeToast(getActivity(), getString(R.string.wrong_message));
-                enableViews(true);
             }
         });
     }
@@ -179,20 +182,20 @@ public final class CompareFragment extends Fragment {
             final ArrayList<Setlist> storedSetlists = new ArrayList<>();
             makeSetlistsNetworkCall(user.getUserId(), 1, storedSetlists);
         } else {
+            setViewsForUnsuccessfulResponse();
             MessageUtil.makeToast(getActivity(), getString(R.string.unresolveable_userId_message));
-            enableViews(true);
         }
     }
 
     private void processUnsuccessfulUserResponse(@Nullable final ResponseBody errorBody) {
         try {
+            setViewsForUnsuccessfulResponse();
+
             if (errorBody != null && errorBody.string().contains(getString(R.string.unknown_userId))) {
                 MessageUtil.makeToast(getActivity(), getString(R.string.unknown_userId_message));
             } else {
                 MessageUtil.makeToast(getActivity(), getString(R.string.wrong_message));
             }
-
-            enableViews(true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -220,7 +223,7 @@ public final class CompareFragment extends Fragment {
                     if (pageIndex < setlistData.getNumberOfPages()) {
                         makeSetlistsNetworkCall(userId, pageIndex + 1, storedSetlists);
                     } else {
-                        enableViews(true);
+                        setViewsForSuccessfulResponse();
                         final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
 
                         User2StatisticsHolder.getSharedInstance().setStatistics(new UserStatistics(userId, storedSetlists));
@@ -229,8 +232,8 @@ public final class CompareFragment extends Fragment {
                         displayStats(user1Statistics, user2Statistics);
                     }
                 } else {
+                    setViewsForUnsuccessfulResponse();
                     MessageUtil.makeToast(getActivity(), getString(R.string.no_setlist_data));
-                    enableViews(true);
                 }
             }
 
@@ -240,15 +243,13 @@ public final class CompareFragment extends Fragment {
                     return;
                 }
 
+                setViewsForUnsuccessfulResponse();
                 MessageUtil.makeToast(getActivity(), getString(R.string.wrong_message));
-                enableViews(true);
             }
         });
     }
 
     private void displayStats(@NonNull final UserStatistics user1Statistics, @NonNull final UserStatistics user2Statistics) {
-        scrollview.setVisibility(View.VISIBLE);
-
         final BarChartMakerUserTotalShows barChartMaker = new BarChartMakerUserTotalShows(
                 barChart, user1Statistics, user2Statistics);
         barChartMaker.displayBarChart();
@@ -330,9 +331,30 @@ public final class CompareFragment extends Fragment {
         commonVenuesLabel.setText(textUtil.getListText(commonVenues, false));
     }
 
-    private void enableViews(final boolean enable) {
-        user2IdText.setEnabled(enable);
-        clear.setEnabled(enable);
-        submit.setEnabled(enable);
+    private void setViewsForInProgress() {
+        user2IdText.setEnabled(false);
+        clear.setEnabled(false);
+        submit.setEnabled(false);
+
+        progressBar.setVisibility(View.VISIBLE);
+        scrollView.setVisibility(View.INVISIBLE);
+    }
+
+    private void setViewsForSuccessfulResponse() {
+        user2IdText.setEnabled(true);
+        clear.setEnabled(true);
+        submit.setEnabled(true);
+
+        progressBar.setVisibility(View.INVISIBLE);
+        scrollView.setVisibility(View.VISIBLE);
+    }
+
+    private void setViewsForUnsuccessfulResponse() {
+        user2IdText.setEnabled(true);
+        clear.setEnabled(true);
+        submit.setEnabled(true);
+
+        progressBar.setVisibility(View.INVISIBLE);
+        scrollView.setVisibility(View.INVISIBLE);
     }
 }

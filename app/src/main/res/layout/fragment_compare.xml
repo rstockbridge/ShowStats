@@ -3,48 +3,48 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center_horizontal">
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
 
     <EditText
         android:id="@+id/edit_user2_userId_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/enter_userId"
-        android:textSize="24sp"
-        android:gravity="center_horizontal"
-        android:inputType="text"
         android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
-        android:paddingTop="16dp"
+        android:gravity="center_horizontal"
+        android:hint="@string/enter_userId"
+        android:inputType="text"
+        android:paddingEnd="16dp"
         android:paddingStart="16dp"
-        android:paddingEnd="16dp" />
+        android:paddingTop="16dp"
+        android:textSize="24sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal" >
+        android:gravity="center_horizontal"
+        android:orientation="horizontal" >
 
         <Button
             android:id="@+id/clear_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/clear"
-            android:textSize="20sp"
             android:enabled="false"
+            android:paddingEnd="16dp"
             android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
+            android:text="@string/clear"
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/submit_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/submit"
-            android:textSize="20sp"
+            android:layout_marginBottom="16dp"
             android:enabled="false"
-            android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:layout_marginBottom="16dp" />
+            android:paddingStart="16dp"
+            android:text="@string/submit"
+            android:textSize="20sp" />
 
     </LinearLayout>
 
@@ -53,97 +53,110 @@
         android:layout_height="10dp"
         android:background="#444" />
 
-    <ScrollView
-        android:id="@+id/scrollview"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:clipToPadding="false"
-        android:scrollbarStyle="outsideOverlay"
-        android:visibility="invisible" >
+        android:layout_height="match_parent" >
 
-        <LinearLayout
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_centerInParent="true"
+            android:indeterminate="true"
+            android:visibility="invisible" />
+
+        <ScrollView
+            android:id="@+id/scroll_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:clipToPadding="false"
+            android:padding="16dp"
+            android:scrollbarStyle="outsideOverlay"
+            android:visibility="invisible" >
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/number_of_shows_attended"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
-
-            <com.github.mikephil.charting.charts.HorizontalBarChart
-                android:id="@+id/bar_chart"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/artists_in_common"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
+                android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/common_artists"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:layout_marginBottom="24dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/number_of_shows_attended"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/venues_in_common"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
+                <com.github.mikephil.charting.charts.HorizontalBarChart
+                    android:id="@+id/bar_chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:layout_marginBottom="8dp" />
 
-            <TextView
-                android:id="@+id/common_venues"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:layout_marginBottom="24dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/artists_in_common"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/shows_in_common"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/common_artists"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:textSize="18sp" />
 
-            <TextView
-                android:id="@+id/common_shows"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:layout_marginBottom="24dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/venues_in_common"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/average_gap_between_shows"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/common_venues"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:textSize="18sp" />
 
-            <TextView
-                android:id="@+id/average_show_gap1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/shows_in_common"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/average_show_gap2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp" />
+                <TextView
+                    android:id="@+id/common_shows"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:textSize="18sp" />
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/average_gap_between_shows"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
+                <TextView
+                    android:id="@+id/average_show_gap1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp" />
 
-    </ScrollView>
+                <TextView
+                    android:id="@+id/average_show_gap2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </RelativeLayout>
 
 </LinearLayout>
