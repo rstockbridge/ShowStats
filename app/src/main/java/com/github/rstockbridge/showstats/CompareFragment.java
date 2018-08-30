@@ -6,9 +6,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -109,6 +111,19 @@ public final class CompareFragment extends Fragment {
             @Override
             public void afterTextChanged(final Editable s) {
                 //method intentionally left blank
+            }
+        });
+
+        user2IdText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    setViewsForInProgress();
+                    makeUserNetworkCall(TextUtil.getText(user2IdText));
+                    handled = true;
+                }
+                return handled;
             }
         });
 
