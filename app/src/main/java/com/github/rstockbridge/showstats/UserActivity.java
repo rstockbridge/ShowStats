@@ -7,10 +7,14 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.github.rstockbridge.showstats.api.RetrofitInstance;
 import com.github.rstockbridge.showstats.api.SetlistfmService;
@@ -66,14 +70,32 @@ public final class UserActivity extends AppCompatActivity {
             }
         });
 
-        clear.setOnClickListener(new View.OnClickListener() {
+        userIdText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    setViewsForInProgress();
+                    makeUserNetworkCall(TextUtil.getText(userIdText));
+                    handled = true;
+                }
+                return handled;
+            }
+        });
+
+
+        clear.setOnClickListener(new View.OnClickListener()
+
+        {
             @Override
             public void onClick(final View v) {
                 userIdText.setText("");
             }
         });
 
-        submit.setOnClickListener(new View.OnClickListener() {
+        submit.setOnClickListener(new View.OnClickListener()
+
+        {
             @Override
             public void onClick(final View v) {
                 setViewsForInProgress();
@@ -81,7 +103,10 @@ public final class UserActivity extends AppCompatActivity {
             }
         });
 
-        progressBar = findViewById(R.id.progress_bar);
+        progressBar =
+
+                findViewById(R.id.progress_bar);
+
     }
 
     @Override
