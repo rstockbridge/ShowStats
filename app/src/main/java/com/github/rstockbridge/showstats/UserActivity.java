@@ -177,17 +177,18 @@ public final class UserActivity extends AppCompatActivity {
 
     private void setViewsForInProgress() {
         userIdText.setEnabled(false);
-        clear.setEnabled(false);
-        submit.setEnabled(false);
-
         progressBar.setVisibility(View.VISIBLE);
+        syncButtonsWithText();
     }
 
     private void setViewsForUse() {
         userIdText.setEnabled(true);
-        clear.setEnabled(true);
-        submit.setEnabled(true);
-
         progressBar.setVisibility(View.INVISIBLE);
+        syncButtonsWithText();
+    }
+
+    private void syncButtonsWithText() {
+        clear.setEnabled(userIdText.isEnabled() && userIdText.getText().length() > 0);
+        submit.setEnabled(userIdText.isEnabled() && userIdText.getText().length() > 0);
     }
 }
