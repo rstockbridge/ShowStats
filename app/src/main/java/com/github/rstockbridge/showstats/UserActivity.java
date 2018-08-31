@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -43,6 +42,8 @@ public final class UserActivity extends AppCompatActivity {
 
     private ProgressBar progressBar;
 
+    private boolean networkCallIsInProgress;
+
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +76,6 @@ public final class UserActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    setViewsForInProgress();
                     makeUserNetworkCall(TextUtil.getText(userIdText));
                     handled = true;
                 }
@@ -98,7 +98,6 @@ public final class UserActivity extends AppCompatActivity {
         {
             @Override
             public void onClick(final View v) {
-                setViewsForInProgress();
                 makeUserNetworkCall(TextUtil.getText(userIdText));
             }
         });
@@ -113,10 +112,12 @@ public final class UserActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        setViewsForUse();
+        syncUI();
     }
 
     private void makeUserNetworkCall(@NonNull final String userId) {
+        setNetworkCallInProgress(true);
+
         final SetlistfmService service = RetrofitInstance.getRetrofitInstance().create(SetlistfmService.class);
         final Call<User> call = service.verifyUserId(userId);
 
@@ -132,7 +133,7 @@ public final class UserActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull final Call<User> call, @NonNull final Throwable t) {
-                setViewsForUse();
+                setNetworkCallInProgress(false);
                 MessageUtil.makeToast(UserActivity.this, getString(R.string.wrong_message));
             }
         });
@@ -143,14 +144,14 @@ public final class UserActivity extends AppCompatActivity {
             final ArrayList<Setlist> storedSetlists = new ArrayList<>();
             makeSetlistsNetworkCall(user.getUserId(), 1, storedSetlists);
         } else {
-            setViewsForUse();
+            setNetworkCallInProgress(false);
             MessageUtil.makeToast(this, getString(R.string.unresolveable_userId_message));
         }
     }
 
     private void processUnsuccessfulUserResponse(@Nullable final ResponseBody errorBody) {
         try {
-            setViewsForUse();
+            setNetworkCallInProgress(false);
 
             if (errorBody != null && errorBody.string().contains(getString(R.string.unknown_userId))) {
                 MessageUtil.makeToast(this, getString(R.string.unknown_userId_message));
@@ -180,40 +181,47 @@ public final class UserActivity extends AppCompatActivity {
                     if (pageIndex < setlistData.getNumberOfPages()) {
                         makeSetlistsNetworkCall(userId, pageIndex + 1, storedSetlists);
                     } else {
-                        //setViewsForSuccessfulResponse();
+                        // update boolean but don't sync UI here as will display before starting activity
+                        networkCallIsInProgress = false;
+
                         User1StatisticsHolder.getSharedInstance().setStatistics(new UserStatistics(userId, storedSetlists));
 
                         final Intent intent = new Intent(UserActivity.this, TabbedActivity.class);
                         startActivity(intent);
                     }
                 } else {
-                    setViewsForUse();
+                    setNetworkCallInProgress(false);
                     MessageUtil.makeToast(UserActivity.this, getString(R.string.no_setlist_data));
                 }
             }
 
             @Override
             public void onFailure(@NonNull final Call<SetlistData> call, @NonNull final Throwable t) {
-                setViewsForUse();
+                setNetworkCallInProgress(false);
                 MessageUtil.makeToast(UserActivity.this, getString(R.string.wrong_message));
             }
         });
     }
 
-    private void setViewsForInProgress() {
-        userIdText.setEnabled(false);
-        progressBar.setVisibility(View.VISIBLE);
-        syncButtonsWithText();
+    private void setNetworkCallInProgress(final boolean inProgress) {
+        networkCallIsInProgress = inProgress;
+        syncUI();
     }
 
-    private void setViewsForUse() {
-        userIdText.setEnabled(true);
-        progressBar.setVisibility(View.INVISIBLE);
-        syncButtonsWithText();
-    }
+    private void syncUI() {
+        if (networkCallIsInProgress) {
+            userIdText.setEnabled(false);
+            clear.setEnabled(false);
+            submit.setEnabled(false);
+            progressBar.setVisibility(View.VISIBLE);
+        } else {
+            userIdText.setEnabled(true);
+            progressBar.setVisibility(View.INVISIBLE);
 
-    private void syncButtonsWithText() {
-        clear.setEnabled(userIdText.isEnabled() && userIdText.getText().length() > 0);
-        submit.setEnabled(userIdText.isEnabled() && userIdText.getText().length() > 0);
+            if (userIdText.getText().length() > 0) {
+                clear.setEnabled(true);
+                submit.setEnabled(true);
+            }
+        }
     }
 }
