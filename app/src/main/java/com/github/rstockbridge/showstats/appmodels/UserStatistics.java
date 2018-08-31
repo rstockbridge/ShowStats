@@ -237,6 +237,8 @@ public final class UserStatistics {
 
             if (artistSetlists.size() > 1) {
                 for (int i = 0; i < artistSetlists.size() - 1; i++) {
+                    final String artistName = artist.getName();
+
                     final ArtistSetlist artistSetlist1 = artistSetlists.get(i);
                     final ArtistSetlist artistSetlist2 = artistSetlists.get(i + 1);
 
@@ -252,14 +254,18 @@ public final class UserStatistics {
                             longestArtistGap = gap;
                             longestArtistGapArtists = new ArrayList<>(Arrays.asList(artist.getName()));
                         } else if (gap == longestArtistGap) {
-                            longestArtistGapArtists.add(artist.getName());
+                            if(!longestArtistGapArtists.contains(artistName)) {
+                                longestArtistGapArtists.add(artistName);
+                            }
                         }
 
                         if (shortestArtistGap == null || gap < shortestArtistGap) {
                             shortestArtistGap = gap;
                             shortestArtistGapArtists = new ArrayList<>(Arrays.asList(artist.getName()));
                         } else if (gap == shortestArtistGap) {
-                            shortestArtistGapArtists.add(artist.getName());
+                            if(!shortestArtistGapArtists.contains(artistName)) {
+                                shortestArtistGapArtists.add(artist.getName());
+                            }
                         }
                     }
                 }

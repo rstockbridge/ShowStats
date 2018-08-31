@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,6 +69,7 @@ public final class CompareFragment extends Fragment {
     private TextView averageShowGapLabel1;
     private TextView averageShowGapLabel2;
 
+    private boolean networkCallIsInProgress;
 
     @Nullable
     @Override
@@ -118,8 +120,8 @@ public final class CompareFragment extends Fragment {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
+
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    setViewsForInProgress();
                     makeUserNetworkCall(TextUtil.getText(user2IdText));
                     handled = true;
                 }
@@ -137,12 +139,9 @@ public final class CompareFragment extends Fragment {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                setViewsForInProgress();
-
                 final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
 
                 if (TextUtil.getText(user2IdText).equals(user1Statistics.getUserId())) {
-                    setViewsForUnsuccessfulResponse();
                     MessageUtil.makeToast(getActivity(), getString(R.string.same_user));
                 } else {
                     makeUserNetworkCall(TextUtil.getText(user2IdText));
@@ -163,6 +162,8 @@ public final class CompareFragment extends Fragment {
     }
 
     private void makeUserNetworkCall(@NonNull final String userId) {
+        setNetworkCallInProgress(true);
+
         final SetlistfmService service = RetrofitInstance.getRetrofitInstance().create(SetlistfmService.class);
         final Call<User> call = service.verifyUserId(userId);
 
@@ -176,17 +177,19 @@ public final class CompareFragment extends Fragment {
                 if (response.isSuccessful()) {
                     processSuccessfulUserResponse(response.body());
                 } else {
+                    setNetworkCallInProgress(false);
                     processUnsuccessfulUserResponse(response.errorBody());
                 }
             }
 
             @Override
             public void onFailure(@NonNull final Call<User> call, @NonNull final Throwable t) {
+                setNetworkCallInProgress(false);
+
                 if (!ActivityFragmentUtil.isActivityValid(CompareFragment.this, getActivity())) {
                     return;
                 }
 
-                setViewsForUnsuccessfulResponse();
                 MessageUtil.makeToast(getActivity(), getString(R.string.wrong_message));
             }
         });
@@ -197,15 +200,13 @@ public final class CompareFragment extends Fragment {
             final ArrayList<Setlist> storedSetlists = new ArrayList<>();
             makeSetlistsNetworkCall(user.getUserId(), 1, storedSetlists);
         } else {
-            setViewsForUnsuccessfulResponse();
+            setNetworkCallInProgress(false);
             MessageUtil.makeToast(getActivity(), getString(R.string.unresolveable_userId_message));
         }
     }
 
     private void processUnsuccessfulUserResponse(@Nullable final ResponseBody errorBody) {
         try {
-            setViewsForUnsuccessfulResponse();
-
             if (errorBody != null && errorBody.string().contains(getString(R.string.unknown_userId))) {
                 MessageUtil.makeToast(getActivity(), getString(R.string.unknown_userId_message));
             } else {
@@ -238,7 +239,8 @@ public final class CompareFragment extends Fragment {
                     if (pageIndex < setlistData.getNumberOfPages()) {
                         makeSetlistsNetworkCall(userId, pageIndex + 1, storedSetlists);
                     } else {
-                        setViewsForSuccessfulResponse();
+                        setNetworkCallInProgress(false);
+                        Log.i("beccadecca", "finished");
                         final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
 
                         User2StatisticsHolder.getSharedInstance().setStatistics(new UserStatistics(userId, storedSetlists));
@@ -247,18 +249,19 @@ public final class CompareFragment extends Fragment {
                         displayStats(user1Statistics, user2Statistics);
                     }
                 } else {
-                    setViewsForUnsuccessfulResponse();
+                    setNetworkCallInProgress(false);
                     MessageUtil.makeToast(getActivity(), getString(R.string.no_setlist_data));
                 }
             }
 
             @Override
             public void onFailure(@NonNull final Call<SetlistData> call, @NonNull final Throwable t) {
+                setNetworkCallInProgress(false);
+
                 if (!ActivityFragmentUtil.isActivityValid(CompareFragment.this, getActivity())) {
                     return;
                 }
 
-                setViewsForUnsuccessfulResponse();
                 MessageUtil.makeToast(getActivity(), getString(R.string.wrong_message));
             }
         });
@@ -270,6 +273,8 @@ public final class CompareFragment extends Fragment {
         barChartMaker.displayBarChart();
 
         calculateCommonStatistics(user1Statistics, user2Statistics);
+
+        scrollView.setVisibility(View.VISIBLE);
 
         displayCommonArtists();
         displayCommonVenues();
@@ -346,30 +351,28 @@ public final class CompareFragment extends Fragment {
         commonVenuesLabel.setText(textUtil.getListText(commonVenues, false));
     }
 
-    private void setViewsForInProgress() {
-        user2IdText.setEnabled(false);
-        clear.setEnabled(false);
-        submit.setEnabled(false);
-
-        progressBar.setVisibility(View.VISIBLE);
-        scrollView.setVisibility(View.INVISIBLE);
+    private void setNetworkCallInProgress(final boolean inProgress) {
+        networkCallIsInProgress = inProgress;
+        syncUI();
     }
 
-    private void setViewsForSuccessfulResponse() {
-        user2IdText.setEnabled(true);
-        clear.setEnabled(true);
-        submit.setEnabled(true);
+    private void syncUI() {
+        if (networkCallIsInProgress) {
+            user2IdText.setEnabled(false);
+            clear.setEnabled(false);
+            submit.setEnabled(false);
 
-        progressBar.setVisibility(View.INVISIBLE);
-        scrollView.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+            scrollView.setVisibility(View.INVISIBLE);
+        } else {
+            user2IdText.setEnabled(true);
+            if (user2IdText.getText().length() > 0) {
+                clear.setEnabled(true);
+                submit.setEnabled(true);
+            }
+
+            progressBar.setVisibility(View.INVISIBLE);
+        }
     }
 
-    private void setViewsForUnsuccessfulResponse() {
-        user2IdText.setEnabled(true);
-        clear.setEnabled(true);
-        submit.setEnabled(true);
-
-        progressBar.setVisibility(View.INVISIBLE);
-        scrollView.setVisibility(View.INVISIBLE);
-    }
 }
