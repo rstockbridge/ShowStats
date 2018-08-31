@@ -297,8 +297,8 @@ public final class CompareFragment extends Fragment {
     }
 
     private void calculateCommonVenues(@NonNull final UserStatistics user1Statistics, @NonNull final UserStatistics user2Statistics) {
-        final Set<String> commonVenuesAsSet = new HashSet<>(user1Statistics.getVenues());
-        commonVenuesAsSet.retainAll(user2Statistics.getVenues());
+        final Set<String> commonVenuesAsSet = new HashSet<>(user1Statistics.getVenueNames());
+        commonVenuesAsSet.retainAll(user2Statistics.getVenueNames());
 
         commonVenues = new ArrayList<>(commonVenuesAsSet);
         Collections.sort(commonVenues);

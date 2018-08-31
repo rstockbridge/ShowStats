@@ -23,8 +23,10 @@ public final class ViewPagerAdapter extends FragmentPagerAdapter {
             case 0:
                 return new StatsFragment();
             case 1:
-                return new ShowsFragment();
+                return new MapFragment();
             case 2:
+                return new ShowsFragment();
+            case 3:
                 return new CompareFragment();
         }
 
@@ -33,7 +35,7 @@ public final class ViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 3;
+        return 4;
     }
 
     @Nullable
@@ -43,8 +45,10 @@ public final class ViewPagerAdapter extends FragmentPagerAdapter {
             case 0:
                 return "Statistics";
             case 1:
-                return "Shows";
+                return "Map";
             case 2:
+                return "Shows";
+            case 3:
                 return "Compare";
         }
 
