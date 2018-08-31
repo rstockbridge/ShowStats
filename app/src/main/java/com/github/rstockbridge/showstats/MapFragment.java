@@ -16,6 +16,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -96,5 +97,6 @@ public final class MapFragment extends Fragment {
         final LatLngBounds bounds = builder.build();
         final int screenHeight = getResources().getDisplayMetrics().heightPixels;
         map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, (int) (0.1 * screenHeight)));
+        map.getUiSettings().setMapToolbarEnabled(false);
     }
 }
