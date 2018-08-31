@@ -13,12 +13,10 @@ public final class City {
     @NonNull
     private Coordinates coordinates;
 
-    @NonNull
     public double getLatitude() {
         return coordinates.getLatitude();
     }
 
-    @NonNull
     public double getLongitude() {
         return coordinates.getLongitude();
     }
