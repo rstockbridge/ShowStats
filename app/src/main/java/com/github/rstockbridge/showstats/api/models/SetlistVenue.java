@@ -1,7 +1,5 @@
 package com.github.rstockbridge.showstats.api.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import java.util.Objects;
@@ -11,13 +9,20 @@ public final class SetlistVenue {
     @NonNull
     private String name;
 
-    private SetlistVenue(final Parcel in) {
-        name = in.readString();
-    }
+    @NonNull
+    private City city;
 
     @NonNull
     public String getName() {
         return name;
+    }
+
+    public double getLatitude() {
+        return city.getLatitude();
+    }
+
+    public double getLongitude() {
+        return city.getLongitude();
     }
 
     @Override
