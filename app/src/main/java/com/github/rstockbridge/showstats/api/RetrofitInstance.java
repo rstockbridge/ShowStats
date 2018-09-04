@@ -20,6 +20,9 @@ public final class RetrofitInstance {
     private static Retrofit retrofit;
     private static final String BASE_URL = "https://api.setlist.fm/rest/1.0/user/";
 
+    private RetrofitInstance() {
+    }
+
     @NonNull
     public static Retrofit getRetrofitInstance() {
         if (retrofit == null) {
