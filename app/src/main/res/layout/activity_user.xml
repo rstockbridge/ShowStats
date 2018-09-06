@@ -39,7 +39,7 @@
         android:orientation="vertical" >
 
         <EditText
-            android:id="@+id/edit_userId_text"
+            android:id="@+id/edit_notes_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
@@ -57,7 +57,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/clear_button"
+                android:id="@+id/edit_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:enabled="false"
@@ -65,7 +65,7 @@
                 android:textSize="20sp" />
 
             <Button
-                android:id="@+id/submit_button"
+                android:id="@+id/save_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:enabled="false"

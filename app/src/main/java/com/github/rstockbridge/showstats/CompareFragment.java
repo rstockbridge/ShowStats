@@ -95,8 +95,8 @@ public final class CompareFragment extends Fragment {
 
     private void initializeUI(@NonNull final View v) {
         user2IdText = v.findViewById(R.id.edit_user2_userId_text);
-        clear = v.findViewById(R.id.clear_button);
-        submit = v.findViewById(R.id.submit_button);
+        clear = v.findViewById(R.id.edit_button);
+        submit = v.findViewById(R.id.save_button);
 
         user2IdText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -318,7 +318,7 @@ public final class CompareFragment extends Fragment {
         for (final Show user1Show : user1Shows) {
             if (user2Shows.contains(user1Show)) {
                 final Show user2Show = user2Shows.get(user2Shows.indexOf(user1Show));
-                final Show commonShow = new Show(user1Show.getEventDate(), user1Show.getVenueName());
+                final Show commonShow = new Show(user1Show.getId(), user1Show.getEventDate(), user1Show.getVenueName());
 
                 for (final String user1ArtistId : user1Show.getArtistIds()) {
                     if (user2Show.getArtistIds().contains(user1ArtistId)) {

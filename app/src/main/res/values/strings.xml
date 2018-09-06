@@ -25,6 +25,11 @@
     <string name="venue">&lt;b>Venue:&lt;/b> %s</string>
     <string name="sign_in_with_google">Sign In With Google</string>
     <string name="fetching_data_for">Fetching Setlist.fm Data For</string>
+    <string name="save">Save</string>
+    <string name="enter_text_here">Enter Text Here</string>
+    <string name="edit">Edit</string>
+    <string name="exit">Exit</string>
+    <string name="show_notes">Show Notes</string>
     <plurals name="day_plural" >
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>

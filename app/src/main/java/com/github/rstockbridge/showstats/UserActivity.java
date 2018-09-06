@@ -118,9 +118,9 @@ public final class UserActivity
 
         storedUserIdLabel = findViewById(R.id.stored_userId);
 
-        userIdEditText = findViewById(R.id.edit_userId_text);
-        clearButton = findViewById(R.id.clear_button);
-        submitButton = findViewById(R.id.submit_button);
+        userIdEditText = findViewById(R.id.edit_notes_text);
+        clearButton = findViewById(R.id.edit_button);
+        submitButton = findViewById(R.id.save_button);
 
         userIdEditText.addTextChangedListener(new SimpleTextWatcher() {
             @Override
@@ -187,7 +187,7 @@ public final class UserActivity
         setNetworkCallInProgress(false);
 
         if (user.getUserId().equals(TextUtil.getText(userIdEditText))) {
-            databaseHelper.updateDatabase(
+            databaseHelper.updateSetlistfmUserInDatabase(
                     authHelper.getCurrentUserUid(),
                     userIdEditText.getText().toString(),
                     this);

@@ -10,6 +10,10 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class Show {
+
+    @NonNull
+    private String id;
+
     @NonNull
     private String eventDate;
 
@@ -19,9 +23,15 @@ public final class Show {
     @NonNull
     private Map<String, String> artistIdNameMap = new HashMap<>();
 
-    public Show(@NonNull final String eventDate, @NonNull final String venueName) {
+    public Show(@NonNull final String id, @NonNull final String eventDate, @NonNull final String venueName) {
+        this.id = id;
         this.eventDate = eventDate;
         this.venueName = venueName;
+    }
+
+    @NonNull
+    public String getId() {
+        return id;
     }
 
     @NonNull
