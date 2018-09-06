@@ -27,6 +27,9 @@
         <activity
             android:name=".TabbedActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".NotesActivity"
+            android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
