@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.firebase.ui.auth.AuthUI;
 import com.github.rstockbridge.showstats.api.RetrofitInstance;
 import com.github.rstockbridge.showstats.api.SetlistfmService;
 import com.github.rstockbridge.showstats.api.models.Setlist;
@@ -27,51 +24,33 @@ import com.github.rstockbridge.showstats.api.models.SetlistData;
 import com.github.rstockbridge.showstats.api.models.User;
 import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
+import com.github.rstockbridge.showstats.auth.AuthHelper;
+import com.github.rstockbridge.showstats.database.DatabaseHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 import com.github.rstockbridge.showstats.ui.SetlistfmUserStatus;
 import com.github.rstockbridge.showstats.ui.TextUtil;
 import com.github.rstockbridge.showstats.utility.SimpleTextWatcher;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public final class UserActivity extends AppCompatActivity {
-
-    private static final String USERS_PATH = "users";
-    private static final String USER_ID_KEY = "userId";
-
-    @NonNull
-    private GoogleSignInClient googleSignInClient;
-
-    @NonNull
-    private FirebaseAuth firebaseAuth;
+public final class UserActivity
+        extends AppCompatActivity
+        implements AuthHelper.SignOutListener,
+        DatabaseHelper.SetlistfmUserListener,
+        DatabaseHelper.UpdateDatabaseListener,
+        DatabaseHelper.DeleteDatabaseListener {
 
     @NonNull
-    private FirebaseAuth.AuthStateListener authStateListener;
+    private AuthHelper authHelper;
 
     @NonNull
-    private FirebaseFirestore database;
-
-    /* Since we listen for authentication state changes, we will assume this is non-null and
-       representing the same user in all other parts of the code */
-    private FirebaseUser firebaseUser;
-
-    private boolean revokeAccessOnGoogleSignOut;
+    private DatabaseHelper databaseHelper;
 
     private LinearLayout storedUserLayout;
     private TextView storedUserIdLabel;
@@ -91,10 +70,11 @@ public final class UserActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
 
-        initializeGoogleSignIn();
-        initializeFirebase();
+        authHelper = new AuthHelper(this, this);
+        databaseHelper = new DatabaseHelper();
+
         initializeUI();
-        determineSetlistfmUser();
+        databaseHelper.getSetlistfmUser(authHelper.getCurrentUserUid(), this);
     }
 
     @Override
@@ -106,7 +86,7 @@ public final class UserActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        firebaseAuth.removeAuthStateListener(authStateListener);
+        authHelper.clearAuthListener();
         super.onDestroy();
     }
 
@@ -121,10 +101,11 @@ public final class UserActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sign_out:
-                signOut();
+                authHelper.signOut(this);
                 return true;
             case R.id.sign_out_remove_account:
-                signOutAndRemoveAccount();
+                // if successful, Firebase account will then be removed
+                databaseHelper.deleteUserData(authHelper.getCurrentUserUid(), this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -206,7 +187,10 @@ public final class UserActivity extends AppCompatActivity {
         setNetworkCallInProgress(false);
 
         if (user.getUserId().equals(TextUtil.getText(userIdEditText))) {
-            updateDatabase();
+            databaseHelper.updateDatabase(
+                    authHelper.getCurrentUserUid(),
+                    userIdEditText.getText().toString(),
+                    this);
 
             final ArrayList<Setlist> storedSetlists = new ArrayList<>();
             makeSetlistsNetworkCall(user.getUserId(), 1, storedSetlists);
@@ -314,6 +298,9 @@ public final class UserActivity extends AppCompatActivity {
                 noStoredUserLayout.setVisibility(View.VISIBLE);
                 storedUserLayout.setVisibility(View.GONE);
                 break;
+
+            default:
+                throw new IllegalStateException("This line should never be reached.");
         }
     }
 
@@ -331,164 +318,68 @@ public final class UserActivity extends AppCompatActivity {
         }
     }
 
-    private void initializeGoogleSignIn() {
-        final GoogleSignInClientWrapper googleSignInClientWrapper = new GoogleSignInClientWrapper(this);
-        googleSignInClient = googleSignInClientWrapper.getGoogleSignInClient();
-    }
-
-    private void initializeFirebase() {
-        firebaseAuth = FirebaseAuth.getInstance();
-        database = FirebaseFirestore.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
-
-        // Finish activity if detects no user is signed in to Firebase
-        authStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() == null) {
-                    if (revokeAccessOnGoogleSignOut) {
-                        googleRevokeAccess();
-                    } else {
-                        googleSignOut();
-                    }
-
-                    // return to signInActivity even if still signed in to Google - it doesn't
-                    // make sense to stay in this activity if signed out of Firebase
-                    returnToSignInActivity();
-                }
-            }
-        };
-
-        firebaseAuth.addAuthStateListener(authStateListener);
-    }
-
-    private void updateDatabase() {
-        final Map<String, Object> textData = new HashMap<>();
-        textData.put(USER_ID_KEY, userIdEditText.getText().toString());
-
-        database.collection(USERS_PATH).document(firebaseUser.getUid())
-                .set(textData)
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        MessageUtil.makeToast(UserActivity.this, "Could not update user data!");
-                    }
-                });
-    }
-
-    private void determineSetlistfmUser() {
-        final DocumentReference docRef = database
-                .collection(USERS_PATH)
-                .document(firebaseUser.getUid());
-
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(final DocumentSnapshot document) {
-                if (document.exists()
-                        && document.getData() != null
-                        && document.getData().get(USER_ID_KEY) != null) {
-
-                    setSetlistfmUserStatus(SetlistfmUserStatus.STORED);
-
-                    final String storedUserId = (String) document.getData().get(USER_ID_KEY);
-                    storedUserIdLabel.setText(storedUserId);
-
-                    final ArrayList<Setlist> storedSetlists = new ArrayList<>();
-                    makeSetlistsNetworkCall(storedUserId, 1, storedSetlists);
-                } else {
-                    setSetlistfmUserStatus(SetlistfmUserStatus.NOT_STORED);
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull final Exception e) {
-                setSetlistfmUserStatus(SetlistfmUserStatus.NOT_STORED);
-            }
-        });
-    }
-
-    private void signOut() {
-        revokeAccessOnGoogleSignOut = false;
-        firebaseSignOut();
-    }
-
-    private void signOutAndRemoveAccount() {
-        revokeAccessOnGoogleSignOut = true;
-
-        // Delete Firebase user data
-        database.collection(USERS_PATH)
-                .document(firebaseUser.getUid())
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // Deleting Firebase account will also sign out of Firebase
-                        deleteFirebaseAccount();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        MessageUtil.makeToast(UserActivity.this, "Could not delete user data! Signing out only.");
-                        signOut();
-                    }
-                });
-    }
-
-    private void firebaseSignOut() {
-        /* If Firebase sign out is successful,the Firebase authentication status will change and
-           trigger onAuthStateChanged(), which changes the Google account status as appropriate */
-
-        AuthUI.getInstance()
-                .signOut(this)
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull final Exception e) {
-                        MessageUtil.makeToast(UserActivity.this, "Could not sign out!");
-                    }
-                });
-    }
-
-    private void deleteFirebaseAccount() {
-        /* If Firebase deletion is successful,the Firebase authentication status will change and
-           trigger onAuthStateChanged(), which changes the Google account status as appropriate */
-
-        firebaseUser.delete()
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull final Exception e) {
-                        MessageUtil.makeToast(UserActivity.this, "Could not delete user account! Signing out only");
-                        signOut();
-                    }
-                });
-    }
-
-    private void googleSignOut() {
-        googleSignInClient
-                .signOut()
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull final Exception e) {
-                        MessageUtil.makeToast(UserActivity.this, "Could not sign out of Google!");
-                    }
-                });
-    }
-
-    private void googleRevokeAccess() {
-        googleSignInClient
-                .revokeAccess()
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull final Exception e) {
-                        MessageUtil.makeToast(UserActivity.this, "Could not revoke Firebase access to Google! Signing out of Google only.");
-                        googleSignOut();
-                    }
-                });
-    }
-
     private void returnToSignInActivity() {
         final Intent intent = new Intent(UserActivity.this, SignInActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    public void onSignOutFromFirebase() {
+        // return to signInActivity even if still signed in to Google - it doesn't
+        // make sense to stay in this activity if signed out of Firebase
+        returnToSignInActivity();
+    }
+
+    @Override
+    public void onFirebaseSignOutUnsucessful() {
+        MessageUtil.makeToast(this, "Could not sign out!");
+    }
+
+    @Override
+    public void onGoogleSignOutUnsuccessful() {
+        MessageUtil.makeToast(this, "Could not sign out of Google!");
+    }
+
+    @Override
+    public void onFirebaseDeletionUnsuccessful() {
+        MessageUtil.makeToast(this, "Could not delete user account! Signing out only");
+    }
+
+    @Override
+    public void onRevokeFirebaseAccessToGoogleUnsuccessful() {
+        MessageUtil.makeToast(this, "Could not revoke Firebase access to Google! Signing out of Google only.");
+    }
+
+    @Override
+    public void onStoredSetlistfmUser(final String setlistfmUserId) {
+        setSetlistfmUserStatus(SetlistfmUserStatus.STORED);
+
+        final String storedUserId = setlistfmUserId;
+        storedUserIdLabel.setText(storedUserId);
+
+        final ArrayList<Setlist> storedSetlists = new ArrayList<>();
+        makeSetlistsNetworkCall(storedUserId, 1, storedSetlists);
+    }
+
+    @Override
+    public void onNoStoredSetlistfmUser() {
+        setSetlistfmUserStatus(SetlistfmUserStatus.NOT_STORED);
+    }
+
+    @Override
+    public void onUpdateDatabaseUnsuccessful() {
+        MessageUtil.makeToast(this, "Could not update user data!");
+    }
+
+    @Override
+    public void onDeleteUserDataSuccessful() {
+        authHelper.removeAccount(this);
+    }
+
+    @Override
+    public void onDeleteUserDataUnsuccessful() {
+        MessageUtil.makeToast(this, "Could not delete user data! Signing out only.");
+        authHelper.signOut(this);
     }
 }
