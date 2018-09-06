@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:hint="@string/enter_userId"
+        android:hint="@string/enter_setlistfm_userId"
         android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
         android:inputType="text"
         android:imeOptions="actionDone"
@@ -28,7 +28,7 @@
         android:orientation="horizontal" >
 
         <Button
-            android:id="@+id/clear_button"
+            android:id="@+id/edit_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:enabled="false"
@@ -38,7 +38,7 @@
             android:textSize="20sp" />
 
         <Button
-            android:id="@+id/submit_button"
+            android:id="@+id/save_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"

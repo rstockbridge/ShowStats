@@ -1,6 +1,7 @@
 package com.github.rstockbridge.showstats;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -23,8 +24,8 @@ public final class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
     @NonNull
     private List<Show> shows;
 
+    @NonNull
     private TextUtil textUtil;
-
 
     RecyclerViewAdapter(@NonNull Context context, @NonNull final List<Show> shows) {
         this.context = context;
@@ -66,6 +67,14 @@ public final class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
             dateLabel.setText(textUtil.getDateText(show.getEventDate(), false));
             venueLabel.setText(textUtil.getVenueText(show.getVenueName(), false));
             artistsLabel.setText(textUtil.getListText(show.getArtistNames(), true));
+
+            this.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final Intent intent = NotesActivity.newIntent(context, show.getId());
+                    context.startActivity(intent);
+                }
+            });
         }
     }
 }

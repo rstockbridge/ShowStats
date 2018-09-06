@@ -7,6 +7,9 @@ import org.threeten.bp.LocalDate;
 public final class Setlist {
 
     @NonNull
+    private String id;
+
+    @NonNull
     private String eventDate;
 
     @NonNull
@@ -14,6 +17,11 @@ public final class Setlist {
 
     @NonNull
     private SetlistVenue venue;
+
+    @NonNull
+    public String getId() {
+        return id;
+    }
 
     @NonNull
     public LocalDate getEventDate() {
