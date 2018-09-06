@@ -5,13 +5,15 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -22,8 +24,12 @@ import com.github.rstockbridge.showstats.api.models.SetlistData;
 import com.github.rstockbridge.showstats.api.models.User;
 import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
+import com.github.rstockbridge.showstats.auth.AuthHelper;
+import com.github.rstockbridge.showstats.database.DatabaseHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
+import com.github.rstockbridge.showstats.ui.SetlistfmUserStatus;
 import com.github.rstockbridge.showstats.ui.TextUtil;
+import com.github.rstockbridge.showstats.utility.SimpleTextWatcher;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,15 +39,30 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public final class UserActivity extends AppCompatActivity {
+public final class UserActivity
+        extends AppCompatActivity
+        implements AuthHelper.SignOutListener,
+        DatabaseHelper.SetlistfmUserListener,
+        DatabaseHelper.UpdateDatabaseListener,
+        DatabaseHelper.DeleteDatabaseListener {
 
-    private EditText userIdText;
+    @NonNull
+    private AuthHelper authHelper;
 
-    private Button clear;
-    private Button submit;
+    @NonNull
+    private DatabaseHelper databaseHelper;
+
+    private LinearLayout storedUserLayout;
+    private TextView storedUserIdLabel;
+
+    private LinearLayout noStoredUserLayout;
+    private EditText userIdEditText;
+    private Button clearButton;
+    private Button submitButton;
 
     private ProgressBar progressBar;
 
+    private SetlistfmUserStatus setlistfmUserStatus = SetlistfmUserStatus.UNKNOWN;
     private boolean networkCallIsInProgress;
 
     @Override
@@ -49,63 +70,11 @@ public final class UserActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
 
-        userIdText = findViewById(R.id.edit_userId_text);
-        clear = findViewById(R.id.clear_button);
-        submit = findViewById(R.id.submit_button);
+        authHelper = new AuthHelper(this, this);
+        databaseHelper = new DatabaseHelper();
 
-        userIdText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
-                // this method intentionally left blank
-            }
-
-            @Override
-            public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-                clear.setEnabled(s.length() > 0);
-                submit.setEnabled(s.length() > 0);
-            }
-
-            @Override
-            public void afterTextChanged(final Editable s) {
-                // this method intentionally left blank
-            }
-        });
-
-        userIdText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    makeUserNetworkCall(TextUtil.getText(userIdText));
-                    handled = true;
-                }
-                return handled;
-            }
-        });
-
-
-        clear.setOnClickListener(new View.OnClickListener()
-
-        {
-            @Override
-            public void onClick(final View v) {
-                userIdText.setText("");
-            }
-        });
-
-        submit.setOnClickListener(new View.OnClickListener()
-
-        {
-            @Override
-            public void onClick(final View v) {
-                makeUserNetworkCall(TextUtil.getText(userIdText));
-            }
-        });
-
-        progressBar =
-
-                findViewById(R.id.progress_bar);
-
+        initializeUI();
+        databaseHelper.getSetlistfmUser(authHelper.getCurrentUserUid(), this);
     }
 
     @Override
@@ -113,6 +82,81 @@ public final class UserActivity extends AppCompatActivity {
         super.onResume();
 
         syncUI();
+    }
+
+    @Override
+    protected void onDestroy() {
+        authHelper.clearAuthListener();
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_options, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sign_out:
+                authHelper.signOut(this);
+                return true;
+            case R.id.sign_out_remove_account:
+                // if successful, Firebase account will then be removed
+                databaseHelper.deleteUserData(authHelper.getCurrentUserUid(), this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void initializeUI() {
+        storedUserLayout = findViewById(R.id.stored_user_layout);
+        noStoredUserLayout = findViewById(R.id.no_stored_user_layout);
+
+        storedUserIdLabel = findViewById(R.id.stored_userId);
+
+        userIdEditText = findViewById(R.id.edit_notes_text);
+        clearButton = findViewById(R.id.edit_button);
+        submitButton = findViewById(R.id.save_button);
+
+        userIdEditText.addTextChangedListener(new SimpleTextWatcher() {
+            @Override
+            public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+                clearButton.setEnabled(s.length() > 0);
+                submitButton.setEnabled(s.length() > 0);
+            }
+        });
+
+        userIdEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    makeUserNetworkCall(TextUtil.getText(userIdEditText));
+                    handled = true;
+                }
+                return handled;
+            }
+        });
+
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                userIdEditText.setText("");
+            }
+        });
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                makeUserNetworkCall(TextUtil.getText(userIdEditText));
+            }
+        });
+
+        progressBar = findViewById(R.id.progress_bar);
     }
 
     private void makeUserNetworkCall(@NonNull final String userId) {
@@ -140,7 +184,14 @@ public final class UserActivity extends AppCompatActivity {
     }
 
     private void processSuccessfulUserResponse(@Nullable final User user) {
-        if (user.getUserId().equals(TextUtil.getText(userIdText))) {
+        setNetworkCallInProgress(false);
+
+        if (user.getUserId().equals(TextUtil.getText(userIdEditText))) {
+            databaseHelper.updateSetlistfmUserInDatabase(
+                    authHelper.getCurrentUserUid(),
+                    userIdEditText.getText().toString(),
+                    this);
+
             final ArrayList<Setlist> storedSetlists = new ArrayList<>();
             makeSetlistsNetworkCall(user.getUserId(), 1, storedSetlists);
         } else {
@@ -168,6 +219,8 @@ public final class UserActivity extends AppCompatActivity {
             final int pageIndex,
             @NonNull final ArrayList<Setlist> storedSetlists) {
 
+        setNetworkCallInProgress(true);
+
         final SetlistfmService service = RetrofitInstance.getRetrofitInstance().create(SetlistfmService.class);
         final Call<SetlistData> call = service.getSetlistData(userId, pageIndex);
 
@@ -188,6 +241,7 @@ public final class UserActivity extends AppCompatActivity {
 
                         final Intent intent = new Intent(UserActivity.this, TabbedActivity.class);
                         startActivity(intent);
+                        finish();
                     }
                 } else {
                     setNetworkCallInProgress(false);
@@ -208,20 +262,124 @@ public final class UserActivity extends AppCompatActivity {
         syncUI();
     }
 
+    private void setSetlistfmUserStatus(final SetlistfmUserStatus inputSetlistfmUserStatus) {
+        setlistfmUserStatus = inputSetlistfmUserStatus;
+        syncUI();
+    }
+
     private void syncUI() {
-        if (networkCallIsInProgress) {
-            userIdText.setEnabled(false);
-            clear.setEnabled(false);
-            submit.setEnabled(false);
+        setUserLayout(setlistfmUserStatus);
+        setProgessBarVisibility(networkCallIsInProgress || setlistfmUserStatus == SetlistfmUserStatus.UNKNOWN);
+
+        if (setlistfmUserStatus == SetlistfmUserStatus.NOT_STORED) {
+            syncNoStoredUserLayoutForNetworkCallStatus(networkCallIsInProgress);
+        }
+    }
+
+    private void setProgessBarVisibility(final boolean makeVisible) {
+        if (makeVisible) {
             progressBar.setVisibility(View.VISIBLE);
         } else {
-            userIdText.setEnabled(true);
             progressBar.setVisibility(View.INVISIBLE);
+        }
+    }
 
-            if (userIdText.getText().length() > 0) {
-                clear.setEnabled(true);
-                submit.setEnabled(true);
+    private void setUserLayout(final SetlistfmUserStatus setlistfmUserStatus) {
+        switch (setlistfmUserStatus) {
+            case UNKNOWN:
+                noStoredUserLayout.setVisibility(View.GONE);
+                storedUserLayout.setVisibility(View.GONE);
+                break;
+            case STORED:
+                noStoredUserLayout.setVisibility(View.GONE);
+                storedUserLayout.setVisibility(View.VISIBLE);
+                break;
+            case NOT_STORED:
+                noStoredUserLayout.setVisibility(View.VISIBLE);
+                storedUserLayout.setVisibility(View.GONE);
+                break;
+
+            default:
+                throw new IllegalStateException("This line should never be reached.");
+        }
+    }
+
+    private void syncNoStoredUserLayoutForNetworkCallStatus(final boolean networkCallIsInProgress) {
+        if (networkCallIsInProgress) {
+            userIdEditText.setEnabled(false);
+            clearButton.setEnabled(false);
+            submitButton.setEnabled(false);
+        } else {
+            userIdEditText.setEnabled(true);
+            if (userIdEditText.getText().length() > 0) {
+                clearButton.setEnabled(true);
+                submitButton.setEnabled(true);
             }
         }
+    }
+
+    private void returnToSignInActivity() {
+        final Intent intent = new Intent(UserActivity.this, SignInActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void onSignOutFromFirebase() {
+        // return to signInActivity even if still signed in to Google - it doesn't
+        // make sense to stay in this activity if signed out of Firebase
+        returnToSignInActivity();
+    }
+
+    @Override
+    public void onFirebaseSignOutUnsucessful() {
+        MessageUtil.makeToast(this, "Could not sign out!");
+    }
+
+    @Override
+    public void onGoogleSignOutUnsuccessful() {
+        MessageUtil.makeToast(this, "Could not sign out of Google!");
+    }
+
+    @Override
+    public void onFirebaseDeletionUnsuccessful() {
+        MessageUtil.makeToast(this, "Could not delete user account! Signing out only");
+    }
+
+    @Override
+    public void onRevokeFirebaseAccessToGoogleUnsuccessful() {
+        MessageUtil.makeToast(this, "Could not revoke Firebase access to Google! Signing out of Google only.");
+    }
+
+    @Override
+    public void onStoredSetlistfmUser(final String setlistfmUserId) {
+        setSetlistfmUserStatus(SetlistfmUserStatus.STORED);
+
+        final String storedUserId = setlistfmUserId;
+        storedUserIdLabel.setText(storedUserId);
+
+        final ArrayList<Setlist> storedSetlists = new ArrayList<>();
+        makeSetlistsNetworkCall(storedUserId, 1, storedSetlists);
+    }
+
+    @Override
+    public void onNoStoredSetlistfmUser() {
+        setSetlistfmUserStatus(SetlistfmUserStatus.NOT_STORED);
+    }
+
+    @Override
+    public void onUpdateDatabaseUnsuccessful() {
+        MessageUtil.makeToast(this, "Could not update user data!");
+    }
+
+    @Override
+    public void onDeleteUserDataSuccessful() {
+        authHelper.removeAccount(this);
+    }
+
+    @Override
+    public void onDeleteUserDataUnsuccessful() {
+        MessageUtil.makeToast(this, "Could not delete user data! Signing out only.");
+        authHelper.signOut(this);
     }
 }

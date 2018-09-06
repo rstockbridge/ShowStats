@@ -254,7 +254,7 @@ public final class UserStatistics {
                             longestArtistGap = gap;
                             longestArtistGapArtists = new ArrayList<>(Arrays.asList(artist.getName()));
                         } else if (gap == longestArtistGap) {
-                            if(!longestArtistGapArtists.contains(artistName)) {
+                            if (!longestArtistGapArtists.contains(artistName)) {
                                 longestArtistGapArtists.add(artistName);
                             }
                         }
@@ -263,7 +263,7 @@ public final class UserStatistics {
                             shortestArtistGap = gap;
                             shortestArtistGapArtists = new ArrayList<>(Arrays.asList(artist.getName()));
                         } else if (gap == shortestArtistGap) {
-                            if(!shortestArtistGapArtists.contains(artistName)) {
+                            if (!shortestArtistGapArtists.contains(artistName)) {
                                 shortestArtistGapArtists.add(artist.getName());
                             }
                         }
@@ -350,11 +350,12 @@ public final class UserStatistics {
 
     private void constructShows() {
         for (final Setlist setlist : setlists) {
+            final String id = setlist.getId();
             final String eventDate = setlist.getEventDate().toString();
             final String venueName = setlist.getVenue().getName();
             final String artistId = setlist.getArtist().getMbid();
             final String artist = setlist.getArtist().getName();
-            final Show show = new Show(eventDate, venueName);
+            final Show show = new Show(id, eventDate, venueName);
 
             if (!shows.contains(show)) {
                 shows.add(show);
