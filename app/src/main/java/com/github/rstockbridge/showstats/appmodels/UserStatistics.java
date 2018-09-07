@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 
-import com.github.rstockbridge.showstats.api.models.Coordinates;
+import com.github.rstockbridge.showstats.api.models.City;
 import com.github.rstockbridge.showstats.api.models.Setlist;
 import com.github.rstockbridge.showstats.api.models.SetlistArtist;
 import com.github.rstockbridge.showstats.api.models.SetlistVenue;
@@ -70,7 +70,7 @@ public final class UserStatistics {
     private Set<String> venueNames = new HashSet<>();
 
     @NonNull
-    private Set<SetlistVenue> venues = new HashSet<>();
+    private Set<City> cities = new HashSet<>();
 
     private int numberOfShows;
 
@@ -85,7 +85,8 @@ public final class UserStatistics {
         constructArtistIds();
         constructArtistIdNameMap();
         constructShows();
-        constructVenues();
+        constructVenueNames();
+        constructCities();
         calculateNumberOfShows();
     }
 
@@ -155,8 +156,8 @@ public final class UserStatistics {
     }
 
     @NonNull
-    public Set<SetlistVenue> getVenues() {
-        return venues;
+    public Set<City> getCities() {
+        return cities;
     }
 
     public int getNumberOfShows() {
@@ -365,14 +366,15 @@ public final class UserStatistics {
         }
     }
 
-    private void constructVenues() {
+    private void constructVenueNames() {
         for (final Setlist setlist : setlists) {
-            final String venueName = setlist.getVenue().getName();
+            venueNames.add(setlist.getVenue().getName());
+        }
+    }
 
-            if (!venueNames.contains(venueName)) {
-                venueNames.add(setlist.getVenue().getName());
-                venues.add(setlist.getVenue());
-            }
+    private void constructCities() {
+        for (final Setlist setlist : setlists) {
+            cities.add(setlist.getVenue().getCity());
         }
     }
 
