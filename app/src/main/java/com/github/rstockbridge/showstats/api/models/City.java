@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 
 import com.squareup.moshi.Json;
 
+import java.util.Objects;
+
 public final class City {
 
     @NonNull
@@ -13,6 +15,11 @@ public final class City {
     @NonNull
     private Coordinates coordinates;
 
+    @NonNull
+    public String getName() {
+        return name;
+    }
+
     public double getLatitude() {
         return coordinates.getLatitude();
     }
@@ -20,4 +27,20 @@ public final class City {
     public double getLongitude() {
         return coordinates.getLongitude();
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final City city = (City) o;
+        return Objects.equals(name, city.name) &&
+                Objects.equals(coordinates, city.coordinates);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(name, coordinates);
+    }
 }
+

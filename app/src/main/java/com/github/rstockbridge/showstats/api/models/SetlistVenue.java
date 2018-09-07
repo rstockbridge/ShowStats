@@ -17,6 +17,11 @@ public final class SetlistVenue {
         return name;
     }
 
+    @NonNull
+    public City getCity() {
+        return city;
+    }
+
     public double getLatitude() {
         return city.getLatitude();
     }
