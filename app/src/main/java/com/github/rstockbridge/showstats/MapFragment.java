@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.rstockbridge.showstats.api.models.City;
 import com.github.rstockbridge.showstats.api.models.SetlistVenue;
 import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
@@ -52,7 +53,7 @@ public final class MapFragment extends Fragment {
                 final UserStatistics statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
 
                 if (statistics != null) {
-                    displayMap(map, statistics.getVenues());
+                    displayMap(map, statistics.getCities());
                 }
             }
         });
@@ -84,12 +85,12 @@ public final class MapFragment extends Fragment {
         mapView.onLowMemory();
     }
 
-    private void displayMap(final GoogleMap map, @NonNull final Set<SetlistVenue> venues) {
+    private void displayMap(final GoogleMap map, @NonNull final Set<City> cities) {
         final LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-        for (final SetlistVenue venue : venues) {
-            final LatLng latLng = new LatLng(venue.getLatitude(), venue.getLongitude());
-            map.addMarker(new MarkerOptions().position(latLng).title(venue.getName()));
+        for (final City city : cities) {
+            final LatLng latLng = new LatLng(city.getLatitude(), city.getLongitude());
+            map.addMarker(new MarkerOptions().position(latLng).title(city.getName()));
             builder.include(latLng);
         }
 
