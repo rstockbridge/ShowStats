@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +25,6 @@ import com.github.rstockbridge.showstats.api.models.SetlistData;
 import com.github.rstockbridge.showstats.api.models.User;
 import com.github.rstockbridge.showstats.appmodels.Show;
 import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
-import com.github.rstockbridge.showstats.appmodels.User2StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 import com.github.rstockbridge.showstats.ui.BarChartMakerUserTotalShows;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
@@ -82,13 +80,6 @@ public final class CompareFragment extends Fragment {
         initializeUI(v);
 
         textUtil = new TextUtil(getResources());
-
-        final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
-        final UserStatistics user2Statistics = User2StatisticsHolder.getSharedInstance().getStatistics();
-
-        if (user1Statistics != null && user2Statistics != null) {
-            displayStats(user1Statistics, user2Statistics);
-        }
 
         return v;
     }
@@ -218,12 +209,12 @@ public final class CompareFragment extends Fragment {
     }
 
     private void makeSetlistsNetworkCall(
-            @NonNull final String userId,
+            @NonNull final String user2Id,
             final int pageIndex,
-            @NonNull final ArrayList<Setlist> storedSetlists) {
+            @NonNull final ArrayList<Setlist> user2storedSetlists) {
 
         final SetlistfmService service = RetrofitInstance.getRetrofitInstance().create(SetlistfmService.class);
-        final Call<SetlistData> call = service.getSetlistData(userId, pageIndex);
+        final Call<SetlistData> call = service.getSetlistData(user2Id, pageIndex);
 
         call.enqueue(new Callback<SetlistData>() {
             @Override
@@ -233,20 +224,15 @@ public final class CompareFragment extends Fragment {
                 }
 
                 if (response.isSuccessful()) {
-                    final SetlistData setlistData = response.body();
-                    storedSetlists.addAll(setlistData.getSetlists());
+                    final SetlistData user2SetlistData = response.body();
+                    user2storedSetlists.addAll(user2SetlistData.getSetlists());
 
-                    if (pageIndex < setlistData.getNumberOfPages()) {
-                        makeSetlistsNetworkCall(userId, pageIndex + 1, storedSetlists);
+                    if (pageIndex < user2SetlistData.getNumberOfPages()) {
+                        makeSetlistsNetworkCall(user2Id, pageIndex + 1, user2storedSetlists);
                     } else {
                         setNetworkCallInProgress(false);
-                        Log.i("beccadecca", "finished");
                         final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
-
-                        User2StatisticsHolder.getSharedInstance().setStatistics(new UserStatistics(userId, storedSetlists));
-                        final UserStatistics user2Statistics = User2StatisticsHolder.getSharedInstance().getStatistics();
-
-                        displayStats(user1Statistics, user2Statistics);
+                        displayStats(user1Statistics, new UserStatistics(user2Id, user2storedSetlists));
                     }
                 } else {
                     setNetworkCallInProgress(false);
