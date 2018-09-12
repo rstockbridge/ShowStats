@@ -1,6 +1,8 @@
 package com.github.rstockbridge.showstats.ui;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -13,6 +15,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.utils.ViewPortHandler;
+import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 
 import java.util.ArrayList;
@@ -52,7 +55,7 @@ public final class BarChartMakerUserTotalShows {
         labels.add(user1);
     }
 
-    public void displayBarChart() {
+    public void displayBarChart(@NonNull final Context context) {
         barChart.setTouchEnabled(false);
         barChart.setFitBars(true);
 
@@ -61,27 +64,30 @@ public final class BarChartMakerUserTotalShows {
         barChart.setExtraRightOffset(30f);
 
         configureXAxis();
-        configureYAxis();
+        configureYAxis(context);
 
         // must come after configureXAxis() for chart to fit correctly horizontally
-        barChart.setData(getBarData());
+        barChart.setData(getBarData(context));
 
         barChart.invalidate(); // refresh
     }
 
     @NonNull
-    private BarDataSet getBarDataSet() {
+    private BarDataSet getBarDataSet(@NonNull final Context context) {
         final ArrayList<BarEntry> entries = new ArrayList<>();
 
         entries.add(new BarEntry(0, numberOfShows2));
         entries.add(new BarEntry(1, numberOfShows1));
 
-        return new BarDataSet(entries, "");
+        final BarDataSet dataSet = new BarDataSet(entries, "");
+        dataSet.setColor(ContextCompat.getColor(context, R.color.colorAccent));
+
+        return dataSet;
     }
 
     @NonNull
-    private BarData getBarData() {
-        final BarData result = new BarData(getBarDataSet());
+    private BarData getBarData(@NonNull final Context context) {
+        final BarData result = new BarData(getBarDataSet(context));
         result.setBarWidth(0.9f);
         result.setValueTextSize(16f);
 
@@ -112,7 +118,7 @@ public final class BarChartMakerUserTotalShows {
         });
     }
 
-    private void configureYAxis() {
+    private void configureYAxis(@NonNull final Context context) {
         final YAxis leftYAxis = barChart.getAxisLeft();
         final YAxis rightYAxis = barChart.getAxisRight();
 
@@ -121,7 +127,7 @@ public final class BarChartMakerUserTotalShows {
         leftYAxis.setDrawAxisLine(false);
         leftYAxis.setDrawGridLines(false);
 
-        rightYAxis.setAxisMaximum(getBarData().getYMax());
+        rightYAxis.setAxisMaximum(getBarData(context).getYMax());
         rightYAxis.setEnabled(false);
     }
 }
