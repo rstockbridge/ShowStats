@@ -113,7 +113,8 @@ public final class CompareFragment extends Fragment {
                 boolean handled = false;
 
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    makeUserNetworkCall(TextUtil.getText(user2IdText));
+                    processSubmittedUser2();
+
                     handled = true;
                 }
                 return handled;
@@ -130,13 +131,7 @@ public final class CompareFragment extends Fragment {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
-
-                if (TextUtil.getText(user2IdText).equals(user1Statistics.getUserId())) {
-                    MessageUtil.makeToast(getActivity(), getString(R.string.same_user));
-                } else {
-                    makeUserNetworkCall(TextUtil.getText(user2IdText));
-                }
+                processSubmittedUser2();
             }
         });
 
@@ -150,6 +145,17 @@ public final class CompareFragment extends Fragment {
 
         averageShowGapLabel1 = v.findViewById(R.id.average_show_gap1);
         averageShowGapLabel2 = v.findViewById(R.id.average_show_gap2);
+    }
+
+    private void processSubmittedUser2() {
+        final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
+
+        if (TextUtil.getText(user2IdText).equals(user1Statistics.getUserId())) {
+            submit.setEnabled(false);
+            MessageUtil.makeToast(getActivity(), getString(R.string.same_user));
+        } else {
+            makeUserNetworkCall(TextUtil.getText(user2IdText));
+        }
     }
 
     private void makeUserNetworkCall(@NonNull final String userId) {
