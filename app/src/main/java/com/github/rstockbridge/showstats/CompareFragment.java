@@ -256,7 +256,7 @@ public final class CompareFragment extends Fragment {
     private void displayStats(@NonNull final UserStatistics user1Statistics, @NonNull final UserStatistics user2Statistics) {
         final BarChartMakerUserTotalShows barChartMaker = new BarChartMakerUserTotalShows(
                 barChart, user1Statistics, user2Statistics);
-        barChartMaker.displayBarChart();
+        barChartMaker.displayBarChart(getActivity());
 
         calculateCommonStatistics(user1Statistics, user2Statistics);
 

@@ -1,6 +1,8 @@
 package com.github.rstockbridge.showstats.ui;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -13,6 +15,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.utils.ViewPortHandler;
+import com.github.rstockbridge.showstats.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,33 +56,38 @@ public final class BarChartMakerShowDistribution {
         this.dataByMonth = dataByMonth;
     }
 
-    public void displayBarChart() {
-        barChart.setData(getBarData());
+    public void displayBarChart(@NonNull final Context context) {
+        barChart.setData(getBarData(context));
         barChart.setTouchEnabled(false);
         barChart.setFitBars(true);
         barChart.getLegend().setEnabled(false);
         barChart.getDescription().setEnabled(false);
 
         configureXAxis();
-        configureYAxis();
+        configureYAxis(context);
 
         barChart.invalidate(); // refresh
     }
 
     @NonNull
-    private BarDataSet getBarDataSet() {
+    private BarDataSet getBarDataSet(@NonNull final Context context) {
         final ArrayList<BarEntry> entries = new ArrayList<>();
 
         for (int i = 0; i < NUMBER_OF_MONTHS; i++) {
             entries.add(new BarEntry(i, dataByMonth[i]));
         }
 
-        return new BarDataSet(entries, "");
+        //return new BarDataSet(entries, "");
+
+        final BarDataSet dataSet = new BarDataSet(entries, "");
+        dataSet.setColor(ContextCompat.getColor(context, R.color.colorAccent));
+
+        return dataSet;
     }
 
     @NonNull
-    private BarData getBarData() {
-        final BarData result = new BarData(getBarDataSet());
+    private BarData getBarData(@NonNull final Context context) {
+        final BarData result = new BarData(getBarDataSet(context));
         result.setBarWidth(0.9f);
         result.setValueTextSize(16f);
 
@@ -110,7 +118,7 @@ public final class BarChartMakerShowDistribution {
         });
     }
 
-    private void configureYAxis() {
+    private void configureYAxis(@NonNull final Context context) {
         final YAxis leftYAxis = barChart.getAxisLeft();
         final YAxis rightYAxis = barChart.getAxisRight();
 
@@ -119,7 +127,7 @@ public final class BarChartMakerShowDistribution {
         leftYAxis.setDrawAxisLine(false);
         leftYAxis.setDrawGridLines(false);
 
-        rightYAxis.setAxisMaximum(getBarData().getYMax());
+        rightYAxis.setAxisMaximum(getBarData(context).getYMax());
         rightYAxis.setEnabled(false);
     }
 }

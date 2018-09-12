@@ -69,7 +69,7 @@ public final class StatsFragment extends Fragment {
 
     private void displayStats(@NonNull final UserStatistics statistics) {
         final BarChartMakerShowDistribution barChartMaker = new BarChartMakerShowDistribution(barChart, statistics.getDistributionByMonth());
-        barChartMaker.displayBarChart();
+        barChartMaker.displayBarChart(getActivity());
 
         final PieChartMaker pieChartMaker = new PieChartMaker(pieChart, statistics.getTopVenueVisits());
         pieChartMaker.displayPieChart();
