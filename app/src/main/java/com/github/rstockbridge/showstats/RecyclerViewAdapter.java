@@ -53,15 +53,19 @@ public final class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
 
     final class Holder extends RecyclerView.ViewHolder {
 
+        private TextView dateLabel;
+        private TextView venueLabel;
+        private TextView artistsLabel;
+
         Holder(@NonNull final LayoutInflater inflater, @NonNull final ViewGroup parent) {
             super(inflater.inflate(R.layout.show_row, parent, false));
+
+            dateLabel = itemView.findViewById(R.id.date);
+            venueLabel = itemView.findViewById(R.id.venue);
+            artistsLabel = itemView.findViewById(R.id.artists);
         }
 
         void bind(final int position) {
-            final TextView dateLabel = itemView.findViewById(R.id.date);
-            final TextView venueLabel = itemView.findViewById(R.id.venue);
-            final TextView artistsLabel = itemView.findViewById(R.id.artists);
-
             final Show show = shows.get(position);
 
             dateLabel.setText(textUtil.getDateText(show.getEventDate(), false));
