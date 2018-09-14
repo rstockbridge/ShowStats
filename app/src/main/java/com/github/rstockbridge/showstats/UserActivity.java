@@ -116,11 +116,14 @@ public final class UserActivity
         storedUserLayout = findViewById(R.id.stored_user_layout);
         noStoredUserLayout = findViewById(R.id.no_stored_user_layout);
 
+        storedUserLayout.setVisibility(View.GONE);
+        noStoredUserLayout.setVisibility(View.GONE);
+
         storedUserIdLabel = findViewById(R.id.stored_userId);
 
         userIdEditText = findViewById(R.id.edit_notes_text);
-        clearButton = findViewById(R.id.edit_button);
-        submitButton = findViewById(R.id.save_button);
+        clearButton = findViewById(R.id.clear_button);
+        submitButton = findViewById(R.id.submit_button);
 
         userIdEditText.addTextChangedListener(new SimpleTextWatcher() {
             @Override
@@ -157,6 +160,9 @@ public final class UserActivity
         });
 
         progressBar = findViewById(R.id.progress_bar);
+
+        clearButton.setEnabled(false);
+        submitButton.setEnabled(false);
     }
 
     private void makeUserNetworkCall(@NonNull final String userId) {
