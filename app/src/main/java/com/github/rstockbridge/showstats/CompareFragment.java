@@ -77,7 +77,10 @@ public final class CompareFragment extends Fragment {
             @Nullable final Bundle savedInstanceState) {
 
         final View v = inflater.inflate(R.layout.fragment_compare, container, false);
+
         initializeUI(v);
+
+        setNetworkCallInProgress(false);
 
         textUtil = new TextUtil(getResources());
 
@@ -86,8 +89,8 @@ public final class CompareFragment extends Fragment {
 
     private void initializeUI(@NonNull final View v) {
         user2IdText = v.findViewById(R.id.edit_user2_userId_text);
-        clear = v.findViewById(R.id.edit_button);
-        submit = v.findViewById(R.id.save_button);
+        clear = v.findViewById(R.id.clear_button);
+        submit = v.findViewById(R.id.submit_button);
 
         user2IdText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -127,7 +130,6 @@ public final class CompareFragment extends Fragment {
                 user2IdText.setText("");
             }
         });
-
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
@@ -135,9 +137,14 @@ public final class CompareFragment extends Fragment {
             }
         });
 
+        clear.setEnabled(false);
+        submit.setEnabled(false);
+
         progressBar = v.findViewById(R.id.progress_bar);
         scrollView = v.findViewById(R.id.scroll_view);
         barChart = v.findViewById(R.id.bar_chart);
+
+        scrollView.setVisibility(View.INVISIBLE);
 
         commonArtistsLabel = v.findViewById(R.id.common_artists);
         commonVenuesLabel = v.findViewById(R.id.common_venues);

@@ -66,12 +66,12 @@ public final class NotesActivity
     public void onClick(final View v) {
         switch (v.getId()) {
 
-            case R.id.edit_button:
+            case R.id.clear_button:
                 editTextButtonEnabled = false;
                 syncUI();
                 break;
 
-            case R.id.save_button:
+            case R.id.submit_button:
                 editTextButtonEnabled = true;
                 syncUI();
                 saveToDatabase();
@@ -94,8 +94,8 @@ public final class NotesActivity
 
     private void initializeUI() {
         editText = findViewById(R.id.edit_notes_text);
-        editTextButton = findViewById(R.id.edit_button);
-        saveButton = findViewById(R.id.save_button);
+        editTextButton = findViewById(R.id.clear_button);
+        saveButton = findViewById(R.id.submit_button);
 
         final Button exitButton = findViewById(R.id.exit_button);
 
@@ -118,6 +118,9 @@ public final class NotesActivity
         editTextButton.setOnClickListener(this);
         saveButton.setOnClickListener(this);
         exitButton.setOnClickListener(this);
+
+        editText.setEnabled(false);
+        saveButton.setEnabled(false);
     }
 
     private void syncUI() {
