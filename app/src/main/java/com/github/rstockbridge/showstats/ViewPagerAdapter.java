@@ -28,9 +28,9 @@ public final class ViewPagerAdapter extends FragmentPagerAdapter {
                 return new ShowsFragment();
             case 3:
                 return new CompareFragment();
+            default:
+                throw new IllegalStateException("This line should not be reached");
         }
-
-        throw new IllegalStateException("This line should not be reached");
     }
 
     @Override
@@ -50,8 +50,8 @@ public final class ViewPagerAdapter extends FragmentPagerAdapter {
                 return "Shows";
             case 3:
                 return "Compare";
+            default:
+                throw new IllegalStateException("This line should not be reached");
         }
-
-        throw new IllegalStateException("This line should not be reached.");
     }
 }

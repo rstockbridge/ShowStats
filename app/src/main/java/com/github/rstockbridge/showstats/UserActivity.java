@@ -58,7 +58,7 @@ public final class UserActivity
     private LinearLayout noStoredUserLayout;
     private EditText userIdEditText;
     private Button clearButton;
-    private Button submitButton;
+    private Button goButton;
 
     private ProgressBar progressBar;
 
@@ -123,13 +123,13 @@ public final class UserActivity
 
         userIdEditText = findViewById(R.id.edit_notes_text);
         clearButton = findViewById(R.id.clear_button);
-        submitButton = findViewById(R.id.submit_button);
+        goButton = findViewById(R.id.go_button);
 
         userIdEditText.addTextChangedListener(new SimpleTextWatcher() {
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 clearButton.setEnabled(s.length() > 0);
-                submitButton.setEnabled(s.length() > 0);
+                goButton.setEnabled(s.length() > 0);
             }
         });
 
@@ -152,7 +152,7 @@ public final class UserActivity
             }
         });
 
-        submitButton.setOnClickListener(new View.OnClickListener() {
+        goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
                 makeUserNetworkCall(TextUtil.getText(userIdEditText));
@@ -162,7 +162,7 @@ public final class UserActivity
         progressBar = findViewById(R.id.progress_bar);
 
         clearButton.setEnabled(false);
-        submitButton.setEnabled(false);
+        goButton.setEnabled(false);
     }
 
     private void makeUserNetworkCall(@NonNull final String userId) {
@@ -296,10 +296,12 @@ public final class UserActivity
                 noStoredUserLayout.setVisibility(View.GONE);
                 storedUserLayout.setVisibility(View.GONE);
                 break;
+
             case STORED:
                 noStoredUserLayout.setVisibility(View.GONE);
                 storedUserLayout.setVisibility(View.VISIBLE);
                 break;
+
             case NOT_STORED:
                 noStoredUserLayout.setVisibility(View.VISIBLE);
                 storedUserLayout.setVisibility(View.GONE);
@@ -314,12 +316,12 @@ public final class UserActivity
         if (networkCallIsInProgress) {
             userIdEditText.setEnabled(false);
             clearButton.setEnabled(false);
-            submitButton.setEnabled(false);
+            goButton.setEnabled(false);
         } else {
             userIdEditText.setEnabled(true);
             if (userIdEditText.getText().length() > 0) {
                 clearButton.setEnabled(true);
-                submitButton.setEnabled(true);
+                goButton.setEnabled(true);
             }
         }
     }
