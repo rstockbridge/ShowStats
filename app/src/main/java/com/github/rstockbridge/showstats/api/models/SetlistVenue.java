@@ -12,6 +12,11 @@ public final class SetlistVenue {
     @NonNull
     private City city;
 
+    public SetlistVenue(@NonNull final String name, @NonNull final City city) {
+        this.name = name;
+        this.city = city;
+    }
+
     @NonNull
     public String getName() {
         return name;
