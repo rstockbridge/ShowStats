@@ -12,6 +12,11 @@ public final class Coordinates {
     @Json(name = "long")
     private double longitude;
 
+    public Coordinates(final double latitude, final double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
     public double getLatitude() {
         return latitude;
     }

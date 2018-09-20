@@ -12,6 +12,11 @@ public final class SetlistArtist {
     @NonNull
     private String name;
 
+    public SetlistArtist(@NonNull final String mbid, @NonNull final String name) {
+        this.mbid = mbid;
+        this.name = name;
+    }
+
     private SetlistArtist(final Parcel in) {
         name = in.readString();
         mbid = in.readString();
