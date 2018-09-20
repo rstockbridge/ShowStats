@@ -18,6 +18,17 @@ public final class Setlist {
     @NonNull
     private SetlistVenue venue;
 
+    public Setlist(@NonNull final String id,
+                    @NonNull final String eventDate,
+                    @NonNull final SetlistArtist artist,
+                    @NonNull final SetlistVenue venue) {
+
+        this.id = id;
+        this.eventDate = eventDate;
+        this.artist = artist;
+        this.venue = venue;
+    }
+
     @NonNull
     public String getId() {
         return id;

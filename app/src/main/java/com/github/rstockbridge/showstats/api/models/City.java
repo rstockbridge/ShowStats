@@ -15,6 +15,11 @@ public final class City {
     @NonNull
     private Coordinates coordinates;
 
+    public City(@NonNull final String name, @NonNull final Coordinates coordinates) {
+        this.name = name;
+        this.coordinates = coordinates;
+    }
+
     @NonNull
     public String getName() {
         return name;
