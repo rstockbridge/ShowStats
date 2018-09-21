@@ -1,5 +1,6 @@
 package com.github.rstockbridge.showstats;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -8,11 +9,13 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -50,9 +53,7 @@ public final class CompareFragment extends Fragment {
     private List<Show> commonShows;
 
     private EditText user2IdText;
-
-    private Button clear;
-    private Button submit;
+    private Button goButton;
 
     private ProgressBar progressBar;
     private ScrollView scrollView;
@@ -87,10 +88,10 @@ public final class CompareFragment extends Fragment {
         return v;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initializeUI(@NonNull final View v) {
         user2IdText = v.findViewById(R.id.edit_user2_userId_text);
-        clear = v.findViewById(R.id.clear_button);
-        submit = v.findViewById(R.id.submit_button);
+        goButton = v.findViewById(R.id.go_button);
 
         user2IdText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -100,8 +101,7 @@ public final class CompareFragment extends Fragment {
 
             @Override
             public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-                clear.setEnabled(s.length() > 0);
-                submit.setEnabled(s.length() > 0);
+                goButton.setEnabled(s.length() > 0);
             }
 
             @Override
@@ -124,21 +124,30 @@ public final class CompareFragment extends Fragment {
             }
         });
 
-        clear.setOnClickListener(new View.OnClickListener() {
+        user2IdText.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(final View v) {
-                user2IdText.setText("");
+            public boolean onTouch(final View v, final MotionEvent event) {
+                final int DRAWABLE_RIGHT = 2;
+
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (event.getRawX() >= (user2IdText.getRight() - user2IdText.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                        user2IdText.setText("");
+                        return true;
+                    }
+                }
+                return false;
             }
+
         });
-        submit.setOnClickListener(new View.OnClickListener() {
+
+
+        goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
                 processSubmittedUser2();
             }
         });
-
-        clear.setEnabled(false);
-        submit.setEnabled(false);
+        goButton.setEnabled(false);
 
         progressBar = v.findViewById(R.id.progress_bar);
         scrollView = v.findViewById(R.id.scroll_view);
@@ -158,7 +167,7 @@ public final class CompareFragment extends Fragment {
         final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
 
         if (TextUtil.getText(user2IdText).equals(user1Statistics.getUserId())) {
-            submit.setEnabled(false);
+            goButton.setEnabled(false);
             MessageUtil.makeToast(getActivity(), getString(R.string.same_user));
         } else {
             makeUserNetworkCall(TextUtil.getText(user2IdText));
@@ -358,16 +367,14 @@ public final class CompareFragment extends Fragment {
     private void syncUI() {
         if (networkCallIsInProgress) {
             user2IdText.setEnabled(false);
-            clear.setEnabled(false);
-            submit.setEnabled(false);
+            goButton.setEnabled(false);
 
             progressBar.setVisibility(View.VISIBLE);
             scrollView.setVisibility(View.INVISIBLE);
         } else {
             user2IdText.setEnabled(true);
             if (user2IdText.getText().length() > 0) {
-                clear.setEnabled(true);
-                submit.setEnabled(true);
+                goButton.setEnabled(true);
             }
 
             progressBar.setVisibility(View.INVISIBLE);

@@ -71,7 +71,7 @@ public final class NotesActivity
                 syncUI();
                 break;
 
-            case R.id.submit_button:
+            case R.id.go_button:
                 editTextButtonEnabled = true;
                 syncUI();
                 saveToDatabase();
@@ -95,7 +95,7 @@ public final class NotesActivity
     private void initializeUI() {
         editText = findViewById(R.id.edit_notes_text);
         editTextButton = findViewById(R.id.clear_button);
-        saveButton = findViewById(R.id.submit_button);
+        saveButton = findViewById(R.id.go_button);
 
         final Button exitButton = findViewById(R.id.exit_button);
 
