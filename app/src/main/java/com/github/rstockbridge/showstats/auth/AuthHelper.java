@@ -79,7 +79,7 @@ public final class AuthHelper implements FirebaseAuth.AuthStateListener {
         return googleSignInClient.getSignInIntent();
     }
 
-    public void finishSignIn(@NonNull final Intent data, @NonNull final SignInListener listener) {
+    public void finishSignIn(@Nullable final Intent data, @NonNull final SignInListener listener) {
         final Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
 
         try {

@@ -42,8 +42,14 @@ public final class SignInActivity
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_CODE_GOOGLE_SIGN_IN) {
-            authHelper.finishSignIn(data, this);
+        switch (requestCode) {
+            case REQUEST_CODE_GOOGLE_SIGN_IN:
+                if (resultCode == RESULT_OK) {
+                    authHelper.finishSignIn(data, this);
+                }
+                break;
+            default:
+                throw new IllegalStateException("This line should not be reached.");
         }
     }
 
