@@ -7,6 +7,9 @@ import android.support.v4.app.Fragment;
 
 public final class ActivityFragmentUtil {
 
+    private ActivityFragmentUtil() {
+    }
+
     public static boolean isActivityValid(@NonNull Fragment fragment, @Nullable Activity activity) {
         return fragment.isAdded()
                 && activity != null
