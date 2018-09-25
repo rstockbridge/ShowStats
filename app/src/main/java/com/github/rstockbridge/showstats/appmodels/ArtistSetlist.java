@@ -9,10 +9,10 @@ import org.threeten.bp.LocalDate;
 public final class ArtistSetlist {
 
     @NonNull
-    private LocalDate eventDate;
+    private final LocalDate eventDate;
 
     @NonNull
-    private String venue;
+    private final String venue;
 
     ArtistSetlist(@NonNull final LocalDate eventDate, @NonNull final String venue) {
         this.eventDate = eventDate;

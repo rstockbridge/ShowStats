@@ -17,7 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.github.rstockbridge.showstats.api.RetrofitInstance;
+import com.github.rstockbridge.showstats.api.RetrofitWrapper;
 import com.github.rstockbridge.showstats.api.SetlistfmService;
 import com.github.rstockbridge.showstats.api.models.Setlist;
 import com.github.rstockbridge.showstats.api.models.SetlistData;
@@ -168,7 +168,7 @@ public final class UserActivity
     private void makeUserNetworkCall(@NonNull final String userId) {
         setNetworkCallInProgress(true);
 
-        final SetlistfmService service = RetrofitInstance.getRetrofitInstance().create(SetlistfmService.class);
+        final SetlistfmService service = RetrofitWrapper.getRetrofitInstance().create(SetlistfmService.class);
         final Call<User> call = service.verifyUserId(userId);
 
         call.enqueue(new Callback<User>() {
@@ -227,7 +227,7 @@ public final class UserActivity
 
         setNetworkCallInProgress(true);
 
-        final SetlistfmService service = RetrofitInstance.getRetrofitInstance().create(SetlistfmService.class);
+        final SetlistfmService service = RetrofitWrapper.getRetrofitInstance().create(SetlistfmService.class);
         final Call<SetlistData> call = service.getSetlistData(userId, pageIndex);
 
         call.enqueue(new Callback<SetlistData>() {

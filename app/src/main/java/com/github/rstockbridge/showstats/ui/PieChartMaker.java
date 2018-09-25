@@ -17,10 +17,10 @@ import java.util.Map;
 public final class PieChartMaker {
 
     @NonNull
-    private PieChart pieChart;
+    private final PieChart pieChart;
 
     @NonNull
-    private Map<String, Integer> data;
+    private final Map<String, Integer> data;
 
     public PieChartMaker(@NonNull final PieChart pieChart, @NonNull final Map<String, Integer> data) {
         this.pieChart = pieChart;

@@ -8,7 +8,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 
-public final class GoogleSignInClientWrapper {
+final class GoogleSignInClientWrapper {
 
     private GoogleSignInClient googleSignInClient;
 
@@ -20,7 +20,7 @@ public final class GoogleSignInClientWrapper {
         googleSignInClient = GoogleSignIn.getClient(context, gso);
     }
 
-    public GoogleSignInClient getGoogleSignInClient() {
+    GoogleSignInClient getGoogleSignInClient() {
         return googleSignInClient;
     }
 }

@@ -7,21 +7,21 @@ import java.util.Objects;
 public final class Coordinates {
 
     @Json(name = "lat")
-    private double latitude;
+    private final double latitude;
 
     @Json(name = "long")
-    private double longitude;
+    private final double longitude;
 
     public Coordinates(final double latitude, final double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    public double getLatitude() {
+    double getLatitude() {
         return latitude;
     }
 
-    public double getLongitude() {
+    double getLongitude() {
         return longitude;
     }
 
