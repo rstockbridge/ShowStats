@@ -7,10 +7,10 @@ import java.util.Objects;
 public final class SetlistVenue {
 
     @NonNull
-    private String name;
+    private final String name;
 
     @NonNull
-    private City city;
+    private final City city;
 
     public SetlistVenue(@NonNull final String name, @NonNull final City city) {
         this.name = name;
@@ -25,14 +25,6 @@ public final class SetlistVenue {
     @NonNull
     public City getCity() {
         return city;
-    }
-
-    public double getLatitude() {
-        return city.getLatitude();
-    }
-
-    public double getLongitude() {
-        return city.getLongitude();
     }
 
     @Override

@@ -38,6 +38,7 @@ public final class BarChartMakerUserTotalShows {
     public BarChartMakerUserTotalShows(@NonNull final BarChart barChart,
                                        @NonNull final UserStatistics user1Statistics,
                                        @NonNull final UserStatistics user2Statistics) {
+        
         this.barChart = barChart;
 
         this.user1 = user1Statistics.getUserId();

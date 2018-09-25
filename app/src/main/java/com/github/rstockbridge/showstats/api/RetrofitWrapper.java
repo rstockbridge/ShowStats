@@ -15,12 +15,12 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.moshi.MoshiConverterFactory;
 
-public final class RetrofitInstance {
+public final class RetrofitWrapper {
 
     private static Retrofit retrofit;
     private static final String BASE_URL = "https://api.setlist.fm/rest/1.0/user/";
 
-    private RetrofitInstance() {
+    private RetrofitWrapper() {
     }
 
     @NonNull

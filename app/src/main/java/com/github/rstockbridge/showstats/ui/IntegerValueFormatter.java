@@ -11,7 +11,7 @@ import java.text.DecimalFormat;
 public final class IntegerValueFormatter implements IValueFormatter {
 
     @NonNull
-    private DecimalFormat format;
+    private final DecimalFormat format;
 
     IntegerValueFormatter() {
         format = new DecimalFormat("###,###,###"); // use one decimal

@@ -9,11 +9,11 @@ import java.util.Objects;
 public final class City {
 
     @NonNull
-    private String name;
+    private final String name;
 
     @Json(name = "coords")
     @NonNull
-    private Coordinates coordinates;
+    private final Coordinates coordinates;
 
     public City(@NonNull final String name, @NonNull final Coordinates coordinates) {
         this.name = name;
