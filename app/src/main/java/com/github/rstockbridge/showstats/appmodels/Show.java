@@ -12,13 +12,13 @@ import java.util.Objects;
 public final class Show {
 
     @NonNull
-    private String id;
+    private final String id;
 
     @NonNull
-    private String eventDate;
+    private final String eventDate;
 
     @NonNull
-    private String venueName;
+    private final String venueName;
 
     @NonNull
     private Map<String, String> artistIdNameMap = new HashMap<>();

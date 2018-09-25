@@ -8,13 +8,13 @@ import java.util.List;
 public final class Artist {
 
     @NonNull
-    private String id;
+    private final String id;
 
     @NonNull
-    private String name;
+    private final String name;
 
     @NonNull
-    private List<ArtistSetlist> setlists;
+    private final List<ArtistSetlist> setlists;
 
     Artist(@NonNull final String id, @NonNull final String name, @NonNull final ArtistSetlist setlist) {
         this.id = id;
