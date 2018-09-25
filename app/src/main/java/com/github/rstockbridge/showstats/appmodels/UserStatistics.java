@@ -29,13 +29,13 @@ public final class UserStatistics {
     private static final int NUMBER_OF_MONTHS = 12;
 
     @NonNull
-    private List<Setlist> setlists;
+    private final List<Setlist> setlists;
 
     @NonNull
-    private String userId;
+    private final String userId;
 
     @NonNull
-    private int[] distributionByMonth = new int[NUMBER_OF_MONTHS];
+    private final int[] distributionByMonth = new int[NUMBER_OF_MONTHS];
 
     @Nullable
     private Integer longestShowGap = null;
@@ -55,22 +55,22 @@ public final class UserStatistics {
     private Integer averageShowGap = null;
 
     @NonNull
-    private Map<String, Integer> topVenueVisits = new HashMap<>();
+    private final Map<String, Integer> topVenueVisits = new HashMap<>();
 
     @NonNull
-    private Set<String> artistIds = new HashSet<>();
+    private final Set<String> artistIds = new HashSet<>();
 
     @NonNull
-    private Map<String, String> artistIdNameMap = new HashMap<>();
+    private final Map<String, String> artistIdNameMap = new HashMap<>();
 
     @NonNull
-    private List<Show> shows = new ArrayList<>();
+    private final List<Show> shows = new ArrayList<>();
 
     @NonNull
-    private Set<String> venueNames = new HashSet<>();
+    private final Set<String> venueNames = new HashSet<>();
 
     @NonNull
-    private Set<City> cities = new HashSet<>();
+    private final Set<City> cities = new HashSet<>();
 
     private int numberOfShows;
 

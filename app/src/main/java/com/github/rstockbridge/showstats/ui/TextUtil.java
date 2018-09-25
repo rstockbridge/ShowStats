@@ -22,7 +22,7 @@ public final class TextUtil {
     private static final String newlineHtml = "<br>";
 
     @NonNull
-    private Resources resources;
+    private final Resources resources;
 
     public TextUtil(@NonNull final Resources resources) {
         this.resources = resources;

@@ -19,13 +19,13 @@ import java.util.List;
 public final class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Holder> {
 
     @NonNull
-    private Context context;
+    private final Context context;
 
     @NonNull
-    private List<Show> shows;
+    private final List<Show> shows;
 
     @NonNull
-    private TextUtil textUtil;
+    private final TextUtil textUtil;
 
     RecyclerViewAdapter(@NonNull Context context, @NonNull final List<Show> shows) {
         this.context = context;
@@ -53,9 +53,9 @@ public final class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
 
     final class Holder extends RecyclerView.ViewHolder {
 
-        private TextView dateLabel;
-        private TextView venueLabel;
-        private TextView artistsLabel;
+        private final TextView dateLabel;
+        private final TextView venueLabel;
+        private final TextView artistsLabel;
 
         Holder(@NonNull final LayoutInflater inflater, @NonNull final ViewGroup parent) {
             super(inflater.inflate(R.layout.show_row, parent, false));
