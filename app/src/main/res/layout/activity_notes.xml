@@ -2,35 +2,38 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
-    android:padding="16dp" >
+    android:padding="16dp">
 
-    <TextView
-        android:id="@+id/label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/show_notes"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"/>
-
-    <EditText
-        android:id="@+id/edit_notes_text"
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/enter_text_here"
-        android:imeOptions="actionDone"
-        android:inputType="text"
-        android:singleLine="true"
-        android:textSize="24sp"
-        android:layout_below="@id/label"/>
+        app:counterEnabled="true"
+        app:counterMaxLength="100" >
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/edit_notes_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/enter_show_note_here"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:maxLength="100"
+            android:textSize="24sp"
+            android:drawableRight="@drawable/ic_clear"
+            android:drawableTint="@color/colorAccent"
+            tools:ignore="RtlHardcoded,UnusedAttribute" />
+
+    </android.support.design.widget.TextInputLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true" >
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/clear_button"

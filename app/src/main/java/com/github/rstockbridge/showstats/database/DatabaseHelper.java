@@ -7,6 +7,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +16,6 @@ public final class DatabaseHelper {
 
     private static final String USERS_PATH = "users";
     private static final String SETLISTFM_USER_ID_KEY = "userId";
-    private static final String SHOWS_PATH = "shows";
     private static final String SHOW_NOTES_KEY = "showNotesKey";
 
     public interface SetlistfmUserListener {
@@ -24,8 +24,8 @@ public final class DatabaseHelper {
         void onNoStoredSetlistfmUser();
     }
 
-    public interface ShowNotesListener {
-        void onShowNotes(final String notes);
+    public interface ShowNoteListener {
+        void onShowNote(final String text);
     }
 
     public interface UpdateDatabaseListener {
@@ -89,16 +89,14 @@ public final class DatabaseHelper {
                 });
     }
 
-    public void getShowNotes(
+    public void getShowNote(
             @NonNull final String authUserUid,
             @NonNull final String showId,
-            @NonNull final ShowNotesListener listener) {
+            @NonNull final ShowNoteListener listener) {
 
         final DocumentReference docRef = database
                 .collection(USERS_PATH)
-                .document(authUserUid)
-                .collection(SHOWS_PATH)
-                .document(showId);
+                .document(authUserUid);
 
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -107,32 +105,68 @@ public final class DatabaseHelper {
                         && document.getData() != null
                         && document.getData().get(SHOW_NOTES_KEY) != null) {
 
-                    listener.onShowNotes((String) document.getData().get(SHOW_NOTES_KEY));
+                    final Gson gson = new Gson();
+                    final String showNotesAsJson = (String) document.getData().get(SHOW_NOTES_KEY);
+                    final ShowNotesHolder showNotesHolder = gson.fromJson(showNotesAsJson, ShowNotesHolder.class);
+
+                    for (final ShowNote note : showNotesHolder.getShowNotes()) {
+                        if (note.getId().equals(showId)) {
+                            listener.onShowNote(note.getText());
+                        }
+                    }
                 }
             }
         });
     }
 
-    public void updateShowNotesInDatabase(
+    public void updateShowNoteInDatabase(
             @NonNull final String authUserUid,
-            @NonNull final String showId,
-            @NonNull final String showNotes,
+            @NonNull final String id,
+            @NonNull final String text,
             @NonNull final UpdateDatabaseListener listener) {
 
-        final Map<String, Object> showNotesData = new HashMap<>();
-        showNotesData.put(SHOW_NOTES_KEY, showNotes);
+        final DocumentReference docRef = database
+                .collection(USERS_PATH)
+                .document(authUserUid);
 
-        database.collection(USERS_PATH)
-                .document(authUserUid)
-                .collection(SHOWS_PATH)
-                .document(showId)
-                .set(showNotesData)
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        listener.onUpdateDatabaseUnsuccessful();
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(final DocumentSnapshot document) {
+                ShowNotesHolder showNotesHolder = new ShowNotesHolder();
+                final Gson gson = new Gson();
+
+                if (document.exists() && document.getData() != null) {
+                    if (document.getData().get(SHOW_NOTES_KEY) != null) {
+                        final String originalShowNotesAsJson = (String) document.getData().get(SHOW_NOTES_KEY);
+                        showNotesHolder = gson.fromJson(originalShowNotesAsJson, ShowNotesHolder.class);
                     }
-                });
+
+                    showNotesHolder.updateShowNote(id, text);
+                    final String newShowNotesAsJson = gson.toJson(showNotesHolder);
+
+                    final Map<String, Object> showNotesData = new HashMap<>();
+                    showNotesData.put(SHOW_NOTES_KEY, newShowNotesAsJson);
+
+                    database.collection(USERS_PATH)
+                            .document(authUserUid)
+                            .update(showNotesData)
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    listener.onUpdateDatabaseUnsuccessful();
+                                }
+                            });
+
+                } else {
+                    listener.onUpdateDatabaseUnsuccessful();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull final Exception e) {
+                listener.onUpdateDatabaseUnsuccessful();
+            }
+        });
     }
 
     public void deleteUserData(@NonNull final String authUserUid, @NonNull final DeleteDatabaseListener listener) {

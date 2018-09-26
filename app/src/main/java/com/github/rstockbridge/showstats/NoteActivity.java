@@ -1,5 +1,6 @@
 package com.github.rstockbridge.showstats;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -17,18 +19,18 @@ import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 
-public final class NotesActivity
+public final class NoteActivity
         extends AppCompatActivity
         implements
         View.OnClickListener,
-        DatabaseHelper.ShowNotesListener,
+        DatabaseHelper.ShowNoteListener,
         DatabaseHelper.UpdateDatabaseListener {
 
     private static final String EXTRA_SHOW_ID = "showId";
 
     @NonNull
     public static Intent newIntent(@NonNull final Context context, @NonNull final String showId) {
-        final Intent intent = new Intent(context, NotesActivity.class);
+        final Intent intent = new Intent(context, NoteActivity.class);
         intent.putExtra(EXTRA_SHOW_ID, showId);
         return intent;
     }
@@ -59,7 +61,7 @@ public final class NotesActivity
 
         initializeUI();
 
-        databaseHelper.getShowNotes(authHelper.getCurrentUserUid(), showId, this);
+        databaseHelper.getShowNote(authHelper.getCurrentUserUid(), showId, this);
     }
 
     @Override
@@ -92,6 +94,7 @@ public final class NotesActivity
         super.onDestroy();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initializeUI() {
         editText = findViewById(R.id.edit_notes_text);
         editTextButton = findViewById(R.id.clear_button);
@@ -99,14 +102,29 @@ public final class NotesActivity
 
         final Button exitButton = findViewById(R.id.exit_button);
 
+        editText.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(final View v, final MotionEvent event) {
+                final int DRAWABLE_RIGHT = 2;
+
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (event.getRawX() >= (editText.getRight() - editText.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                        editText.setText("");
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+        });
+
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    editText.setEnabled(false);
-                    editTextButton.setEnabled(true);
-                    saveButton.setEnabled(false);
+                    editTextButtonEnabled = true;
+                    syncUI();
 
                     saveToDatabase();
                     handled = true;
@@ -119,8 +137,8 @@ public final class NotesActivity
         saveButton.setOnClickListener(this);
         exitButton.setOnClickListener(this);
 
-        editText.setEnabled(false);
-        saveButton.setEnabled(false);
+        editTextButtonEnabled = true;
+        syncUI();
     }
 
     private void syncUI() {
@@ -136,20 +154,21 @@ public final class NotesActivity
     }
 
     private void saveToDatabase() {
-        databaseHelper.updateShowNotesInDatabase(
+        databaseHelper.updateShowNoteInDatabase(
                 authHelper.getCurrentUserUid(),
                 showId,
-                editText.getText().toString(), this);
+                editText.getText().toString(),
+                this);
     }
 
     @Override
-    public void onShowNotes(final String notes) {
-        editText.setText(notes);
+    public void onShowNote(final String text) {
+        editText.setText(text);
         editText.setEnabled(false);
     }
 
     @Override
     public void onUpdateDatabaseUnsuccessful() {
-        MessageUtil.makeToast(this, "Could not update show notes!");
+        MessageUtil.makeToast(this, "Could not update show note!");
     }
 }
