@@ -7,9 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.rstockbridge.showstats.appmodels.Show;
 import com.github.rstockbridge.showstats.ui.TextUtil;
@@ -75,7 +73,7 @@ public final class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
             this.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final Intent intent = NotesActivity.newIntent(context, show.getId());
+                    final Intent intent = NoteActivity.newIntent(context, show.getId());
                     context.startActivity(intent);
                 }
             });
