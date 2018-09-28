@@ -10,7 +10,7 @@ public final class ShowNote {
     @NonNull
     private String text;
 
-    public ShowNote(@NonNull final String id, @NonNull final String text) {
+    ShowNote(@NonNull final String id, @NonNull final String text) {
         this.id = id;
         this.text = text;
     }
