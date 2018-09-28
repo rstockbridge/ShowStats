@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -47,7 +48,7 @@ public final class NoteActivity
     private Button editTextButton;
     private Button saveButton;
 
-    private boolean editTextButtonEnabled;
+    private boolean setEditTextButtonEnabled;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -69,12 +70,12 @@ public final class NoteActivity
         switch (v.getId()) {
 
             case R.id.clear_button:
-                editTextButtonEnabled = false;
+                setEditTextButtonEnabled = false;
                 syncUI();
                 break;
 
             case R.id.go_button:
-                editTextButtonEnabled = true;
+                setEditTextButtonEnabled = true;
                 syncUI();
                 saveToDatabase();
                 break;
@@ -123,7 +124,7 @@ public final class NoteActivity
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    editTextButtonEnabled = true;
+                    setEditTextButtonEnabled = true;
                     syncUI();
 
                     saveToDatabase();
@@ -137,17 +138,18 @@ public final class NoteActivity
         saveButton.setOnClickListener(this);
         exitButton.setOnClickListener(this);
 
-        editTextButtonEnabled = true;
+        setEditTextButtonEnabled = true;
         syncUI();
     }
 
     private void syncUI() {
-        if (editTextButtonEnabled) {
+        if (setEditTextButtonEnabled) {
             editText.setEnabled(false);
             editTextButton.setEnabled(true);
             saveButton.setEnabled(false);
         } else {
             editText.setEnabled(true);
+
             editTextButton.setEnabled(false);
             saveButton.setEnabled(true);
         }
@@ -168,7 +170,11 @@ public final class NoteActivity
     }
 
     @Override
-    public void onUpdateDatabaseUnsuccessful() {
+    public void onUpdateDatabaseUnsuccessful(@Nullable final Exception e) {
+        if (e != null) {
+            Log.e(UserActivity.class.getSimpleName(), "Error updating Firebase data!", e);
+        }
+
         MessageUtil.makeToast(this, "Could not update show note!");
     }
 }

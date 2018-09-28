@@ -2,13 +2,16 @@ package com.github.rstockbridge.showstats;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
 
 public final class SignInActivity
         extends AppCompatActivity
@@ -59,7 +62,8 @@ public final class SignInActivity
     }
 
     @Override
-    public void onGoogleSignInUnsuccessful() {
+    public void onGoogleSignInUnsuccessful(@NonNull final ApiException e) {
+        Log.e(SignInActivity.class.getSimpleName(), "Error signing in to Google account!", e);
         MessageUtil.makeToast(this, "Could not sign in to Google account!");
     }
 
@@ -69,7 +73,8 @@ public final class SignInActivity
     }
 
     @Override
-    public void onFirebaseAuthUnsuccessful() {
+    public void onFirebaseAuthUnsuccessful(@NonNull final Exception e) {
+        Log.e(SignInActivity.class.getSimpleName(), "Error authenticating with Firebase!", e);
         MessageUtil.makeToast(SignInActivity.this, "Could not authenticate with Firebase!");
     }
 
