@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -14,6 +15,8 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.rstockbridge.showstats.auth.AuthHelper;
@@ -44,16 +47,25 @@ public final class NoteActivity
 
     private String showId;
 
-    private EditText editText;
-    private Button editTextButton;
-    private Button saveButton;
+    private RelativeLayout noteLayout;
 
-    private boolean setEditTextButtonEnabled;
+    private TextView displayedNoteView;
+    private TextInputLayout editNoteLayout;
+    private EditText editNoteView;
+
+    private Button editNoteButton;
+    private Button saveNoteButton;
+
+    private boolean setDisplayedNoteVisible;
+
+    private ProgressBar progressBar;
+
+    private boolean databaseCallIsInProgess;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notes);
+        setContentView(R.layout.activity_note);
 
         authHelper = new AuthHelper(this);
         databaseHelper = new DatabaseHelper();
@@ -62,6 +74,7 @@ public final class NoteActivity
 
         initializeUI();
 
+        setDabaseCallInProgess(true);
         databaseHelper.getShowNote(authHelper.getCurrentUserUid(), showId, this);
     }
 
@@ -69,14 +82,16 @@ public final class NoteActivity
     public void onClick(final View v) {
         switch (v.getId()) {
 
-            case R.id.clear_button:
-                setEditTextButtonEnabled = false;
+            case R.id.edit_note_button:
+                final String displayedNoteText = displayedNoteView.getText().toString();
+                if (!displayedNoteText.equals(getString(R.string.no_note_saved))) {
+                    setEditNoteText(displayedNoteView.getText().toString());
+                }
+                setDisplayedNoteVisible = false;
                 syncUI();
                 break;
 
-            case R.id.go_button:
-                setEditTextButtonEnabled = true;
-                syncUI();
+            case R.id.save_note_button:
                 saveToDatabase();
                 break;
 
@@ -97,20 +112,25 @@ public final class NoteActivity
 
     @SuppressLint("ClickableViewAccessibility")
     private void initializeUI() {
-        editText = findViewById(R.id.edit_notes_text);
-        editTextButton = findViewById(R.id.clear_button);
-        saveButton = findViewById(R.id.go_button);
+        noteLayout = findViewById(R.id.note_layout);
+
+        displayedNoteView = findViewById(R.id.displayed_note_view);
+        editNoteLayout = findViewById(R.id.edit_note_layout);
+        editNoteView = findViewById(R.id.edit_note_view);
+        editNoteButton = findViewById(R.id.edit_note_button);
+        saveNoteButton = findViewById(R.id.save_note_button);
 
         final Button exitButton = findViewById(R.id.exit_button);
 
-        editText.setOnTouchListener(new View.OnTouchListener() {
+        editNoteView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View v, final MotionEvent event) {
                 final int DRAWABLE_RIGHT = 2;
 
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (event.getRawX() >= (editText.getRight() - editText.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-                        editText.setText("");
+                    if (event.getRawX() >= (editNoteView.getRight() - editNoteView.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                        editNoteView.setText(getString(R.string.empty_string));
+                        setDisplayedNoteText(getString(R.string.empty_string));
                         return true;
                     }
                 }
@@ -119,14 +139,11 @@ public final class NoteActivity
 
         });
 
-        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        editNoteView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    setEditTextButtonEnabled = true;
-                    syncUI();
-
                     saveToDatabase();
                     handled = true;
                 }
@@ -134,24 +151,52 @@ public final class NoteActivity
             }
         });
 
-        editTextButton.setOnClickListener(this);
-        saveButton.setOnClickListener(this);
+        editNoteButton.setOnClickListener(this);
+        saveNoteButton.setOnClickListener(this);
         exitButton.setOnClickListener(this);
 
-        setEditTextButtonEnabled = true;
+        progressBar = findViewById(R.id.progress_bar);
+    }
+
+    private void setDabaseCallInProgess(final boolean inProgress) {
+        databaseCallIsInProgess = inProgress;
         syncUI();
     }
 
-    private void syncUI() {
-        if (setEditTextButtonEnabled) {
-            editText.setEnabled(false);
-            editTextButton.setEnabled(true);
-            saveButton.setEnabled(false);
-        } else {
-            editText.setEnabled(true);
+    private void setDisplayedNoteText(@NonNull final String text) {
+        displayedNoteView.setText(text);
+    }
 
-            editTextButton.setEnabled(false);
-            saveButton.setEnabled(true);
+    private void setEditNoteText(@NonNull final String text) {
+        editNoteView.setText(text);
+        editNoteView.setSelection(editNoteView.getText().length());
+    }
+
+    private void syncUI() {
+        setProgessBarVisibility(databaseCallIsInProgess);
+
+        if (setDisplayedNoteVisible) {
+            displayedNoteView.setVisibility(View.VISIBLE);
+            editNoteLayout.setVisibility(View.INVISIBLE);
+
+            editNoteButton.setEnabled(true);
+            saveNoteButton.setEnabled(false);
+        } else {
+            displayedNoteView.setVisibility(View.INVISIBLE);
+            editNoteLayout.setVisibility(View.VISIBLE);
+
+            editNoteButton.setEnabled(false);
+            saveNoteButton.setEnabled(true);
+        }
+    }
+
+    private void setProgessBarVisibility(final boolean makeVisible) {
+        if (makeVisible) {
+            progressBar.setVisibility(View.VISIBLE);
+            noteLayout.setVisibility(View.INVISIBLE);
+        } else {
+            progressBar.setVisibility(View.INVISIBLE);
+            noteLayout.setVisibility(View.VISIBLE);
         }
     }
 
@@ -159,14 +204,34 @@ public final class NoteActivity
         databaseHelper.updateShowNoteInDatabase(
                 authHelper.getCurrentUserUid(),
                 showId,
-                editText.getText().toString(),
+                editNoteView.getText().toString(),
                 this);
     }
 
     @Override
-    public void onShowNote(final String text) {
-        editText.setText(text);
-        editText.setEnabled(false);
+    public void onGetShowNoteCompleted(@Nullable final String text) {
+        if (text != null) {
+            setDisplayedNoteText(text);
+        } else {
+            setDisplayedNoteText(getString(R.string.no_note_saved));
+        }
+
+        setDisplayedNoteVisible = true;
+        setDabaseCallInProgess(false);
+    }
+
+    @Override
+    public void onUpdateDatabaseSuccessful() {
+        final String editNoteText = editNoteView.getText().toString();
+        if (editNoteText.equals(getString(R.string.empty_string))) {
+            setDisplayedNoteText(getString(R.string.no_note_saved));
+        } else {
+            setDisplayedNoteText(editNoteView.getText().toString());
+        }
+        setDisplayedNoteVisible = true;
+        syncUI();
+
+        MessageUtil.makeToast(this, "Data updated!");
     }
 
     @Override
@@ -175,6 +240,6 @@ public final class NoteActivity
             Log.e(UserActivity.class.getSimpleName(), "Error updating Firebase data!", e);
         }
 
-        MessageUtil.makeToast(this, "Could not update show note!");
+        MessageUtil.makeToast(this, "Could not update data!");
     }
 }

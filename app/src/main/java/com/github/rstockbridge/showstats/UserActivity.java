@@ -122,7 +122,7 @@ public final class UserActivity
 
         storedUserIdLabel = findViewById(R.id.stored_userId);
 
-        userIdEditText = findViewById(R.id.edit_notes_text);
+        userIdEditText = findViewById(R.id.edit_note_view);
         clearButton = findViewById(R.id.clear_button);
         goButton = findViewById(R.id.go_button);
 
@@ -381,12 +381,17 @@ public final class UserActivity
     }
 
     @Override
+    public void onUpdateDatabaseSuccessful() {
+        MessageUtil.makeToast(this, "Data saved!");
+    }
+
+    @Override
     public void onUpdateDatabaseUnsuccessful(@Nullable final Exception e) {
         if (e != null) {
             Log.e(UserActivity.class.getSimpleName(), "Error updating Firebase database!", e);
         }
 
-        MessageUtil.makeToast(this, "Could not update user data!");
+        MessageUtil.makeToast(this, "Could not save data!");
     }
 
     @Override

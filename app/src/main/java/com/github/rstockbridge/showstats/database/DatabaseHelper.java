@@ -26,10 +26,12 @@ public final class DatabaseHelper {
     }
 
     public interface ShowNoteListener {
-        void onShowNote(final String text);
+        void onGetShowNoteCompleted(@Nullable final String text);
     }
 
     public interface UpdateDatabaseListener {
+        void onUpdateDatabaseSuccessful();
+
         void onUpdateDatabaseUnsuccessful(@Nullable final Exception e);
     }
 
@@ -110,12 +112,20 @@ public final class DatabaseHelper {
                     final String showNotesAsJson = (String) document.getData().get(SHOW_NOTES_KEY);
                     final ShowNotesHolder showNotesHolder = gson.fromJson(showNotesAsJson, ShowNotesHolder.class);
 
-                    for (final ShowNote note : showNotesHolder.getShowNotes()) {
-                        if (note.getId().equals(showId)) {
-                            listener.onShowNote(note.getText());
-                        }
+                    final ShowNote note = showNotesHolder.getShowNoteFromId(showId);
+                    if (note != null) {
+                        listener.onGetShowNoteCompleted(note.getText());
+                    } else {
+                        listener.onGetShowNoteCompleted(null);
                     }
+                } else {
+                    listener.onGetShowNoteCompleted(null);
                 }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull final Exception e) {
+                listener.onGetShowNoteCompleted(null);
             }
         });
     }
@@ -151,6 +161,12 @@ public final class DatabaseHelper {
                     database.collection(USERS_PATH)
                             .document(authUserUid)
                             .update(showNotesData)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(final Void aVoid) {
+                                    listener.onUpdateDatabaseSuccessful();
+                                }
+                            })
                             .addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
