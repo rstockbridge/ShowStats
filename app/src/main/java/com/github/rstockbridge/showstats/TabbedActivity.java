@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -84,22 +85,26 @@ public final class TabbedActivity
     }
 
     @Override
-    public void onFirebaseSignOutUnsucessful() {
-        MessageUtil.makeToast(this, "Could not sign out!");
+    public void onFirebaseSignOutUnsucessful(@NonNull final Exception e) {
+        Log.e(TabbedActivity.class.getSimpleName(), "Error signing out of Firebase!", e);
+        MessageUtil.makeToast(this, "Could not sign out of Firebase!");
     }
 
     @Override
-    public void onGoogleSignOutUnsuccessful() {
+    public void onGoogleSignOutUnsuccessful(@NonNull final Exception e) {
+        Log.e(TabbedActivity.class.getSimpleName(), "Error signing out of Google!", e);
         MessageUtil.makeToast(this, "Could not sign out of Google!");
     }
 
     @Override
-    public void onFirebaseDeletionUnsuccessful() {
+    public void onFirebaseDeletionUnsuccessful(@NonNull final Exception e) {
+        Log.e(TabbedActivity.class.getSimpleName(), "Error deleting Firebase data!", e);
         MessageUtil.makeToast(this, "Could not delete user account! Signing out only");
     }
 
     @Override
-    public void onRevokeFirebaseAccessToGoogleUnsuccessful() {
+    public void onRevokeFirebaseAccessToGoogleUnsuccessful(@NonNull final Exception e) {
+        Log.e(TabbedActivity.class.getSimpleName(), "Error revoking Firebase access to Google!", e);
         MessageUtil.makeToast(this, "Could not revoke Firebase access to Google! Signing out of Google only.");
     }
 
@@ -109,7 +114,7 @@ public final class TabbedActivity
     }
 
     @Override
-    public void onDeleteUserDataUnsuccessful() {
+    public void onDeleteUserDataUnsuccessful(@NonNull final Exception e) {
         MessageUtil.makeToast(this, "Could not delete user data! Signing out only.");
         authHelper.signOut(this);
     }

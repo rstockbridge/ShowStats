@@ -23,23 +23,23 @@ public final class AuthHelper implements FirebaseAuth.AuthStateListener {
     public interface SignInListener {
         void onSignIn();
 
-        void onGoogleSignInUnsuccessful();
+        void onGoogleSignInUnsuccessful(@NonNull final ApiException e);
 
         void onFirebaseAuthSuccessful();
 
-        void onFirebaseAuthUnsuccessful();
+        void onFirebaseAuthUnsuccessful(@NonNull final Exception e);
     }
 
     public interface SignOutListener {
         void onSignOutFromFirebase();
 
-        void onFirebaseSignOutUnsucessful();
+        void onFirebaseSignOutUnsucessful(@NonNull final Exception e);
 
-        void onGoogleSignOutUnsuccessful();
+        void onGoogleSignOutUnsuccessful(@NonNull final Exception e);
 
-        void onFirebaseDeletionUnsuccessful();
+        void onFirebaseDeletionUnsuccessful(@NonNull final Exception e);
 
-        void onRevokeFirebaseAccessToGoogleUnsuccessful();
+        void onRevokeFirebaseAccessToGoogleUnsuccessful(@NonNull final Exception e);
     }
 
     @NonNull
@@ -86,7 +86,7 @@ public final class AuthHelper implements FirebaseAuth.AuthStateListener {
             final GoogleSignInAccount account = task.getResult(ApiException.class);
             firebaseAuthWithGoogle(account, listener);
         } catch (final ApiException e) {
-            listener.onGoogleSignInUnsuccessful();
+            listener.onGoogleSignInUnsuccessful(e);
         }
     }
 
@@ -138,7 +138,7 @@ public final class AuthHelper implements FirebaseAuth.AuthStateListener {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull final Exception e) {
-                        listener.onFirebaseDeletionUnsuccessful();
+                        listener.onFirebaseDeletionUnsuccessful(e);
                         signOut(listener);
                     }
                 });
@@ -160,7 +160,7 @@ public final class AuthHelper implements FirebaseAuth.AuthStateListener {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull final Exception e) {
-                        listener.onFirebaseAuthUnsuccessful();
+                        listener.onFirebaseAuthUnsuccessful(e);
                     }
                 });
     }
@@ -174,7 +174,7 @@ public final class AuthHelper implements FirebaseAuth.AuthStateListener {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull final Exception e) {
-                        listener.onFirebaseSignOutUnsucessful();
+                        listener.onFirebaseSignOutUnsucessful(e);
                     }
                 });
     }
@@ -185,7 +185,7 @@ public final class AuthHelper implements FirebaseAuth.AuthStateListener {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull final Exception e) {
-                        listener.onGoogleSignOutUnsuccessful();
+                        listener.onGoogleSignOutUnsuccessful(e);
                     }
                 });
     }
@@ -197,7 +197,7 @@ public final class AuthHelper implements FirebaseAuth.AuthStateListener {
                     @Override
                     public void onFailure(@NonNull final Exception e) {
                         googleSignOut(listener);
-                        listener.onRevokeFirebaseAccessToGoogleUnsuccessful();
+                        listener.onRevokeFirebaseAccessToGoogleUnsuccessful(e);
                     }
                 });
     }

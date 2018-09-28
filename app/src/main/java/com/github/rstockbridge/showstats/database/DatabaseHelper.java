@@ -1,6 +1,7 @@
 package com.github.rstockbridge.showstats.database;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -29,13 +30,13 @@ public final class DatabaseHelper {
     }
 
     public interface UpdateDatabaseListener {
-        void onUpdateDatabaseUnsuccessful();
+        void onUpdateDatabaseUnsuccessful(@Nullable final Exception e);
     }
 
     public interface DeleteDatabaseListener {
         void onDeleteUserDataSuccessful();
 
-        void onDeleteUserDataUnsuccessful();
+        void onDeleteUserDataUnsuccessful(@NonNull final Exception e);
     }
 
     @NonNull
@@ -84,7 +85,7 @@ public final class DatabaseHelper {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        listener.onUpdateDatabaseUnsuccessful();
+                        listener.onUpdateDatabaseUnsuccessful(e);
                     }
                 });
     }
@@ -153,18 +154,18 @@ public final class DatabaseHelper {
                             .addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    listener.onUpdateDatabaseUnsuccessful();
+                                    listener.onUpdateDatabaseUnsuccessful(e);
                                 }
                             });
 
                 } else {
-                    listener.onUpdateDatabaseUnsuccessful();
+                    listener.onUpdateDatabaseUnsuccessful(null);
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull final Exception e) {
-                listener.onUpdateDatabaseUnsuccessful();
+                listener.onUpdateDatabaseUnsuccessful(e);
             }
         });
     }
@@ -182,7 +183,7 @@ public final class DatabaseHelper {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        listener.onDeleteUserDataUnsuccessful();
+                        listener.onDeleteUserDataUnsuccessful(e);
                     }
                 });
     }
