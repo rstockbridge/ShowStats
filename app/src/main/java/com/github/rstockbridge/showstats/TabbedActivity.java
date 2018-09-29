@@ -16,6 +16,8 @@ import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 
+import timber.log.Timber;
+
 public final class TabbedActivity
         extends AppCompatActivity
         implements AuthHelper.SignOutListener,
@@ -86,25 +88,25 @@ public final class TabbedActivity
 
     @Override
     public void onFirebaseSignOutUnsucessful(@NonNull final Exception e) {
-        Log.e(TabbedActivity.class.getSimpleName(), "Error signing out of Firebase!", e);
+        Timber.e(e, "Error signing out of Firebase!");
         MessageUtil.makeToast(this, "Could not sign out of Firebase!");
     }
 
     @Override
     public void onGoogleSignOutUnsuccessful(@NonNull final Exception e) {
-        Log.e(TabbedActivity.class.getSimpleName(), "Error signing out of Google!", e);
+        Timber.e(e, "Error signing out of Google!");
         MessageUtil.makeToast(this, "Could not sign out of Google!");
     }
 
     @Override
     public void onFirebaseDeletionUnsuccessful(@NonNull final Exception e) {
-        Log.e(TabbedActivity.class.getSimpleName(), "Error deleting Firebase data!", e);
+        Timber.e(e, "Error deleting Firebase data!");
         MessageUtil.makeToast(this, "Could not delete user account! Signing out only");
     }
 
     @Override
     public void onRevokeFirebaseAccessToGoogleUnsuccessful(@NonNull final Exception e) {
-        Log.e(TabbedActivity.class.getSimpleName(), "Error revoking Firebase access to Google!", e);
+        Timber.e(e, "Error revoking Firebase access to Google!");
         MessageUtil.makeToast(this, "Could not revoke Firebase access to Google! Signing out of Google only.");
     }
 
