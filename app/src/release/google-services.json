@@ -15,11 +15,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "731245819440-h3h2c5kgaq4d1e5gpbnuiar08iof39j6.apps.googleusercontent.com",
+          "client_id": "731245819440-j7rvsr4038fuf26693k02sarja2027sf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.github.rstockbridge.showstats",
-            "certificate_hash": "58cda45a88b7eeb80d4e70f625d8a909f8d02ab2"
+            "certificate_hash": "c2eb3765d0b8d693f9eed67105e30f5841c993ca"
+          }
+        },
+        {
+          "client_id": "731245819440-004p4636gdrn5nini93j93dsdujusotf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.github.rstockbridge.showstats",
+            "certificate_hash": "a03876acdc27d536e4c60de30382f7bc49dec12e"
           }
         },
         {
