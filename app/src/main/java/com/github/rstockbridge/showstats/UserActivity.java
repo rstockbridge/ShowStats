@@ -357,6 +357,7 @@ public final class UserActivity
     public void onFirebaseDeletionUnsuccessful(@NonNull final Exception e) {
         Timber.e(e, "Error deleting Firebase account!");
         MessageUtil.makeToast(this, "Could not delete user account! Signing out only");
+        authHelper.signOut(this);
     }
 
     @Override
