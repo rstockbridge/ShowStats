@@ -8,9 +8,18 @@ android {
         minSdkVersion 19
         targetSdkVersion 27
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
         buildConfigField "String", "SETLISTFM_KEY", setlistfmKey
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(System.properties['user.home'] + "/keystores/showstats_upload.jks")
+            storePassword showstatsUploadPassword
+            keyAlias showstatsUploadAlias
+            keyPassword showstatsUploadPassword
+        }
     }
 
     buildTypes {
@@ -25,6 +34,7 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt')
             resValue "string", "app_name", "ShowStats"
+            signingConfig signingConfigs.release
         }
     }
 }
