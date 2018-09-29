@@ -25,7 +25,7 @@ android {
     buildTypes {
         debug {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules-debug.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro', 'proguard-rules-debug.pro'
             applicationIdSuffix ".debug"
             resValue "string", "app_name", "ShowStats Debug"
             resValue "string", "maps_api_key", "AIzaSyBGKejn03doMCQUJReYdKqpEyXRaKP5jo8"
@@ -33,7 +33,7 @@ android {
 
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue "string", "app_name", "ShowStats"
             resValue "string", "maps_api_key", "AIzaSyCIBaQpFBNgpinWKxQS8IlGa1g4Uzou4BE"
             signingConfig signingConfigs.release
