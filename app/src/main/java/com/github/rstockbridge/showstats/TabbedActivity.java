@@ -117,6 +117,7 @@ public final class TabbedActivity
 
     @Override
     public void onDeleteUserDataUnsuccessful(@NonNull final Exception e) {
+        Timber.e(e, "Error deleting Firebase data!");
         MessageUtil.makeToast(this, "Could not delete user data! Signing out only.");
         authHelper.signOut(this);
     }
