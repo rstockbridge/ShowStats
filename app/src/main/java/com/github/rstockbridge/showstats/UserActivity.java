@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -121,7 +122,7 @@ public final class UserActivity
 
         storedUserIdLabel = findViewById(R.id.stored_userId);
 
-        userIdEditText = findViewById(R.id.edit_notes_text);
+        userIdEditText = findViewById(R.id.edit_note_view);
         clearButton = findViewById(R.id.clear_button);
         goButton = findViewById(R.id.go_button);
 
@@ -340,22 +341,26 @@ public final class UserActivity
     }
 
     @Override
-    public void onFirebaseSignOutUnsucessful() {
-        MessageUtil.makeToast(this, "Could not sign out!");
+    public void onFirebaseSignOutUnsucessful(@NonNull final Exception e) {
+        Log.e(UserActivity.class.getSimpleName(), "Error signing out of Firebase!", e);
+        MessageUtil.makeToast(this, "Could not sign out of Firebase!");
     }
 
     @Override
-    public void onGoogleSignOutUnsuccessful() {
+    public void onGoogleSignOutUnsuccessful(@NonNull final Exception e) {
+        Log.e(TabbedActivity.class.getSimpleName(), "Error signing out of Google!", e);
         MessageUtil.makeToast(this, "Could not sign out of Google!");
     }
 
     @Override
-    public void onFirebaseDeletionUnsuccessful() {
+    public void onFirebaseDeletionUnsuccessful(@NonNull final Exception e) {
+        Log.e(UserActivity.class.getSimpleName(), "Error deleting Firebase account!", e);
         MessageUtil.makeToast(this, "Could not delete user account! Signing out only");
     }
 
     @Override
-    public void onRevokeFirebaseAccessToGoogleUnsuccessful() {
+    public void onRevokeFirebaseAccessToGoogleUnsuccessful(@NonNull final Exception e) {
+        Log.e(UserActivity.class.getSimpleName(), "Error revoking Firebase access to Google!", e);
         MessageUtil.makeToast(this, "Could not revoke Firebase access to Google! Signing out of Google only.");
     }
 
@@ -376,8 +381,17 @@ public final class UserActivity
     }
 
     @Override
-    public void onUpdateDatabaseUnsuccessful() {
-        MessageUtil.makeToast(this, "Could not update user data!");
+    public void onUpdateDatabaseSuccessful() {
+        MessageUtil.makeToast(this, "Data saved!");
+    }
+
+    @Override
+    public void onUpdateDatabaseUnsuccessful(@Nullable final Exception e) {
+        if (e != null) {
+            Log.e(UserActivity.class.getSimpleName(), "Error updating Firebase database!", e);
+        }
+
+        MessageUtil.makeToast(this, "Could not save data!");
     }
 
     @Override
@@ -386,7 +400,8 @@ public final class UserActivity
     }
 
     @Override
-    public void onDeleteUserDataUnsuccessful() {
+    public void onDeleteUserDataUnsuccessful(@NonNull final Exception e) {
+        Log.e(UserActivity.class.getSimpleName(), "Error deleting Firebase data!", e);
         MessageUtil.makeToast(this, "Could not delete user data! Signing out only.");
         authHelper.signOut(this);
     }

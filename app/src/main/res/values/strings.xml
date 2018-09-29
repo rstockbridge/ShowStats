@@ -26,10 +26,12 @@
     <string name="sign_in_with_google">Sign In With Google</string>
     <string name="fetching_data_for">Fetching Setlist.fm Data For</string>
     <string name="save">Save</string>
-    <string name="enter_text_here">Enter Text Here</string>
+    <string name="enter_show_note_here">Enter Show Note Here</string>
     <string name="edit">Edit</string>
     <string name="exit">Exit</string>
     <string name="show_notes">Show Notes</string>
+    <string name="no_note_saved">No Note Saved</string>
+    <string name="empty_string"/>
     <plurals name="day_plural" >
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
