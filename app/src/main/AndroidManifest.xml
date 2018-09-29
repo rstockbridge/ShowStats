@@ -28,7 +28,7 @@
             android:name=".TabbedActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".NotesActivity"
+            android:name=".NoteActivity"
             android:screenOrientation="portrait"/>
 
         <meta-data

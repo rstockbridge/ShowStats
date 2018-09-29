@@ -37,7 +37,7 @@
         android:orientation="vertical" >
 
         <EditText
-            android:id="@+id/edit_notes_text"
+            android:id="@+id/edit_note_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
