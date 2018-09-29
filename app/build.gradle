@@ -16,11 +16,14 @@ android {
         debug {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules-debug.pro'
+            applicationIdSuffix ".debug"
+            resValue "string", "app_name", "ShowStats Debug"
         }
 
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt')
+            resValue "string", "app_name", "ShowStats"
         }
     }
 }

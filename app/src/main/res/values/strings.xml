@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">ShowStats</string>
     <string name="enter_setlistfm_userId">Enter Setlist.fm User ID Here</string>
     <string name="clear">Clear</string>
     <string name="go">Go</string>
