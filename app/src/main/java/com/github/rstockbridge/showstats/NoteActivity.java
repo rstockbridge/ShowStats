@@ -23,6 +23,8 @@ import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 
+import timber.log.Timber;
+
 public final class NoteActivity
         extends AppCompatActivity
         implements
@@ -237,7 +239,7 @@ public final class NoteActivity
     @Override
     public void onUpdateDatabaseUnsuccessful(@Nullable final Exception e) {
         if (e != null) {
-            Log.e(UserActivity.class.getSimpleName(), "Error updating Firebase data!", e);
+            Timber.e(e, "Error updating Firebase data!");
         }
 
         MessageUtil.makeToast(this, "Could not update data!");
