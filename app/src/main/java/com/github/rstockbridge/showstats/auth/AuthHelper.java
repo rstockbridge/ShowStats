@@ -139,7 +139,6 @@ public final class AuthHelper implements FirebaseAuth.AuthStateListener {
                     @Override
                     public void onFailure(@NonNull final Exception e) {
                         listener.onFirebaseDeletionUnsuccessful(e);
-                        signOut(listener);
                     }
                 });
     }
