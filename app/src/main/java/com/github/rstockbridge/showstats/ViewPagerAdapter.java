@@ -6,11 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.github.rstockbridge.showstats.api.models.Setlist;
-import com.github.rstockbridge.showstats.appmodels.UserStatistics;
-
-import java.util.ArrayList;
-
 public final class ViewPagerAdapter extends FragmentPagerAdapter {
 
     ViewPagerAdapter(@NonNull final FragmentManager fm) {

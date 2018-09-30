@@ -1,7 +1,5 @@
 package com.github.rstockbridge.showstats.api.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 public final class SetlistArtist {
