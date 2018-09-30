@@ -15,10 +15,14 @@ android {
 
     signingConfigs {
         release {
-            storeFile file(System.properties['user.home'] + "/keystores/showstats_upload.jks")
-            storePassword showstatsUploadPassword
-            keyAlias showstatsUploadAlias
-            keyPassword showstatsUploadPassword
+            String releaseKeyStoreFileName = System.properties['user.home'] + "/keystores/showstats_upload.jks"
+
+            if (file(releaseKeyStoreFileName).exists()) {
+                storeFile file(releaseKeyStoreFileName)
+                storePassword showstatsUploadPassword
+                keyAlias showstatsUploadAlias
+                keyPassword showstatsUploadPassword
+            }
         }
     }
 
