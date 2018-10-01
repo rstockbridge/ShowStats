@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.rstockbridge.showstats.api.models.City;
-import com.github.rstockbridge.showstats.api.models.SetlistVenue;
 import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 import com.google.android.gms.maps.CameraUpdateFactory;
