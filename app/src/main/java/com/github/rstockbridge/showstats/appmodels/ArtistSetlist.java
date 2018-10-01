@@ -2,8 +2,6 @@ package com.github.rstockbridge.showstats.appmodels;
 
 import android.support.annotation.NonNull;
 
-import com.github.rstockbridge.showstats.api.models.SetlistVenue;
-
 import org.threeten.bp.LocalDate;
 
 public final class ArtistSetlist {

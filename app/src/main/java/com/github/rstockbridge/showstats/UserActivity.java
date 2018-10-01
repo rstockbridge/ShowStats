@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,7 +40,7 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 public final class UserActivity
-        extends AppCompatActivity
+        extends BaseActivity
         implements AuthHelper.SignOutListener,
         DatabaseHelper.SetlistfmUserListener,
         DatabaseHelper.UpdateDatabaseListener,
@@ -93,10 +91,11 @@ public final class UserActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        MenuInflater inflater = getMenuInflater();
+    protected void onCreateSpecializedOptionsMenu(
+            @NonNull final Menu menu,
+            @NonNull final MenuInflater inflater) {
+
         inflater.inflate(R.menu.menu_options, menu);
-        return true;
     }
 
     @Override
