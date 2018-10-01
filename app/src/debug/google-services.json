@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "282700676578-0uf0hfg6b4a3jmfa6q5tntc4dgmv3s2o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.github.rstockbridge.showstats.debug",
+            "certificate_hash": "1f98996e067defdd0e31e949963e08d3c8f7f1f1"
+          }
+        },
+        {
           "client_id": "282700676578-jcg7f66qufvh1jpb4vm699qkjnio3be3.apps.googleusercontent.com",
           "client_type": 3
         }
