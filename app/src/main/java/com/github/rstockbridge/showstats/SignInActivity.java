@@ -49,9 +49,7 @@ public final class SignInActivity
 
         switch (requestCode) {
             case REQUEST_CODE_GOOGLE_SIGN_IN:
-                if (resultCode == RESULT_OK) {
-                    authHelper.finishSignIn(data, this);
-                }
+                authHelper.finishSignIn(data, this);
                 break;
             default:
                 throw new IllegalStateException("This line should not be reached.");
