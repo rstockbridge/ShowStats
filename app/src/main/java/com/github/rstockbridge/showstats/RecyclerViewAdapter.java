@@ -68,7 +68,7 @@ public final class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
 
             dateLabel.setText(textUtil.getDateText(show.getEventDate(), false));
             venueLabel.setText(textUtil.getVenueText(show.getVenueName(), false));
-            artistsLabel.setText(textUtil.getListText(show.getArtistNames(), true));
+            artistsLabel.setText(textUtil.getArtistListTextWithHeader(show.getArtistNames()));
 
             this.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

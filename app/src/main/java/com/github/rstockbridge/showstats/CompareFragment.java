@@ -184,11 +184,11 @@ public final class CompareFragment extends Fragment {
     private void processSubmittedUser2() {
         final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
 
-        if (TextUtil.getText(user2IdText).equals(user1Statistics.getUserId())) {
+        if (user2IdText.getText().toString().equals(user1Statistics.getUserId())) {
             goButton.setEnabled(false);
             MessageUtil.makeToast(getActivity(), getString(R.string.same_user));
         } else {
-            makeUserNetworkCall(TextUtil.getText(user2IdText));
+            makeUserNetworkCall(user2IdText.getText().toString());
         }
     }
 
@@ -227,7 +227,7 @@ public final class CompareFragment extends Fragment {
     }
 
     private void processSuccessfulUserResponse(@NonNull final User user) {
-        if (user.getUserId().equals(TextUtil.getText(user2IdText))) {
+        if (user.getUserId().equals(user2IdText.getText().toString())) {
             final ArrayList<Setlist> storedSetlists = new ArrayList<>();
             makeSetlistsNetworkCall(user.getUserId(), 1, storedSetlists);
         } else {
@@ -366,7 +366,7 @@ public final class CompareFragment extends Fragment {
     }
 
     private void displayCommonArtists() {
-        commonArtistsLabel.setText(textUtil.getListText(commonArtists, false));
+        commonArtistsLabel.setText(textUtil.getListText(commonArtists));
     }
 
     private void displayCommonShows() {
@@ -374,7 +374,7 @@ public final class CompareFragment extends Fragment {
     }
 
     private void displayCommonVenues() {
-        commonVenuesLabel.setText(textUtil.getListText(commonVenues, false));
+        commonVenuesLabel.setText(textUtil.getListText(commonVenues));
     }
 
     private void setNetworkCallInProgress(final boolean inProgress) {

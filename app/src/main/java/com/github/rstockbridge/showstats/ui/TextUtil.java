@@ -29,11 +29,6 @@ public final class TextUtil {
     }
 
     @NonNull
-    public static String getText(final EditText editText) {
-        return editText.getText().toString();
-    }
-
-    @NonNull
     public Spanned getGapText(@StringRes int id, @Nullable final Integer gap) {
         String partialText;
 
@@ -47,11 +42,11 @@ public final class TextUtil {
     }
 
     @NonNull
-    public Spanned getListText(@NonNull final List<String> list, boolean useArtistHeader) {
+    public Spanned getArtistListTextWithHeader(@NonNull final List<String> list) {
         String partialText = "";
 
         if (list.size() > 0) {
-            if (useArtistHeader && list.size() > 1) {
+            if (list.size() > 1) {
                 partialText += newlineHtml;
             }
 
@@ -60,11 +55,20 @@ public final class TextUtil {
             partialText = notApplicable;
         }
 
-        if (useArtistHeader) {
-            return fromHtml(resources.getQuantityString(R.plurals.artist_plural, list.size(), partialText));
+        return fromHtml(resources.getQuantityString(R.plurals.artist_plural, list.size(), partialText));
+    }
+
+    @NonNull
+    public Spanned getListText(@NonNull final List<String> list) {
+        String text = "";
+
+        if (list.size() > 0) {
+            text += TextUtil.formatList(list);
         } else {
-            return fromHtml(partialText);
+            text = notApplicable;
         }
+
+        return fromHtml(text);
     }
 
     @NonNull
@@ -99,7 +103,7 @@ public final class TextUtil {
 
     @NonNull
     public Spanned getCommonShowsText(@NonNull final List<Show> shows) {
-        if(shows.size() > 0) {
+        if (shows.size() > 0) {
             final SpannableStringBuilder resultBuilder = new SpannableStringBuilder();
 
             for (int i = 0; i < shows.size() - 1; i++) {
@@ -107,7 +111,7 @@ public final class TextUtil {
 
                 final Spanned eventDate = getDateText(show.getEventDate(), true);
                 final Spanned venueName = getVenueText(show.getVenueName(), true);
-                final Spanned artists = getListText(show.getArtistNames(), true);
+                final Spanned artists = getArtistListTextWithHeader(show.getArtistNames());
 
                 resultBuilder.append(TextUtils.concat(eventDate, venueName, artists));
 
@@ -120,7 +124,7 @@ public final class TextUtil {
 
             final Spanned eventDate = getDateText(show.getEventDate(), true);
             final Spanned venueName = getVenueText(show.getVenueName(), true);
-            final Spanned artists = getListText(show.getArtistNames(), true);
+            final Spanned artists = getArtistListTextWithHeader(show.getArtistNames());
 
             resultBuilder.append(TextUtils.concat(eventDate, venueName, artists));
 
