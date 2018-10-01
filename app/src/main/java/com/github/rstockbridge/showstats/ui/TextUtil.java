@@ -9,7 +9,6 @@ import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.widget.EditText;
 
 import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.appmodels.Show;
@@ -158,7 +157,7 @@ public final class TextUtil {
 
     @SuppressWarnings("deprecation")
     @NonNull
-    private static Spanned fromHtml(@NonNull final String text) {
+    public static Spanned fromHtml(@NonNull final String text) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY);
         } else {

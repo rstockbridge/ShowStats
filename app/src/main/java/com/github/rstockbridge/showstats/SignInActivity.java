@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
+import android.widget.TextView;
 
 import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
+import com.github.rstockbridge.showstats.ui.TextUtil;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 
@@ -39,6 +41,9 @@ public final class SignInActivity
                 authHelper.startSignInActivity(SignInActivity.this);
             }
         });
+
+        final TextView setlistfmAttribution = findViewById(R.id.setlistfm_attribution);
+        setlistfmAttribution.setText(TextUtil.fromHtml(getString(R.string.hyperlink, getString(R.string.setlistfm_homepage), getString(R.string.setlistfm_attribution_message))));
     }
 
     @Override

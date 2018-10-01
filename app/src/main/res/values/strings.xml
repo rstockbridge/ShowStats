@@ -30,13 +30,16 @@
     <string name="exit">Exit</string>
     <string name="show_notes">Show Notes</string>
     <string name="no_note_saved">No Note Saved</string>
-    <string name="empty_string"/>
+    <string name="empty_string" />
     <string name="menu_label_licenses">Licenses</string>
-    <plurals name="day_plural" >
+    <string name="setlistfm_homepage">"https://www.setlist.fm/"</string>
+    <string name="setlistfm_attribution_message">"Powered by setlist.fm."</string>
+    <string name="hyperlink">&lt;a href=%1$s>%2$s&lt;/a></string>
+    <plurals name="day_plural">
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
     </plurals>
-    <plurals name="artist_plural" >
+    <plurals name="artist_plural">
         <item quantity="one">&lt;b>Artist:&lt;/b> %s</item>
         <item quantity="other">&lt;b>Artists:&lt;/b> %s</item>
     </plurals>
