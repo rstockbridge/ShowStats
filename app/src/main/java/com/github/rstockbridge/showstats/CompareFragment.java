@@ -348,8 +348,10 @@ public final class CompareFragment extends Fragment {
 
                 for (final String user1ArtistId : user1Show.getArtistIds()) {
                     if (user2Show.getArtistIds().contains(user1ArtistId)) {
-                        final String user1Artist = user1Statistics.getArtistNameFromId(user1ArtistId);
-                        commonShow.addArtist(user1ArtistId, user1Artist);
+
+                        final String user1Artist = user1Show.getArtistNameFromId(user1ArtistId);
+                        final String user1ArtistSetlistUrl = user1Show.getArtistUrlFromName(user1Artist);
+                        commonShow.addArtist(user1ArtistId, user1Artist, user1ArtistSetlistUrl);
                     }
                 }
 

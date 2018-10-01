@@ -1,6 +1,7 @@
 package com.github.rstockbridge.showstats.appmodels;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +24,14 @@ public final class Show {
     @NonNull
     private Map<String, String> artistIdNameMap = new HashMap<>();
 
-    public Show(@NonNull final String id, @NonNull final String eventDate, @NonNull final String venueName) {
+    @NonNull
+    private Map<String, String> artistNameUrlMap = new HashMap<>();
+
+    public Show(
+            @NonNull final String id,
+            @NonNull final String eventDate,
+            @NonNull final String venueName) {
+
         this.id = id;
         this.eventDate = eventDate;
         this.venueName = venueName;
@@ -57,9 +65,39 @@ public final class Show {
         return result;
     }
 
-    public void addArtist(final String artistId, final String artist) {
+    @NonNull
+    public ArrayList<String> getUrls() {
+        final ArrayList<String> result = new ArrayList<>();
+
+        final List<String> artistNames = getArtistNames();
+        for (final String artistName : artistNames) {
+            result.add(artistNameUrlMap.get(artistName));
+        }
+
+        return result;
+    }
+
+    @NonNull
+    public String getArtistNameFromId(@NonNull final String artistId) {
+        return artistIdNameMap.get(artistId);
+    }
+
+    @NonNull
+    public String getArtistUrlFromName(@NonNull final String artistName) {
+        return artistNameUrlMap.get(artistName);
+    }
+
+    public void addArtist(
+            @NonNull final String artistId,
+            @NonNull final String artist,
+            @NonNull final String artistSetlistUrl) {
+
         if (!artistIdNameMap.containsKey(artistId)) {
             artistIdNameMap.put(artistId, artist);
+        }
+
+        if(!artistNameUrlMap.containsKey(artist)) {
+            artistNameUrlMap.put(artist, artistSetlistUrl);
         }
     }
 

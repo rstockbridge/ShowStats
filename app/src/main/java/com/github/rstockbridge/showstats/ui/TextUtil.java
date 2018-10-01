@@ -27,6 +27,16 @@ public final class TextUtil {
         this.resources = resources;
     }
 
+    @SuppressWarnings("deprecation")
+    @NonNull
+    public static Spanned fromHtml(@NonNull final String text) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY);
+        } else {
+            return Html.fromHtml(text);
+        }
+    }
+
     @NonNull
     public Spanned getGapText(@StringRes int id, @Nullable final Integer gap) {
         String partialText;
@@ -55,6 +65,26 @@ public final class TextUtil {
         }
 
         return fromHtml(resources.getQuantityString(R.plurals.artist_plural, list.size(), partialText));
+    }
+
+    @NonNull
+    public Spanned getArtistListTextWithHeaderAndAttribution(
+            @NonNull final List<String> artists,
+            @NonNull final List<String> urls) {
+
+        String partialText = "";
+
+        if (artists.size() > 0) {
+            if (artists.size() > 1) {
+                partialText += newlineHtml;
+            }
+
+            partialText += formatArtistListWithUrls(artists, urls);
+        } else {
+            partialText = notApplicable;
+        }
+
+        return fromHtml(resources.getQuantityString(R.plurals.artist_plural, artists.size(), partialText));
     }
 
     @NonNull
@@ -88,6 +118,25 @@ public final class TextUtil {
     }
 
     @NonNull
+    private String formatArtistListWithUrls(
+            @NonNull final List<String> artists,
+            @NonNull final List<String> urls) {
+
+        if (artists.size() == 1) {
+            return resources.getString(R.string.hyperlink, urls.get(0), artists.get(0));
+        } else {
+            final StringBuilder result = new StringBuilder();
+
+            for (int i = 0; i < artists.size() - 1; i++) {
+                result.append(resources.getString(R.string.hyperlink, urls.get(i), artists.get(i))).append(newlineHtml);
+            }
+            result.append(resources.getString(R.string.hyperlink, urls.get(urls.size() - 1), artists.get(artists.size() - 1)));
+
+            return result.toString();
+        }
+    }
+
+    @NonNull
     public Spanned getUserGapText(@NonNull final String user, @Nullable final Integer gap) {
         String partialText;
 
@@ -110,7 +159,7 @@ public final class TextUtil {
 
                 final Spanned eventDate = getDateText(show.getEventDate(), true);
                 final Spanned venueName = getVenueText(show.getVenueName(), true);
-                final Spanned artists = getArtistListTextWithHeader(show.getArtistNames());
+                final Spanned artists = getArtistListTextWithHeaderAndAttribution(show.getArtistNames(), show.getUrls());
 
                 resultBuilder.append(TextUtils.concat(eventDate, venueName, artists));
 
@@ -153,15 +202,5 @@ public final class TextUtil {
         }
 
         return fromHtml(partialText);
-    }
-
-    @SuppressWarnings("deprecation")
-    @NonNull
-    public static Spanned fromHtml(@NonNull final String text) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY);
-        } else {
-            return Html.fromHtml(text);
-        }
     }
 }

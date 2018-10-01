@@ -45,6 +45,7 @@ public final class NoteActivity
     @NonNull
     private DatabaseHelper databaseHelper;
 
+    @NonNull
     private String showId;
 
     private RelativeLayout noteLayout;
@@ -119,7 +120,6 @@ public final class NoteActivity
         editNoteView = findViewById(R.id.edit_note_view);
         editNoteButton = findViewById(R.id.edit_note_button);
         saveNoteButton = findViewById(R.id.save_note_button);
-
         final Button exitButton = findViewById(R.id.exit_button);
 
         editNoteView.setOnTouchListener(new View.OnTouchListener() {
@@ -187,6 +187,7 @@ public final class NoteActivity
 
             editNoteButton.setEnabled(false);
             saveNoteButton.setEnabled(true);
+
         }
     }
 

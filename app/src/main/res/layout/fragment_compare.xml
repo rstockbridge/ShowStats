@@ -113,7 +113,9 @@
                     android:layout_height="wrap_content"
                     android:text="@string/shows_in_common"
                     android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:autoLink="web"
+                    android:linksClickable="true" />
 
                 <TextView
                     android:id="@+id/common_shows"
