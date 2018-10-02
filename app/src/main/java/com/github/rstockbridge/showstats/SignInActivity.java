@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
 
@@ -42,8 +43,10 @@ public final class SignInActivity
             }
         });
 
-        final TextView setlistfmAttribution = findViewById(R.id.setlistfm_attribution);
-        setlistfmAttribution.setText(TextUtil.fromHtml(getString(R.string.hyperlink, getString(R.string.setlistfm_homepage), getString(R.string.setlistfm_attribution_message))));
+        final TextView setlistfmAttributionLabel = findViewById(R.id.setlistfm_attribution);
+        final String linkedString = getString(R.string.powered_hyperlink, getString(R.string.setlistfm_homepage), getString(R.string.setlistfm));
+        setlistfmAttributionLabel.setText(TextUtil.fromHtml(linkedString));
+        setlistfmAttributionLabel.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     @Override

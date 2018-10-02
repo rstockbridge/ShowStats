@@ -33,7 +33,9 @@
     <string name="empty_string" />
     <string name="menu_label_licenses">Licenses</string>
     <string name="setlistfm_homepage">"https://www.setlist.fm/"</string>
-    <string name="setlistfm_attribution_message">"Powered by setlist.fm."</string>
+    <string name="setlistfm_attribution_message">"Powered by "</string>
+    <string name="setlistfm">"setlist.fm"</string>
+    <string name="powered_hyperlink">Powered by &lt;a href=%1$s>%2$s&lt;/a></string>
     <string name="hyperlink">&lt;a href=%1$s>%2$s&lt;/a></string>
     <plurals name="day_plural">
         <item quantity="one">%d day</item>
