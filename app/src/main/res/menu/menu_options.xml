@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/sign_out"
-        android:title="Sign Out" />
-    <item android:id="@+id/sign_out_remove_account"
-        android:title="Sign Out And Remove Account" >
+        android:title="@string/sign_out" />
+    <item android:id="@+id/delete_account"
+        android:title="@string/delete_account" >
     </item>
 </menu>

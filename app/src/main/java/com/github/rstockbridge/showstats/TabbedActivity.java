@@ -63,8 +63,8 @@ public final class TabbedActivity
             case R.id.sign_out:
                 authHelper.signOut(this);
                 return true;
-            case R.id.sign_out_remove_account:
-                // if successful, Firebase account will then be removed
+            case R.id.delete_account:
+                // if successful, Firebase account will then be deleted
                 databaseHelper.deleteUserData(authHelper.getCurrentUserUid(), this);
                 return true;
             default:
@@ -112,7 +112,7 @@ public final class TabbedActivity
 
     @Override
     public void onDeleteUserDataSuccessful() {
-        authHelper.removeAccount(this);
+        authHelper.deleteAccount(this);
     }
 
     @Override
