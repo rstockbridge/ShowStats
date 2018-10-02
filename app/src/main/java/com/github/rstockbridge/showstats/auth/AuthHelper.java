@@ -128,7 +128,7 @@ public final class AuthHelper implements FirebaseAuth.AuthStateListener {
         firebaseSignOut(listener);
     }
 
-    public void removeAccount(@NonNull final SignOutListener listener) {
+    public void deleteAccount(@NonNull final SignOutListener listener) {
         revokeFirebaseAccessOnGoogleSignOut = true;
 
         /* If Firebase deletion is successful,the Firebase authentication status will change and

@@ -27,7 +27,6 @@ import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 import com.github.rstockbridge.showstats.ui.SetlistfmUserStatus;
-import com.github.rstockbridge.showstats.ui.TextUtil;
 import com.github.rstockbridge.showstats.utility.SimpleTextWatcher;
 
 import java.io.IOException;
@@ -104,7 +103,7 @@ public final class UserActivity
             case R.id.sign_out:
                 authHelper.signOut(this);
                 return true;
-            case R.id.sign_out_remove_account:
+            case R.id.delete_account:
                 // if successful, Firebase account will then be removed
                 databaseHelper.deleteUserData(authHelper.getCurrentUserUid(), this);
                 return true;
@@ -397,7 +396,7 @@ public final class UserActivity
 
     @Override
     public void onDeleteUserDataSuccessful() {
-        authHelper.removeAccount(this);
+        authHelper.deleteAccount(this);
     }
 
     @Override
