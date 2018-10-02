@@ -9,7 +9,6 @@ import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.widget.EditText;
 
 import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.appmodels.Show;
@@ -28,9 +27,14 @@ public final class TextUtil {
         this.resources = resources;
     }
 
+    @SuppressWarnings("deprecation")
     @NonNull
-    public static String getText(final EditText editText) {
-        return editText.getText().toString();
+    public static Spanned fromHtml(@NonNull final String text) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY);
+        } else {
+            return Html.fromHtml(text);
+        }
     }
 
     @NonNull
@@ -47,11 +51,11 @@ public final class TextUtil {
     }
 
     @NonNull
-    public Spanned getListText(@NonNull final List<String> list, boolean useArtistHeader) {
+    public Spanned getArtistListTextWithHeader(@NonNull final List<String> list) {
         String partialText = "";
 
         if (list.size() > 0) {
-            if (useArtistHeader && list.size() > 1) {
+            if (list.size() > 1) {
                 partialText += newlineHtml;
             }
 
@@ -60,11 +64,40 @@ public final class TextUtil {
             partialText = notApplicable;
         }
 
-        if (useArtistHeader) {
-            return fromHtml(resources.getQuantityString(R.plurals.artist_plural, list.size(), partialText));
+        return fromHtml(resources.getQuantityString(R.plurals.artist_plural, list.size(), partialText));
+    }
+
+    @NonNull
+    public Spanned getArtistListTextWithHeaderAndAttribution(
+            @NonNull final List<String> artists,
+            @NonNull final List<String> urls) {
+
+        String partialText = "";
+
+        if (artists.size() > 0) {
+            if (artists.size() > 1) {
+                partialText += newlineHtml;
+            }
+
+            partialText += formatArtistListWithUrls(artists, urls);
         } else {
-            return fromHtml(partialText);
+            partialText = notApplicable;
         }
+
+        return fromHtml(resources.getQuantityString(R.plurals.artist_plural, artists.size(), partialText));
+    }
+
+    @NonNull
+    public Spanned getListText(@NonNull final List<String> list) {
+        String text = "";
+
+        if (list.size() > 0) {
+            text += TextUtil.formatList(list);
+        } else {
+            text = notApplicable;
+        }
+
+        return fromHtml(text);
     }
 
     @NonNull
@@ -85,6 +118,25 @@ public final class TextUtil {
     }
 
     @NonNull
+    private String formatArtistListWithUrls(
+            @NonNull final List<String> artists,
+            @NonNull final List<String> urls) {
+
+        if (artists.size() == 1) {
+            return resources.getString(R.string.hyperlink, urls.get(0), artists.get(0));
+        } else {
+            final StringBuilder result = new StringBuilder();
+
+            for (int i = 0; i < artists.size() - 1; i++) {
+                result.append(resources.getString(R.string.hyperlink, urls.get(i), artists.get(i))).append(newlineHtml);
+            }
+            result.append(resources.getString(R.string.hyperlink, urls.get(urls.size() - 1), artists.get(artists.size() - 1)));
+
+            return result.toString();
+        }
+    }
+
+    @NonNull
     public Spanned getUserGapText(@NonNull final String user, @Nullable final Integer gap) {
         String partialText;
 
@@ -99,7 +151,7 @@ public final class TextUtil {
 
     @NonNull
     public Spanned getCommonShowsText(@NonNull final List<Show> shows) {
-        if(shows.size() > 0) {
+        if (shows.size() > 0) {
             final SpannableStringBuilder resultBuilder = new SpannableStringBuilder();
 
             for (int i = 0; i < shows.size() - 1; i++) {
@@ -107,7 +159,7 @@ public final class TextUtil {
 
                 final Spanned eventDate = getDateText(show.getEventDate(), true);
                 final Spanned venueName = getVenueText(show.getVenueName(), true);
-                final Spanned artists = getListText(show.getArtistNames(), true);
+                final Spanned artists = getArtistListTextWithHeaderAndAttribution(show.getArtistNames(), show.getUrls());
 
                 resultBuilder.append(TextUtils.concat(eventDate, venueName, artists));
 
@@ -120,7 +172,7 @@ public final class TextUtil {
 
             final Spanned eventDate = getDateText(show.getEventDate(), true);
             final Spanned venueName = getVenueText(show.getVenueName(), true);
-            final Spanned artists = getListText(show.getArtistNames(), true);
+            final Spanned artists = getArtistListTextWithHeader(show.getArtistNames());
 
             resultBuilder.append(TextUtils.concat(eventDate, venueName, artists));
 
@@ -150,15 +202,5 @@ public final class TextUtil {
         }
 
         return fromHtml(partialText);
-    }
-
-    @SuppressWarnings("deprecation")
-    @NonNull
-    private static Spanned fromHtml(@NonNull final String text) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY);
-        } else {
-            return Html.fromHtml(text);
-        }
     }
 }

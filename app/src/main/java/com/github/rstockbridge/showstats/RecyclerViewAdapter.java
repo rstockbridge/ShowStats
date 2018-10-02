@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,7 +69,8 @@ public final class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
 
             dateLabel.setText(textUtil.getDateText(show.getEventDate(), false));
             venueLabel.setText(textUtil.getVenueText(show.getVenueName(), false));
-            artistsLabel.setText(textUtil.getListText(show.getArtistNames(), true));
+            artistsLabel.setText(textUtil.getArtistListTextWithHeaderAndAttribution(show.getArtistNames(), show.getUrls()));
+            artistsLabel.setMovementMethod(LinkMovementMethod.getInstance());
 
             this.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
