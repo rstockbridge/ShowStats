@@ -1,6 +1,7 @@
 package com.github.rstockbridge.showstats;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +18,7 @@ abstract class BaseActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         onCreateSpecializedOptionsMenu(menu, inflater); // Insert subclass-specific entries first.
         inflater.inflate(R.menu.menu_open_source, menu);
+        inflater.inflate(R.menu.menu_privacy, menu);
         return true;
     }
 
@@ -25,6 +27,9 @@ abstract class BaseActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(final MenuItem item) {
         if (item.getItemId() == R.id.licenses) {
             startActivity(new Intent(this, OssLicensesMenuActivity.class));
+            return true;
+        } else if (item.getItemId() == R.id.privacy) {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_policy_url))));
             return true;
         }
 
