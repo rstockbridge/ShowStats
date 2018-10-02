@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -176,6 +177,7 @@ public final class CompareFragment extends Fragment {
         commonArtistsLabel = v.findViewById(R.id.common_artists);
         commonVenuesLabel = v.findViewById(R.id.common_venues);
         commonShowsLabel = v.findViewById(R.id.common_shows);
+        commonShowsLabel.setMovementMethod(LinkMovementMethod.getInstance());
 
         averageShowGapLabel1 = v.findViewById(R.id.average_show_gap1);
         averageShowGapLabel2 = v.findViewById(R.id.average_show_gap2);
