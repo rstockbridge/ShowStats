@@ -18,15 +18,20 @@ public final class Setlist {
     @NonNull
     private final SetlistVenue venue;
 
+    @NonNull
+    private final String url;
+
     public Setlist(@NonNull final String id,
-                    @NonNull final String eventDate,
-                    @NonNull final SetlistArtist artist,
-                    @NonNull final SetlistVenue venue) {
+                   @NonNull final String eventDate,
+                   @NonNull final SetlistArtist artist,
+                   @NonNull final SetlistVenue venue,
+                   @NonNull final String url) {
 
         this.id = id;
         this.eventDate = eventDate;
         this.artist = artist;
         this.venue = venue;
+        this.url = url;
     }
 
     @NonNull
@@ -53,5 +58,10 @@ public final class Setlist {
     @NonNull
     public SetlistVenue getVenue() {
         return venue;
+    }
+
+    @NonNull
+    public String getUrl() {
+        return url;
     }
 }

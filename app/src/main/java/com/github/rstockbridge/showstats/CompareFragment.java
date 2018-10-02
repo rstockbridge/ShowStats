@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -176,6 +177,7 @@ public final class CompareFragment extends Fragment {
         commonArtistsLabel = v.findViewById(R.id.common_artists);
         commonVenuesLabel = v.findViewById(R.id.common_venues);
         commonShowsLabel = v.findViewById(R.id.common_shows);
+        commonShowsLabel.setMovementMethod(LinkMovementMethod.getInstance());
 
         averageShowGapLabel1 = v.findViewById(R.id.average_show_gap1);
         averageShowGapLabel2 = v.findViewById(R.id.average_show_gap2);
@@ -184,11 +186,11 @@ public final class CompareFragment extends Fragment {
     private void processSubmittedUser2() {
         final UserStatistics user1Statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
 
-        if (TextUtil.getText(user2IdText).equals(user1Statistics.getUserId())) {
+        if (user2IdText.getText().toString().equals(user1Statistics.getUserId())) {
             goButton.setEnabled(false);
             MessageUtil.makeToast(getActivity(), getString(R.string.same_user));
         } else {
-            makeUserNetworkCall(TextUtil.getText(user2IdText));
+            makeUserNetworkCall(user2IdText.getText().toString());
         }
     }
 
@@ -227,7 +229,7 @@ public final class CompareFragment extends Fragment {
     }
 
     private void processSuccessfulUserResponse(@NonNull final User user) {
-        if (user.getUserId().equals(TextUtil.getText(user2IdText))) {
+        if (user.getUserId().equals(user2IdText.getText().toString())) {
             final ArrayList<Setlist> storedSetlists = new ArrayList<>();
             makeSetlistsNetworkCall(user.getUserId(), 1, storedSetlists);
         } else {
@@ -348,8 +350,10 @@ public final class CompareFragment extends Fragment {
 
                 for (final String user1ArtistId : user1Show.getArtistIds()) {
                     if (user2Show.getArtistIds().contains(user1ArtistId)) {
-                        final String user1Artist = user1Statistics.getArtistNameFromId(user1ArtistId);
-                        commonShow.addArtist(user1ArtistId, user1Artist);
+
+                        final String user1Artist = user1Show.getArtistNameFromId(user1ArtistId);
+                        final String user1ArtistSetlistUrl = user1Show.getArtistUrlFromName(user1Artist);
+                        commonShow.addArtist(user1ArtistId, user1Artist, user1ArtistSetlistUrl);
                     }
                 }
 
@@ -366,7 +370,7 @@ public final class CompareFragment extends Fragment {
     }
 
     private void displayCommonArtists() {
-        commonArtistsLabel.setText(textUtil.getListText(commonArtists, false));
+        commonArtistsLabel.setText(textUtil.getListText(commonArtists));
     }
 
     private void displayCommonShows() {
@@ -374,7 +378,7 @@ public final class CompareFragment extends Fragment {
     }
 
     private void displayCommonVenues() {
-        commonVenuesLabel.setText(textUtil.getListText(commonVenues, false));
+        commonVenuesLabel.setText(textUtil.getListText(commonVenues));
     }
 
     private void setNetworkCallInProgress(final boolean inProgress) {

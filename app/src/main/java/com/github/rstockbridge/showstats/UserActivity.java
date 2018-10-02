@@ -139,7 +139,7 @@ public final class UserActivity
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    makeUserNetworkCall(TextUtil.getText(userIdEditText));
+                    makeUserNetworkCall(userIdEditText.getText().toString());
                     handled = true;
                 }
                 return handled;
@@ -156,7 +156,7 @@ public final class UserActivity
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                makeUserNetworkCall(TextUtil.getText(userIdEditText));
+                makeUserNetworkCall(userIdEditText.getText().toString());
             }
         });
 
@@ -193,7 +193,7 @@ public final class UserActivity
     private void processSuccessfulUserResponse(@Nullable final User user) {
         setNetworkCallInProgress(false);
 
-        if (user.getUserId().equals(TextUtil.getText(userIdEditText))) {
+        if (user.getUserId().equals(userIdEditText.getText().toString())) {
             databaseHelper.updateSetlistfmUserInDatabase(
                     authHelper.getCurrentUserUid(),
                     userIdEditText.getText().toString(),

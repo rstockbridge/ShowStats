@@ -141,7 +141,7 @@ public final class UserStatistics {
     }
 
     @NonNull
-    public String getArtistNameFromId(final String artistId) {
+    public String getArtistNameFromId(@NonNull final String artistId) {
         return artistIdNameMap.get(artistId);
     }
 
@@ -356,13 +356,14 @@ public final class UserStatistics {
             final String venueName = setlist.getVenue().getName();
             final String artistId = setlist.getArtist().getMbid();
             final String artist = setlist.getArtist().getName();
+            final String artistSetlistUrl = setlist.getUrl();
             final Show show = new Show(id, eventDate, venueName);
 
             if (!shows.contains(show)) {
                 shows.add(show);
             }
 
-            shows.get(shows.indexOf(show)).addArtist(artistId, artist);
+            shows.get(shows.indexOf(show)).addArtist(artistId, artist, artistSetlistUrl);
         }
     }
 

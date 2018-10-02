@@ -28,7 +28,8 @@ public final class UserStatisticsUnitTests {
                 "123abc",
                 "01-01-2018",
                 new SetlistArtist("artistA", "Artist A"),
-                new SetlistVenue("Venue A", new City("City A", new Coordinates(42.3314, -83.0458))));
+                new SetlistVenue("Venue A", new City("City A", new Coordinates(42.3314, -83.0458))),
+                "http://www.artistA.com");
 
         setlists.add(setlist1);
 
