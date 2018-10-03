@@ -6,7 +6,7 @@ If you choose to use my Service, then you agree to the collection and use of inf
 
 **Information Collection and Use**
 
-This app uses Google Sign In to identify individual users and setlist.fm usernames to associate setlist.fm accounts with Google users. No other Google user information (e.g., name, email, profile picture) is accessed or stored. Custom user-entered data (e.g., show notes) is stored in Google Firestore.
+This app uses Google Sign In to identify individual users and users' email addresses are accessed. No other Google user information (e.g., name, profile picture) is accessed or stored. This app also uses setlist.fm usernames to associate setlist.fm accounts with Google users. Custom user-entered data (e.g., show notes) is stored in Google Firestore.
 
 Links to privacy policies of third party service providers used by the app:
 
