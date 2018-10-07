@@ -1,6 +1,7 @@
 package com.github.rstockbridge.showstats;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -60,6 +62,7 @@ public final class CompareFragment extends Fragment {
 
     private ProgressBar progressBar;
     private ScrollView scrollView;
+    private LinearLayout scrollViewLinearLayout;
     private BarChart barChart;
 
     private TextUtil textUtil;
@@ -95,15 +98,8 @@ public final class CompareFragment extends Fragment {
     public void setUserVisibleHint(final boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
 
-        if (getView() == null) {
-            return;
-        }
-
-        if (!isVisibleToUser) {
-            final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
-            }
+        if (getView() != null && !isVisibleToUser) {
+            hideKeyboard();
         }
     }
 
@@ -159,6 +155,14 @@ public final class CompareFragment extends Fragment {
 
         });
 
+        user2IdText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(final View v, final boolean hasFocus) {
+                if (!hasFocus) {
+                    hideKeyboard();
+                }
+            }
+        });
 
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -170,9 +174,16 @@ public final class CompareFragment extends Fragment {
 
         progressBar = v.findViewById(R.id.progress_bar);
         scrollView = v.findViewById(R.id.scroll_view);
+        scrollViewLinearLayout = v.findViewById(R.id.scroll_view_linear_layout);
         barChart = v.findViewById(R.id.bar_chart);
 
         scrollView.setVisibility(View.INVISIBLE);
+        scrollViewLinearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                scrollViewLinearLayout.requestFocus();
+            }
+        });
 
         commonArtistsLabel = v.findViewById(R.id.common_artists);
         commonVenuesLabel = v.findViewById(R.id.common_venues);
@@ -303,6 +314,7 @@ public final class CompareFragment extends Fragment {
         calculateCommonStatistics(user1Statistics, user2Statistics);
 
         scrollView.setVisibility(View.VISIBLE);
+        scrollViewLinearLayout.requestFocus();
 
         displayCommonArtists();
         displayCommonVenues();
@@ -403,4 +415,11 @@ public final class CompareFragment extends Fragment {
         }
     }
 
+    private void hideKeyboard() {
+        final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+        }
+    }
 }
