@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#85b146</color>
-    <color name="colorPrimaryDark">#6a8e39</color>
-    <color name="colorAccent">#a846b1</color>
+    <!--palette-->
+    <color name="white">#FFFFFF</color>
+    <color name="translucentWhite">#80FFFFFF</color>
+    <color name="midGreen">#85b146</color>
+    <color name="darkerGreen">#6a8e39</color>
+    <color name="purple">#a846b1</color>
+
+    <!--widget colors-->
+    <color name="colorPrimary">@color/midGreen</color>
+    <color name="colorPrimaryDark">@color/darkerGreen</color>
+    <color name="colorAccent">@color/purple</color>
+    <color name="defaultBackground">@color/white</color>
+    <color name="bottomBarActiveTabTextColor">@color/white</color>
+    <color name="bottomBarInactiveTabTextColor">@color/translucentWhite</color>
 </resources>
