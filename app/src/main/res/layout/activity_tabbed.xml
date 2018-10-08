@@ -16,7 +16,11 @@
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:tabTextColor="@color/bottomBarInactiveTabTextColor"
+        app:tabSelectedTextColor="@color/bottomBarActiveTabTextColor"
         app:tabBackground="@color/colorPrimary"
+        app:tabIndicatorColor="@color/bottomBarActiveTabTextColor"
+        app:tabIndicatorHeight="4dp"
         app:tabMode="fixed" />
 
 </LinearLayout>
