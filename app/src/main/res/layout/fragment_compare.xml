@@ -63,9 +63,12 @@
             android:scrollbarStyle="outsideOverlay" >
 
             <LinearLayout
+                android:id="@+id/scroll_view_linear_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:orientation="vertical"
+                android:focusable="true"
+                android:focusableInTouchMode="true" >
 
                 <TextView
                     android:layout_width="wrap_content"
