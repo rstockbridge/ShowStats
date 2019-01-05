@@ -340,7 +340,7 @@ public final class UserActivity
     }
 
     @Override
-    public void onFirebaseSignOutUnsucessful(@NonNull final Exception e) {
+    public void onFirebaseSignOutUnsuccessful(@NonNull final Exception e) {
         Timber.e(e, "Error signing out of Firebase!");
         MessageUtil.makeToast(this, "Could not sign out of Firebase!");
     }

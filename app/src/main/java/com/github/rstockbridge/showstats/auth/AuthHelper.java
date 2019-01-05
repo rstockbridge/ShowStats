@@ -33,7 +33,7 @@ public final class AuthHelper implements FirebaseAuth.AuthStateListener {
     public interface SignOutListener {
         void onSignOutFromFirebase();
 
-        void onFirebaseSignOutUnsucessful(@NonNull final Exception e);
+        void onFirebaseSignOutUnsuccessful(@NonNull final Exception e);
 
         void onGoogleSignOutUnsuccessful(@NonNull final Exception e);
 
@@ -173,7 +173,7 @@ public final class AuthHelper implements FirebaseAuth.AuthStateListener {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull final Exception e) {
-                        listener.onFirebaseSignOutUnsucessful(e);
+                        listener.onFirebaseSignOutUnsuccessful(e);
                     }
                 });
     }
