@@ -17,7 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.github.rstockbridge.showstats.auth.AuthHelper;
+import com.github.rstockbridge.showstats.auth.AuthHelper2;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 
@@ -40,7 +40,7 @@ public final class NoteActivity
     }
 
     @NonNull
-    private AuthHelper authHelper;
+    private AuthHelper2 authHelper2;
 
     @NonNull
     private DatabaseHelper databaseHelper;
@@ -68,7 +68,7 @@ public final class NoteActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note);
 
-        authHelper = new AuthHelper(this);
+        authHelper2 = new AuthHelper2(this);
         databaseHelper = new DatabaseHelper();
 
         showId = getIntent().getStringExtra(EXTRA_SHOW_ID);
@@ -76,7 +76,7 @@ public final class NoteActivity
         initializeUI();
 
         setDatabaseCallInProgess(true);
-        databaseHelper.getShowNote(authHelper.getCurrentUserUid(), showId, this);
+        databaseHelper.getShowNote(authHelper2.getCurrentUserUid(), showId, this);
     }
 
     @Override
@@ -103,12 +103,6 @@ public final class NoteActivity
             default:
                 throw new IllegalStateException("This line should never be reached.");
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        authHelper.clearAuthListener();
-        super.onDestroy();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -203,7 +197,7 @@ public final class NoteActivity
 
     private void saveToDatabase() {
         databaseHelper.updateShowNoteInDatabase(
-                authHelper.getCurrentUserUid(),
+                authHelper2.getCurrentUserUid(),
                 showId,
                 editNoteView.getText().toString(),
                 this);

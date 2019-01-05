@@ -64,6 +64,13 @@ public class AuthHelper2 {
                 REQUEST_CODE_GOOGLE_SIGN_IN);
     }
 
+    public String getCurrentUserUid() {
+        /* Since we listen for authentication state changes, we will assume getCurrentUser() is
+           non-null and representing the same user in all other parts of the code */
+
+        return firebaseAuth.getCurrentUser().getUid();
+    }
+
     private void processGoogleSignInResult(
             @Nullable final Intent data,
             @NonNull final SignInListener signInListener
