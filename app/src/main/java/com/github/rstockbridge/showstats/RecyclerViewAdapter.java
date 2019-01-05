@@ -1,5 +1,6 @@
 package com.github.rstockbridge.showstats;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -75,8 +76,7 @@ public final class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
             this.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final Intent intent = NoteActivity.newIntent(context, show.getId());
-                    context.startActivity(intent);
+                    context.startActivity(NoteActivity.newIntent(context, show.getId()));
                 }
             });
         }

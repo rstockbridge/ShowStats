@@ -16,5 +16,4 @@ public interface ActivityResultGetter {
     void setOnActivityResultListener(int resultCode, @NonNull OnActivityResultListener listener);
 
     void removeOnActivityResultListener(int resultCode);
-
 }

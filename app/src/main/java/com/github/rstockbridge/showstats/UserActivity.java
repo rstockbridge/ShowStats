@@ -5,9 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -39,16 +36,10 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 public final class UserActivity
-        extends BaseActivity
-        implements AuthHelper.SignOutListener,
-        DatabaseHelper.SetlistfmUserListener,
-        DatabaseHelper.UpdateDatabaseListener,
-        DatabaseHelper.DeleteDatabaseListener {
+        extends BaseAccountActivity
+        implements DatabaseHelper.SetlistfmUserListener, DatabaseHelper.UpdateDatabaseListener {
 
-    @NonNull
     private AuthHelper authHelper;
-
-    @NonNull
     private DatabaseHelper databaseHelper;
 
     private LinearLayout storedUserLayout;
@@ -69,7 +60,7 @@ public final class UserActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
 
-        authHelper = new AuthHelper(this, this);
+        authHelper = new AuthHelper(this);
         databaseHelper = new DatabaseHelper();
 
         initializeUI();
@@ -81,35 +72,6 @@ public final class UserActivity
         super.onResume();
 
         syncUI();
-    }
-
-    @Override
-    protected void onDestroy() {
-        authHelper.clearAuthListener();
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onCreateSpecializedOptionsMenu(
-            @NonNull final Menu menu,
-            @NonNull final MenuInflater inflater) {
-
-        inflater.inflate(R.menu.menu_options, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.sign_out:
-                authHelper.signOut(this);
-                return true;
-            case R.id.delete_account:
-                // if successful, Firebase account will then be removed
-                databaseHelper.deleteUserData(authHelper.getCurrentUserUid(), this);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     private void initializeUI() {
@@ -245,9 +207,7 @@ public final class UserActivity
 
                         User1StatisticsHolder.getSharedInstance().setStatistics(new UserStatistics(userId, storedSetlists));
 
-                        final Intent intent = new Intent(UserActivity.this, TabbedActivity.class);
-                        startActivity(intent);
-                        finish();
+                        finishAndStartTabbedActivity();
                     }
                 } else {
                     setNetworkCallInProgress(false);
@@ -263,6 +223,12 @@ public final class UserActivity
         });
     }
 
+    private void finishAndStartTabbedActivity() {
+        startActivity(new Intent(UserActivity.this, TabbedActivity.class));
+        finish();
+        overridePendingTransition(0, 0);
+    }
+
     private void setNetworkCallInProgress(final boolean inProgress) {
         networkCallIsInProgress = inProgress;
         syncUI();
@@ -275,19 +241,15 @@ public final class UserActivity
 
     private void syncUI() {
         setUserLayout(setlistfmUserStatus);
-        setProgessBarVisibility(networkCallIsInProgress || setlistfmUserStatus == SetlistfmUserStatus.UNKNOWN);
+        syncViewsWithNetworkCall(networkCallIsInProgress || setlistfmUserStatus == SetlistfmUserStatus.UNKNOWN);
 
         if (setlistfmUserStatus == SetlistfmUserStatus.NOT_STORED) {
             syncNoStoredUserLayoutForNetworkCallStatus(networkCallIsInProgress);
         }
     }
 
-    private void setProgessBarVisibility(final boolean makeVisible) {
-        if (makeVisible) {
-            progressBar.setVisibility(View.VISIBLE);
-        } else {
-            progressBar.setVisibility(View.INVISIBLE);
-        }
+    private void syncViewsWithNetworkCall(final boolean makeVisible) {
+        progressBar.setVisibility(makeVisible ? View.VISIBLE : View.INVISIBLE);
     }
 
     private void setUserLayout(final SetlistfmUserStatus setlistfmUserStatus) {
@@ -326,53 +288,13 @@ public final class UserActivity
         }
     }
 
-    private void returnToSignInActivity() {
-        final Intent intent = new Intent(UserActivity.this, GoogleSignInActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    @Override
-    public void onSignOutFromFirebase() {
-        // return to signInActivity even if still signed in to Google - it doesn't
-        // make sense to stay in this activity if signed out of Firebase
-        returnToSignInActivity();
-    }
-
-    @Override
-    public void onFirebaseSignOutUnsuccessful(@NonNull final Exception e) {
-        Timber.e(e, "Error signing out of Firebase!");
-        MessageUtil.makeToast(this, "Could not sign out of Firebase!");
-    }
-
-    @Override
-    public void onGoogleSignOutUnsuccessful(@NonNull final Exception e) {
-        Timber.e(e, "Error signing out of Google!");
-        MessageUtil.makeToast(this, "Could not sign out of Google!");
-    }
-
-    @Override
-    public void onFirebaseDeletionUnsuccessful(@NonNull final Exception e) {
-        Timber.e(e, "Error deleting Firebase account!");
-        MessageUtil.makeToast(this, "Could not delete user account! Signing out only");
-        authHelper.signOut(this);
-    }
-
-    @Override
-    public void onRevokeFirebaseAccessToGoogleUnsuccessful(@NonNull final Exception e) {
-        Timber.e(e, "Error revoking Firebase access to Google!");
-        MessageUtil.makeToast(this, "Could not revoke Firebase access to Google! Signing out of Google only.");
-    }
-
     @Override
     public void onStoredSetlistfmUser(final String setlistfmUserId) {
         setSetlistfmUserStatus(SetlistfmUserStatus.STORED);
-
-        final String storedUserId = setlistfmUserId;
-        storedUserIdLabel.setText(storedUserId);
+        storedUserIdLabel.setText(setlistfmUserId);
 
         final ArrayList<Setlist> storedSetlists = new ArrayList<>();
-        makeSetlistsNetworkCall(storedUserId, 1, storedSetlists);
+        makeSetlistsNetworkCall(setlistfmUserId, 1, storedSetlists);
     }
 
     @Override
@@ -392,17 +314,5 @@ public final class UserActivity
         }
 
         MessageUtil.makeToast(this, "Could not save data!");
-    }
-
-    @Override
-    public void onDeleteUserDataSuccessful() {
-        authHelper.deleteAccount(this);
-    }
-
-    @Override
-    public void onDeleteUserDataUnsuccessful(@NonNull final Exception e) {
-        Timber.e(e, "Error deleting Firebase data!");
-        MessageUtil.makeToast(this, "Could not delete user data! Signing out only.");
-        authHelper.signOut(this);
     }
 }

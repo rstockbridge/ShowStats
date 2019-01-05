@@ -18,6 +18,7 @@ public final class DatabaseHelper {
     private static final String USERS_PATH = "users";
     private static final String SETLISTFM_USER_ID_KEY = "userId";
     private static final String SHOW_NOTES_KEY = "showNotesKey";
+    private static final String DELETE_KEY = "delete";
 
     public interface SetlistfmUserListener {
         void onStoredSetlistfmUser(final String setlistfmUserId);
@@ -35,10 +36,16 @@ public final class DatabaseHelper {
         void onUpdateDatabaseUnsuccessful(@Nullable final Exception e);
     }
 
-    public interface DeleteDatabaseListener {
-        void onDeleteUserDataSuccessful();
+    public interface FlagForDeletionListener {
+        void onFlagForDeletionSuccessful();
 
-        void onDeleteUserDataUnsuccessful(@NonNull final Exception e);
+        void onFlagForDeletionFailure(final Exception e);
+    }
+
+    public interface DeletionStatusListener {
+        void onGetDeletionStatusSuccess(boolean delete);
+
+        void onGetDeletionStatusFailure();
     }
 
     @NonNull
@@ -186,21 +193,89 @@ public final class DatabaseHelper {
         });
     }
 
-    public void deleteUserData(@NonNull final String authUserUid, @NonNull final DeleteDatabaseListener listener) {
-        database.collection(USERS_PATH)
-                .document(authUserUid)
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        listener.onDeleteUserDataSuccessful();
+    public void flagUserForDeletion(@NonNull final String authUserUid, @NonNull final FlagForDeletionListener listener) {
+        final DocumentReference docRef = database
+                .collection(USERS_PATH)
+                .document(authUserUid);
+
+        final Map<String, Object> deleteData = new HashMap<>();
+        deleteData.put(DELETE_KEY, "true");
+
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(final DocumentSnapshot document) {
+                if (document.exists() && document.getData() != null) {
+                    database.collection(USERS_PATH)
+                            .document(authUserUid)
+                            .update(deleteData)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(final Void aVoid) {
+                                    listener.onFlagForDeletionSuccessful();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    listener.onFlagForDeletionFailure(e);
+                                }
+                            });
+
+                } else {
+                    database.collection(USERS_PATH)
+                            .document(authUserUid)
+                            .set(deleteData)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(final Void aVoid) {
+                                    listener.onFlagForDeletionSuccessful();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    listener.onFlagForDeletionFailure(e);
+                                }
+                            });
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull final Exception e) {
+                listener.onFlagForDeletionFailure(null);
+
+            }
+        });
+    }
+
+    public void getDeletionStatus(@NonNull final String authUserUid, @NonNull final DeletionStatusListener listener) {
+
+        final DocumentReference docRef = database
+                .collection(USERS_PATH)
+                .document(authUserUid);
+
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(final DocumentSnapshot document) {
+                if (document.exists()
+                        && document.getData() != null
+                        && document.getData().get(DELETE_KEY) != null) {
+
+                    final String deletionStatus = (String) document.getData().get(DELETE_KEY);
+                    if (deletionStatus == null || !deletionStatus.equals("true")) {
+                        listener.onGetDeletionStatusSuccess(false);
+                    } else {
+                        listener.onGetDeletionStatusSuccess(true);
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        listener.onDeleteUserDataUnsuccessful(e);
-                    }
-                });
+                } else {
+                    listener.onGetDeletionStatusSuccess(false);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull final Exception e) {
+                listener.onGetDeletionStatusFailure();
+            }
+        });
     }
 }

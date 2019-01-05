@@ -30,6 +30,7 @@
         <activity
             android:name=".NoteActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".DeletionStatusActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

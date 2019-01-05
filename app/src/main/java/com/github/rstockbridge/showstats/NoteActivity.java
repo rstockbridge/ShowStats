@@ -17,7 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.github.rstockbridge.showstats.auth.AuthHelper2;
+import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 
@@ -40,7 +40,7 @@ public final class NoteActivity
     }
 
     @NonNull
-    private AuthHelper2 authHelper2;
+    private AuthHelper authHelper;
 
     @NonNull
     private DatabaseHelper databaseHelper;
@@ -61,22 +61,22 @@ public final class NoteActivity
 
     private ProgressBar progressBar;
 
-    private boolean databaseCallIsInProgess;
+    private boolean databaseCallIsInProgress;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note);
 
-        authHelper2 = new AuthHelper2(this);
+        authHelper = new AuthHelper(this);
         databaseHelper = new DatabaseHelper();
 
         showId = getIntent().getStringExtra(EXTRA_SHOW_ID);
 
         initializeUI();
 
-        setDatabaseCallInProgess(true);
-        databaseHelper.getShowNote(authHelper2.getCurrentUserUid(), showId, this);
+        setDatabaseCallInProgress(true);
+        databaseHelper.getShowNote(authHelper.getCurrentUserUid(), showId, this);
     }
 
     @Override
@@ -152,8 +152,8 @@ public final class NoteActivity
         progressBar = findViewById(R.id.progress_bar);
     }
 
-    private void setDatabaseCallInProgess(final boolean inProgress) {
-        databaseCallIsInProgess = inProgress;
+    private void setDatabaseCallInProgress(final boolean inProgress) {
+        databaseCallIsInProgress = inProgress;
         syncUI();
     }
 
@@ -167,7 +167,7 @@ public final class NoteActivity
     }
 
     private void syncUI() {
-        setProgessBarVisibility(databaseCallIsInProgess);
+        syncViewsWithDatabaseCall(databaseCallIsInProgress);
 
         if (setDisplayedNoteVisible) {
             displayedNoteView.setVisibility(View.VISIBLE);
@@ -185,19 +185,14 @@ public final class NoteActivity
         }
     }
 
-    private void setProgessBarVisibility(final boolean makeVisible) {
-        if (makeVisible) {
-            progressBar.setVisibility(View.VISIBLE);
-            noteLayout.setVisibility(View.INVISIBLE);
-        } else {
-            progressBar.setVisibility(View.INVISIBLE);
-            noteLayout.setVisibility(View.VISIBLE);
-        }
+    private void syncViewsWithDatabaseCall(final boolean makeVisible) {
+        progressBar.setVisibility(makeVisible ? View.VISIBLE : View.INVISIBLE);
+        noteLayout.setVisibility(makeVisible ? View.INVISIBLE : View.VISIBLE);
     }
 
     private void saveToDatabase() {
         databaseHelper.updateShowNoteInDatabase(
-                authHelper2.getCurrentUserUid(),
+                authHelper.getCurrentUserUid(),
                 showId,
                 editNoteView.getText().toString(),
                 this);
@@ -212,7 +207,7 @@ public final class NoteActivity
         }
 
         setDisplayedNoteVisible = true;
-        setDatabaseCallInProgess(false);
+        setDatabaseCallInProgress(false);
     }
 
     @Override
