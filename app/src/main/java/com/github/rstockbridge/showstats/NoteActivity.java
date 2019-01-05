@@ -75,7 +75,7 @@ public final class NoteActivity
 
         initializeUI();
 
-        setDabaseCallInProgess(true);
+        setDatabaseCallInProgess(true);
         databaseHelper.getShowNote(authHelper.getCurrentUserUid(), showId, this);
     }
 
@@ -158,7 +158,7 @@ public final class NoteActivity
         progressBar = findViewById(R.id.progress_bar);
     }
 
-    private void setDabaseCallInProgess(final boolean inProgress) {
+    private void setDatabaseCallInProgess(final boolean inProgress) {
         databaseCallIsInProgess = inProgress;
         syncUI();
     }
@@ -218,7 +218,7 @@ public final class NoteActivity
         }
 
         setDisplayedNoteVisible = true;
-        setDabaseCallInProgess(false);
+        setDatabaseCallInProgess(false);
     }
 
     @Override
