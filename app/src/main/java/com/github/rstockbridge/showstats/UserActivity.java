@@ -327,7 +327,7 @@ public final class UserActivity
     }
 
     private void returnToSignInActivity() {
-        final Intent intent = new Intent(UserActivity.this, SignInActivity.class);
+        final Intent intent = new Intent(UserActivity.this, GoogleSignInActivity.class);
         startActivity(intent);
         finish();
     }

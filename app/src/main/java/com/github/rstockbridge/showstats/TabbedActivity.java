@@ -73,7 +73,7 @@ public final class TabbedActivity
     }
 
     private void returnToSignInActivity() {
-        final Intent intent = new Intent(TabbedActivity.this, SignInActivity.class);
+        final Intent intent = new Intent(TabbedActivity.this, GoogleSignInActivity.class);
         startActivity(intent);
         finish();
     }

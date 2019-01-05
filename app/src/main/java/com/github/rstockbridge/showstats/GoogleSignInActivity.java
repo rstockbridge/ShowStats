@@ -5,33 +5,38 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.github.rstockbridge.showstats.auth.AuthHelper;
+import com.github.rstockbridge.showstats.auth.ActivityResultGetter;
+import com.github.rstockbridge.showstats.auth.AuthHelper2;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 import com.github.rstockbridge.showstats.ui.TextUtil;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import timber.log.Timber;
 
-public final class SignInActivity
+public final class GoogleSignInActivity
         extends BaseActivity
-        implements AuthHelper.SignInListener {
+        implements ActivityResultGetter, AuthHelper2.SignInListener {
 
-    private static final int REQUEST_CODE_GOOGLE_SIGN_IN = 9001;
-
-    private AuthHelper authHelper;
+    private AuthHelper2 authHelper2;
+    private Map<Integer, OnActivityResultListener> onActivityResultListeners = new HashMap<>();
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        authHelper = new AuthHelper(this);
+        authHelper2 = new AuthHelper2(this);
 
-        if (authHelper.isFullyLoggedIn()) {
+        if (authHelper2.isUserLoggedIn()) {
             startUserActivity();
         }
 
@@ -39,7 +44,7 @@ public final class SignInActivity
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                authHelper.startSignInActivity(SignInActivity.this);
+                authHelper2.signIn(GoogleSignInActivity.this, GoogleSignInActivity.this);
             }
         });
 
@@ -50,38 +55,45 @@ public final class SignInActivity
     }
 
     @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    public void onActivityResult(final int requestCode, final int resultCode, @Nullable final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        switch (requestCode) {
-            case REQUEST_CODE_GOOGLE_SIGN_IN:
-                authHelper.finishSignIn(data, this);
-                break;
-            default:
-                throw new IllegalStateException("This line should not be reached.");
+        if (onActivityResultListeners.containsKey(requestCode)) {
+            onActivityResultListeners.get(requestCode).onActivityResult(data);
+            return;
         }
+
+        throw new IllegalStateException("This line should not be reached.");
     }
 
     @Override
-    public void onSignIn() {
-        startActivityForResult(authHelper.getSignInIntent(), REQUEST_CODE_GOOGLE_SIGN_IN);
+    public void setOnActivityResultListener(
+            final int resultCode,
+            @NonNull final OnActivityResultListener listener) {
+
+        onActivityResultListeners.put(resultCode, listener);
     }
 
     @Override
-    public void onGoogleSignInUnsuccessful(@NonNull final ApiException e) {
-        Timber.e(e, "Error signing in to Google account!");
-        MessageUtil.makeToast(this, "Could not sign in to Google account!");
+    public void removeOnActivityResultListener(final int resultCode) {
+        onActivityResultListeners.remove(resultCode);
     }
 
     @Override
-    public void onFirebaseAuthSuccessful() {
+    public void onSignInSuccess() {
         startUserActivity();
     }
 
     @Override
-    public void onFirebaseAuthUnsuccessful(@NonNull final Exception e) {
-        Timber.e(e, "Error authenticating with Firebase!");
-        MessageUtil.makeToast(SignInActivity.this, "Could not authenticate with Firebase!");
+    public void onSignInFailure(@NonNull final Exception exception) {
+        MessageUtil.makeToast(this, "Sign in failed");
+        Timber.e(exception);
+    }
+
+    @Override
+    public void onSignInFailure(@NonNull final String string) {
+        MessageUtil.makeToast(this, "Sign in failed");
+        Timber.e(string);
     }
 
     private void startUserActivity() {
@@ -89,4 +101,5 @@ public final class SignInActivity
         startActivity(intent);
         finish();
     }
+
 }
