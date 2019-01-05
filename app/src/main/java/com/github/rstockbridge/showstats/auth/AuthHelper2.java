@@ -43,7 +43,7 @@ public class AuthHelper2 {
     }
 
     public boolean isUserLoggedIn() {
-        return false;
+        return firebaseAuth.getCurrentUser() != null;
     }
 
     public void signIn(@NonNull final ActivityResultGetter activityResultGetter,
