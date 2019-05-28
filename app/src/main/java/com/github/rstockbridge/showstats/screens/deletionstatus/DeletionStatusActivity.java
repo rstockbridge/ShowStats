@@ -19,6 +19,7 @@ public final class DeletionStatusActivity
         AuthHelper.SignOutListener,
         AuthHelper.RevokeAccessListener {
 
+
     private AuthHelper authHelper;
 
     @Override
@@ -44,6 +45,9 @@ public final class DeletionStatusActivity
 
     @Override
     public void onGetDeletionStatusFailure() {
+        /* If we can't read the user's deletion status, assume the user is *not* flagged for deletion
+           and move to the user activity. Hopefully deleted accounts will be cleared within Firebase
+           frequently enough that this situation is unlikely to occur in real life. */
         finishAndStartUserActivity();
     }
 
@@ -57,13 +61,13 @@ public final class DeletionStatusActivity
         final Intent intent = new Intent(this, UserActivity.class);
         startActivity(intent);
         finish();
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
     }
 
     private void finishAndReturnToSignInActivity() {
         startActivity(new Intent(DeletionStatusActivity.this, GoogleSignInActivity.class));
         finish();
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
     }
 
 
@@ -74,13 +78,9 @@ public final class DeletionStatusActivity
 
     @Override
     public void onRevokeAccessFailure(@NonNull final String message) {
-        // not ideal that account access has not been revoked
-        // but user can still revoke access in their Google account settings
+        /* Not ideal that account access has not been revokedm, but user can still revoke access
+           in their Google account settings. So return to sign in activity anyway to avoid being
+           in limbo. */
         finishAndReturnToSignInActivity();
     }
 }
-
-// edge cases:
-// - user has flagged deletion but database request fails - app still works as per usual
-// - revoke access fails, app still return to sign in screen
-// create AccountManager helper
