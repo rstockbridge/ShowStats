@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.auth.ActivityResultGetter;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
-import com.github.rstockbridge.showstats.menu.MenuHelper;
+import com.github.rstockbridge.showstats.ui.MenuHelper;
 import com.github.rstockbridge.showstats.screens.deletionstatus.DeletionStatusActivity;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 import com.github.rstockbridge.showstats.ui.TextUtil;

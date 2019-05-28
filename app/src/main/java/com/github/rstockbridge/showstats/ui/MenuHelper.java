@@ -1,4 +1,4 @@
-package com.github.rstockbridge.showstats.menu;
+package com.github.rstockbridge.showstats.ui;
 
 import android.app.Activity;
 import android.content.Context;

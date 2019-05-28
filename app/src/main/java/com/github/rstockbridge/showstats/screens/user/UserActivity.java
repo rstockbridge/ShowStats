@@ -16,7 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.github.rstockbridge.showstats.BaseAccountActivity;
 import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.api.RetrofitWrapper;
 import com.github.rstockbridge.showstats.api.SetlistfmService;
@@ -27,7 +26,8 @@ import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
-import com.github.rstockbridge.showstats.menu.MenuHelper;
+import com.github.rstockbridge.showstats.ui.MenuHelper;
+import com.github.rstockbridge.showstats.screens.googlesignin.GoogleSignInActivity;
 import com.github.rstockbridge.showstats.screens.tabbed.TabbedActivity;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 import com.github.rstockbridge.showstats.ui.SetlistfmUserStatus;
@@ -43,8 +43,13 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 public final class UserActivity
-        extends BaseAccountActivity
-        implements DatabaseHelper.SetlistfmUserListener, DatabaseHelper.UpdateDatabaseListener {
+        extends AppCompatActivity
+        implements
+        AuthHelper.SignOutListener,
+        AuthHelper.RevokeAccessListener,
+        DatabaseHelper.FlagForDeletionListener,
+        DatabaseHelper.SetlistfmUserListener,
+        DatabaseHelper.UpdateDatabaseListener {
 
     private MenuHelper menuHelper;
     private AuthHelper authHelper;
@@ -86,7 +91,7 @@ public final class UserActivity
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         super.onCreateOptionsMenu(menu);
-        return  menuHelper.onCreateAccountMenu(this, menu) && menuHelper.onCreateLicensesPrivacyMenu(this, menu);
+        return menuHelper.onCreateAccountMenu(this, menu) && menuHelper.onCreateLicensesPrivacyMenu(this, menu);
     }
 
     @Override
@@ -307,6 +312,39 @@ public final class UserActivity
                 goButton.setEnabled(true);
             }
         }
+    }
+
+    @Override
+    public void onSignOutSuccess() {
+        finishAndReturnToSignInActivity();
+    }
+
+    @Override
+    public void onRevokeAccessSuccess() {
+        databaseHelper.flagUserForDeletion(authHelper.getCurrentUserUid(), this);
+    }
+
+    @Override
+    public void onRevokeAccessFailure(@NonNull final String message) {
+        Timber.e(message);
+        MessageUtil.makeToast(this, "Could not delete account!");
+    }
+
+    @Override
+    public void onFlagForDeletionSuccessful() {
+        authHelper.signOut(this);
+    }
+
+    @Override
+    public void onFlagForDeletionFailure(final Exception e) {
+        Timber.e(e, "Error flagging Firebase data for deletion!");
+        MessageUtil.makeToast(this, "Could not delete account! Signing out only.");
+        authHelper.signOut(this);
+    }
+
+    private void finishAndReturnToSignInActivity() {
+        startActivity(new Intent(this, GoogleSignInActivity.class));
+        finish();
     }
 
     @Override
