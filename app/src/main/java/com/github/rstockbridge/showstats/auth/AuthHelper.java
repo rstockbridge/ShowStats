@@ -39,7 +39,6 @@ public class AuthHelper {
 
     private static final int REQUEST_CODE_GOOGLE_SIGN_IN = 9001;
 
-
     @NonNull
     private final GoogleSignInClient googleSignInClient;
 

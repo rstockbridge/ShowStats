@@ -1,4 +1,4 @@
-package com.github.rstockbridge.showstats;
+package com.github.rstockbridge.showstats.screens.deletionstatus;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import com.github.rstockbridge.showstats.screens.googlesignin.GoogleSignInActivity;
+import com.github.rstockbridge.showstats.R;
+import com.github.rstockbridge.showstats.screens.user.UserActivity;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
 

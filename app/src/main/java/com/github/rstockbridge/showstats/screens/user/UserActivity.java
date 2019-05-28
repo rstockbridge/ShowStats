@@ -1,10 +1,13 @@
-package com.github.rstockbridge.showstats;
+package com.github.rstockbridge.showstats.screens.user;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -13,6 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.github.rstockbridge.showstats.BaseAccountActivity;
+import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.api.RetrofitWrapper;
 import com.github.rstockbridge.showstats.api.SetlistfmService;
 import com.github.rstockbridge.showstats.api.models.Setlist;
@@ -22,6 +27,8 @@ import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
+import com.github.rstockbridge.showstats.menu.MenuHelper;
+import com.github.rstockbridge.showstats.screens.tabbed.TabbedActivity;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 import com.github.rstockbridge.showstats.ui.SetlistfmUserStatus;
 import com.github.rstockbridge.showstats.utility.SimpleTextWatcher;
@@ -39,6 +46,7 @@ public final class UserActivity
         extends BaseAccountActivity
         implements DatabaseHelper.SetlistfmUserListener, DatabaseHelper.UpdateDatabaseListener {
 
+    private MenuHelper menuHelper;
     private AuthHelper authHelper;
     private DatabaseHelper databaseHelper;
 
@@ -60,6 +68,7 @@ public final class UserActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
 
+        menuHelper = new MenuHelper(this);
         authHelper = new AuthHelper(this);
         databaseHelper = new DatabaseHelper();
 
@@ -72,6 +81,18 @@ public final class UserActivity
         super.onResume();
 
         syncUI();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        return  menuHelper.onCreateAccountMenu(this, menu) && menuHelper.onCreateLicensesPrivacyMenu(this, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        super.onOptionsItemSelected(item);
+        return menuHelper.onOptionsItemSelected(item);
     }
 
     private void initializeUI() {

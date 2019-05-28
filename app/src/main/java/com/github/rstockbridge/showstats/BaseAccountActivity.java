@@ -4,18 +4,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.support.v7.app.AppCompatActivity;
 
 import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
+import com.github.rstockbridge.showstats.screens.googlesignin.GoogleSignInActivity;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 
 import timber.log.Timber;
 
-abstract class BaseAccountActivity
-        extends BaseActivity
+public abstract class BaseAccountActivity
+        extends AppCompatActivity
         implements AuthHelper.SignOutListener,
         AuthHelper.RevokeAccessListener,
         DatabaseHelper.FlagForDeletionListener {
@@ -29,25 +28,6 @@ abstract class BaseAccountActivity
 
         authHelper = new AuthHelper(this);
         databaseHelper = new DatabaseHelper();
-    }
-
-    @Override
-    protected void onCreateSpecializedOptionsMenu(@NonNull final Menu menu, @NonNull final MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_options, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.sign_out:
-                    authHelper.signOut(this);
-                return true;
-            case R.id.delete_account:
-                authHelper.revokeAccountAccess(this);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override
@@ -73,7 +53,7 @@ abstract class BaseAccountActivity
 
     @Override
     public void onFlagForDeletionFailure(final Exception e) {
-        Timber.e(e, "Error flagging rFirebase data for deletion!");
+        Timber.e(e, "Error flagging Firebase data for deletion!");
         MessageUtil.makeToast(this, "Could not delete account! Signing out only.");
         authHelper.signOut(this);
     }

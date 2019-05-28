@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".GoogleSignInActivity"
+            android:name=".screens.googlesignin.GoogleSignInActivity"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,15 +22,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".UserActivity"
+            android:name=".screens.user.UserActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".TabbedActivity"
+            android:name=".screens.tabbed.TabbedActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".NoteActivity"
+            android:name=".screens.tabbed.NoteActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".DeletionStatusActivity" />
+        <activity android:name=".screens.deletionstatus.DeletionStatusActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

@@ -1,16 +1,22 @@
-package com.github.rstockbridge.showstats;
+package com.github.rstockbridge.showstats.screens.googlesignin;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.auth.ActivityResultGetter;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
+import com.github.rstockbridge.showstats.menu.MenuHelper;
+import com.github.rstockbridge.showstats.screens.deletionstatus.DeletionStatusActivity;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 import com.github.rstockbridge.showstats.ui.TextUtil;
 import com.google.android.gms.common.SignInButton;
@@ -21,8 +27,10 @@ import java.util.Map;
 import timber.log.Timber;
 
 public final class GoogleSignInActivity
-        extends BaseActivity
+        extends AppCompatActivity
         implements ActivityResultGetter, AuthHelper.SignInListener {
+
+    private MenuHelper menuHelper;
 
     private AuthHelper authHelper;
 
@@ -34,6 +42,7 @@ public final class GoogleSignInActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
+        menuHelper = new MenuHelper(this);
         authHelper = new AuthHelper(this);
 
         if (authHelper.isUserLoggedIn()) {
@@ -52,6 +61,18 @@ public final class GoogleSignInActivity
         final String linkedString = getString(R.string.powered_hyperlink, getString(R.string.setlistfm_homepage), getString(R.string.setlistfm));
         setlistfmAttributionLabel.setText(TextUtil.fromHtml(linkedString));
         setlistfmAttributionLabel.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        return menuHelper.onCreateLicensesPrivacyMenu(this, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        super.onOptionsItemSelected(item);
+        return menuHelper.onOptionsItemSelected(item);
     }
 
     @Override
