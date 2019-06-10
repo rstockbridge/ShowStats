@@ -1,6 +1,6 @@
 package com.github.rstockbridge.showstats.database;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public final class ShowNote {
 

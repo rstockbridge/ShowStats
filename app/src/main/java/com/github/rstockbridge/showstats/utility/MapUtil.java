@@ -1,6 +1,6 @@
 package com.github.rstockbridge.showstats.utility;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.Collections;
 import java.util.Comparator;

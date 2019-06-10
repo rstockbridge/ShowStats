@@ -1,6 +1,6 @@
 package com.github.rstockbridge.showstats.api;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.github.rstockbridge.showstats.api.models.SetlistData;
 import com.github.rstockbridge.showstats.api.models.User;

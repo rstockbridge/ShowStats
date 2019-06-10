@@ -1,8 +1,8 @@
 package com.github.rstockbridge.showstats.ui;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;

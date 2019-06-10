@@ -1,7 +1,6 @@
 package com.github.rstockbridge.showstats.appmodels;
 
-import android.support.annotation.NonNull;
-import android.util.Log;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;

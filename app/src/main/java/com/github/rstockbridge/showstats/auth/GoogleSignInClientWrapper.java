@@ -1,7 +1,7 @@
 package com.github.rstockbridge.showstats.auth;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.github.rstockbridge.showstats.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;

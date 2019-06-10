@@ -1,6 +1,6 @@
 package com.github.rstockbridge.showstats.ui;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.formatter.IValueFormatter;
