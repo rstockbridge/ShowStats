@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -51,12 +50,7 @@ public final class GoogleSignInActivity
         }
 
         final SignInButton signIn = findViewById(R.id.sign_in_button);
-        signIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                authHelper.signIn(GoogleSignInActivity.this, GoogleSignInActivity.this);
-            }
-        });
+        signIn.setOnClickListener(v -> authHelper.signIn(GoogleSignInActivity.this, GoogleSignInActivity.this));
 
         final TextView setlistfmAttributionLabel = findViewById(R.id.setlistfm_attribution);
         final String linkedString = getString(R.string.powered_hyperlink, getString(R.string.setlistfm_homepage), getString(R.string.setlistfm));

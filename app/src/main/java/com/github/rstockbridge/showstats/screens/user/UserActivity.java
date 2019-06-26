@@ -2,7 +2,6 @@ package com.github.rstockbridge.showstats.screens.user;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -122,31 +121,18 @@ public final class UserActivity
             }
         });
 
-        userIdEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    makeUserNetworkCall(userIdEditText.getText().toString());
-                    handled = true;
-                }
-                return handled;
-            }
-        });
-
-        clearButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                userIdEditText.setText("");
-            }
-        });
-
-        goButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
+        userIdEditText.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
                 makeUserNetworkCall(userIdEditText.getText().toString());
+                handled = true;
             }
+            return handled;
         });
+
+        clearButton.setOnClickListener(v -> userIdEditText.setText(""));
+
+        goButton.setOnClickListener(v -> makeUserNetworkCall(userIdEditText.getText().toString()));
 
         progressBar = findViewById(R.id.progress_bar);
 

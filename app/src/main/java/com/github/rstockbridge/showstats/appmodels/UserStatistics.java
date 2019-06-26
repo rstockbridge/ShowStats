@@ -177,7 +177,7 @@ public final class UserStatistics {
         final List<List<Pair<String, LocalDate>>> processedVenuesByMonth = new ArrayList<>();
 
         for (int i = 0; i < NUMBER_OF_MONTHS; i++) {
-            processedVenuesByMonth.add(new ArrayList<Pair<String, LocalDate>>());
+            processedVenuesByMonth.add(new ArrayList<>());
         }
 
         for (final Setlist setlist : setlists) {

@@ -10,15 +10,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
 
 public class AuthHelper {
 
@@ -86,12 +82,9 @@ public class AuthHelper {
 
         activityResultGetter.setOnActivityResultListener(
                 REQUEST_CODE_GOOGLE_SIGN_IN,
-                new ActivityResultGetter.OnActivityResultListener() {
-                    @Override
-                    public void onActivityResult(@Nullable final Intent data) {
-                        signInToFirebase(data, signInListener);
-                        activityResultGetter.removeOnActivityResultListener(REQUEST_CODE_GOOGLE_SIGN_IN);
-                    }
+                data -> {
+                    signInToFirebase(data, signInListener);
+                    activityResultGetter.removeOnActivityResultListener(REQUEST_CODE_GOOGLE_SIGN_IN);
                 });
 
         // Sign in to Google
@@ -108,18 +101,8 @@ public class AuthHelper {
     public void revokeAccountAccess(@NonNull final RevokeAccessListener listener) {
         googleSignInClient
                 .revokeAccess()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(final Void aVoid) {
-                        listener.onRevokeAccessSuccess();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull final Exception e) {
-                        listener.onRevokeAccessFailure("Could not revoke Firebase access to Google account.");
-                    }
-                });
+                .addOnSuccessListener(aVoid -> listener.onRevokeAccessSuccess())
+                .addOnFailureListener(e -> listener.onRevokeAccessFailure("Could not revoke Firebase access to Google account."));
     }
 
     public void deleteUserAuthentication(@NonNull final DeleteAuthenticationListener deleteAuthenticationListener) {
@@ -127,18 +110,8 @@ public class AuthHelper {
                 .getInstance()
                 .getHttpsCallable("deleteUserAuthentication")
                 .call()
-                .addOnSuccessListener(new OnSuccessListener<HttpsCallableResult>() {
-                    @Override
-                    public void onSuccess(final HttpsCallableResult httpsCallableResult) {
-                        deleteAuthenticationListener.onDeleteAuthenticationSuccess();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull final Exception e) {
-                        deleteAuthenticationListener.onDeleteAuthenticationFailure(e);
-                    }
-                });
+                .addOnSuccessListener(httpsCallableResult -> deleteAuthenticationListener.onDeleteAuthenticationSuccess())
+                .addOnFailureListener(deleteAuthenticationListener::onDeleteAuthenticationFailure);
     }
 
     private void signInToFirebase(
@@ -174,35 +147,17 @@ public class AuthHelper {
         final AuthCredential credential = GoogleAuthProvider.getCredential(googleIdToken, null);
         firebaseAuth
                 .signInWithCredential(credential)
-                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                    @Override
-                    public void onSuccess(final AuthResult authResult) {
-                        signInListener.onSignInSuccess();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull final Exception e) {
-                        signInListener.onSignInFailure(e);
-                    }
-                });
+                .addOnSuccessListener(authResult -> signInListener.onSignInSuccess())
+                .addOnFailureListener(signInListener::onSignInFailure);
     }
 
     private void signOutOfGoogle(@NonNull final SignOutListener signOutListener) {
         googleSignInClient
                 .signOut()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(final Void aVoid) {
-                        signOutListener.onSignOutSuccess();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull final Exception e) {
-                        // Force user to re-authenticate despite partial failure.
-                        signOutListener.onSignOutSuccess();
-                    }
+                .addOnSuccessListener(aVoid -> signOutListener.onSignOutSuccess())
+                .addOnFailureListener(e -> {
+                    // Force user to re-authenticate despite partial failure.
+                    signOutListener.onSignOutSuccess();
                 });
     }
 }

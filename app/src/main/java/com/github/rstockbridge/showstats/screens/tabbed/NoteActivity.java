@@ -4,11 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -18,10 +13,15 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
+import com.google.android.material.textfield.TextInputLayout;
 
 import timber.log.Timber;
 
@@ -41,13 +41,10 @@ public final class NoteActivity
         return intent;
     }
 
-    @NonNull
     private AuthHelper authHelper;
 
-    @NonNull
     private DatabaseHelper databaseHelper;
 
-    @NonNull
     private String showId;
 
     private RelativeLayout noteLayout;
@@ -118,33 +115,26 @@ public final class NoteActivity
         saveNoteButton = findViewById(R.id.save_note_button);
         final Button exitButton = findViewById(R.id.exit_button);
 
-        editNoteView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(final View v, final MotionEvent event) {
-                final int DRAWABLE_RIGHT = 2;
+        editNoteView.setOnTouchListener((v, event) -> {
+            final int DRAWABLE_RIGHT = 2;
 
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (event.getRawX() >= (editNoteView.getRight() - editNoteView.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-                        editNoteView.setText(getString(R.string.empty_string));
-                        setDisplayedNoteText(getString(R.string.empty_string));
-                        return true;
-                    }
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (event.getRawX() >= (editNoteView.getRight() - editNoteView.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                    editNoteView.setText(getString(R.string.empty_string));
+                    setDisplayedNoteText(getString(R.string.empty_string));
+                    return true;
                 }
-                return false;
             }
-
+            return false;
         });
 
-        editNoteView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    saveToDatabase();
-                    handled = true;
-                }
-                return handled;
+        editNoteView.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                saveToDatabase();
+                handled = true;
             }
+            return handled;
         });
 
         editNoteButton.setOnClickListener(this);

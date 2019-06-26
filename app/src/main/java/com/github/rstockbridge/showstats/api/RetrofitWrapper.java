@@ -4,13 +4,11 @@ import androidx.annotation.NonNull;
 
 import com.github.rstockbridge.showstats.BuildConfig;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.moshi.MoshiConverterFactory;
@@ -40,19 +38,16 @@ public final class RetrofitWrapper {
     private static OkHttpClient getClient() {
         final OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
-        final Interceptor headerInterceptor = new Interceptor() {
-            @Override
-            public Response intercept(final Chain chain) throws IOException {
-                final Request original = chain.request();
+        final Interceptor headerInterceptor = chain -> {
+            final Request original = chain.request();
 
-                final Request request = original.newBuilder()
-                        .header("x-api-key", BuildConfig.SETLISTFM_KEY)
-                        .header("Accept", "application/json")
-                        .method(original.method(), original.body())
-                        .build();
+            final Request request = original.newBuilder()
+                    .header("x-api-key", BuildConfig.SETLISTFM_KEY)
+                    .header("Accept", "application/json")
+                    .method(original.method(), original.body())
+                    .build();
 
-                return chain.proceed(request);
-            }
+            return chain.proceed(request);
         };
 
         final HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
