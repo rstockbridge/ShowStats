@@ -2,6 +2,7 @@ package com.github.rstockbridge.showstats.auth;
 
 import android.content.Context;
 import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -16,8 +17,20 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 
 public class AuthHelper {
+
+    /* account deletion consists of:
+       1. revoking Firebase access to Google Account
+       2. deleting Firebase user authentication record
+       3. signing out
+
+       A scheduled cloud function will take care of deleting database data. Note that if a user deletes
+       their account and tries to sign back in before that account data is deleted, they will be allowed
+       to create a new account. The cloud function will still delete the previous account data.
+     */
 
     public interface SignInListener {
         void onSignInSuccess();
@@ -35,6 +48,12 @@ public class AuthHelper {
         void onRevokeAccessSuccess();
 
         void onRevokeAccessFailure(@NonNull String message);
+    }
+
+    public interface DeleteAuthenticationListener {
+        void onDeleteAuthenticationSuccess();
+
+        void onDeleteAuthenticationFailure(@NonNull Exception exception);
     }
 
     private static final int REQUEST_CODE_GOOGLE_SIGN_IN = 9001;
@@ -99,6 +118,25 @@ public class AuthHelper {
                     @Override
                     public void onFailure(@NonNull final Exception e) {
                         listener.onRevokeAccessFailure("Could not revoke Firebase access to Google account.");
+                    }
+                });
+    }
+
+    public void deleteUserAuthentication(@NonNull final DeleteAuthenticationListener deleteAuthenticationListener) {
+        FirebaseFunctions
+                .getInstance()
+                .getHttpsCallable("deleteUserAuthentication")
+                .call()
+                .addOnSuccessListener(new OnSuccessListener<HttpsCallableResult>() {
+                    @Override
+                    public void onSuccess(final HttpsCallableResult httpsCallableResult) {
+                        deleteAuthenticationListener.onDeleteAuthenticationSuccess();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull final Exception e) {
+                        deleteAuthenticationListener.onDeleteAuthenticationFailure(e);
                     }
                 });
     }

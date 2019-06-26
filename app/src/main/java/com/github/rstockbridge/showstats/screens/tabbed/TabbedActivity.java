@@ -2,20 +2,20 @@ package com.github.rstockbridge.showstats.screens.tabbed;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.tabs.TabLayout;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
+
 import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
-import com.github.rstockbridge.showstats.database.DatabaseHelper;
-import com.github.rstockbridge.showstats.ui.MenuHelper;
 import com.github.rstockbridge.showstats.screens.googlesignin.GoogleSignInActivity;
+import com.github.rstockbridge.showstats.ui.MenuHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
+import com.google.android.material.tabs.TabLayout;
 
 import timber.log.Timber;
 
@@ -23,11 +23,10 @@ public final class TabbedActivity
         extends AppCompatActivity
         implements AuthHelper.SignOutListener,
         AuthHelper.RevokeAccessListener,
-        DatabaseHelper.FlagForDeletionListener {
+        AuthHelper.DeleteAuthenticationListener {
 
     private MenuHelper menuHelper;
     private AuthHelper authHelper;
-    private DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -36,7 +35,6 @@ public final class TabbedActivity
 
         menuHelper = new MenuHelper(this);
         authHelper = new AuthHelper(this);
-        databaseHelper = new DatabaseHelper();
 
         final ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager()));
@@ -60,12 +58,13 @@ public final class TabbedActivity
 
     @Override
     public void onSignOutSuccess() {
-        finishAndReturnToSignInActivity();
+        startActivity(new Intent(this, GoogleSignInActivity.class));
+        finish();
     }
 
     @Override
     public void onRevokeAccessSuccess() {
-        databaseHelper.flagUserForDeletion(authHelper.getCurrentUserUid(), this);
+        authHelper.deleteUserAuthentication(this);
     }
 
     @Override
@@ -75,19 +74,16 @@ public final class TabbedActivity
     }
 
     @Override
-    public void onFlagForDeletionSuccessful() {
+    public void onDeleteAuthenticationSuccess() {
         authHelper.signOut(this);
     }
 
     @Override
-    public void onFlagForDeletionFailure(final Exception e) {
-        Timber.e(e, "Error flagging Firebase data for deletion!");
+    public void onDeleteAuthenticationFailure(@NonNull final Exception exception) {
+        /* signing out is not an issue if access is revoked but deleting user authentication fails
+           - access will simply be granted again the next time the user signs in */
+        Timber.e(exception, "Error deleting Firebase user authentication record!");
         MessageUtil.makeToast(this, "Could not delete account! Signing out only.");
         authHelper.signOut(this);
-    }
-
-    private void finishAndReturnToSignInActivity() {
-        startActivity(new Intent(this, GoogleSignInActivity.class));
-        finish();
     }
 }

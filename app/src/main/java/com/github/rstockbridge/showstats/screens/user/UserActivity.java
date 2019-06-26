@@ -2,9 +2,6 @@ package com.github.rstockbridge.showstats.screens.user;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +13,10 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.api.RetrofitWrapper;
 import com.github.rstockbridge.showstats.api.SetlistfmService;
@@ -26,9 +27,9 @@ import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
-import com.github.rstockbridge.showstats.ui.MenuHelper;
 import com.github.rstockbridge.showstats.screens.googlesignin.GoogleSignInActivity;
 import com.github.rstockbridge.showstats.screens.tabbed.TabbedActivity;
+import com.github.rstockbridge.showstats.ui.MenuHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 import com.github.rstockbridge.showstats.ui.SetlistfmUserStatus;
 import com.github.rstockbridge.showstats.utility.SimpleTextWatcher;
@@ -45,11 +46,11 @@ import timber.log.Timber;
 public final class UserActivity
         extends AppCompatActivity
         implements
+        DatabaseHelper.SetlistfmUserListener,
+        DatabaseHelper.UpdateDatabaseListener,
         AuthHelper.SignOutListener,
         AuthHelper.RevokeAccessListener,
-        DatabaseHelper.FlagForDeletionListener,
-        DatabaseHelper.SetlistfmUserListener,
-        DatabaseHelper.UpdateDatabaseListener {
+        AuthHelper.DeleteAuthenticationListener {
 
     private MenuHelper menuHelper;
     private AuthHelper authHelper;
@@ -315,39 +316,6 @@ public final class UserActivity
     }
 
     @Override
-    public void onSignOutSuccess() {
-        finishAndReturnToSignInActivity();
-    }
-
-    @Override
-    public void onRevokeAccessSuccess() {
-        databaseHelper.flagUserForDeletion(authHelper.getCurrentUserUid(), this);
-    }
-
-    @Override
-    public void onRevokeAccessFailure(@NonNull final String message) {
-        Timber.e(message);
-        MessageUtil.makeToast(this, "Could not delete account!");
-    }
-
-    @Override
-    public void onFlagForDeletionSuccessful() {
-        authHelper.signOut(this);
-    }
-
-    @Override
-    public void onFlagForDeletionFailure(final Exception e) {
-        Timber.e(e, "Error flagging Firebase data for deletion!");
-        MessageUtil.makeToast(this, "Could not delete account! Signing out only.");
-        authHelper.signOut(this);
-    }
-
-    private void finishAndReturnToSignInActivity() {
-        startActivity(new Intent(this, GoogleSignInActivity.class));
-        finish();
-    }
-
-    @Override
     public void onStoredSetlistfmUser(final String setlistfmUserId) {
         setSetlistfmUserStatus(SetlistfmUserStatus.STORED);
         storedUserIdLabel.setText(setlistfmUserId);
@@ -373,5 +341,36 @@ public final class UserActivity
         }
 
         MessageUtil.makeToast(this, "Could not save data!");
+    }
+
+    @Override
+    public void onSignOutSuccess() {
+        startActivity(new Intent(this, GoogleSignInActivity.class));
+        finish();
+    }
+
+    @Override
+    public void onRevokeAccessSuccess() {
+        authHelper.deleteUserAuthentication(this);
+    }
+
+    @Override
+    public void onRevokeAccessFailure(@NonNull final String message) {
+        Timber.e(message);
+        MessageUtil.makeToast(this, "Could not delete account!");
+    }
+
+    @Override
+    public void onDeleteAuthenticationSuccess() {
+        authHelper.signOut(this);
+    }
+
+    @Override
+    public void onDeleteAuthenticationFailure(@NonNull final Exception exception) {
+        /* signing out is not an issue if access is revoked but deleting user authentication fails
+           - access will simply be granted again the next time the user signs in */
+        Timber.e(exception, "Error deleting Firebase user authentication record!");
+        MessageUtil.makeToast(this, "Could not delete account! Signing out only.");
+        authHelper.signOut(this);
     }
 }

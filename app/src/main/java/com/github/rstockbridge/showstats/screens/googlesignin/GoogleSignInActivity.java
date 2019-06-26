@@ -3,20 +3,21 @@ package com.github.rstockbridge.showstats.screens.googlesignin;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.auth.ActivityResultGetter;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
+import com.github.rstockbridge.showstats.screens.user.UserActivity;
 import com.github.rstockbridge.showstats.ui.MenuHelper;
-import com.github.rstockbridge.showstats.screens.deletionstatus.DeletionStatusActivity;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 import com.github.rstockbridge.showstats.ui.TextUtil;
 import com.google.android.gms.common.SignInButton;
@@ -46,7 +47,7 @@ public final class GoogleSignInActivity
         authHelper = new AuthHelper(this);
 
         if (authHelper.isUserLoggedIn()) {
-            finishAndStartDeletionStatusActivity();
+            finishAndStartUserActivity();
         }
 
         final SignInButton signIn = findViewById(R.id.sign_in_button);
@@ -102,7 +103,7 @@ public final class GoogleSignInActivity
 
     @Override
     public void onSignInSuccess() {
-        finishAndStartDeletionStatusActivity();
+        finishAndStartUserActivity();
     }
 
     @Override
@@ -117,8 +118,9 @@ public final class GoogleSignInActivity
         Timber.e(string);
     }
 
-    private void finishAndStartDeletionStatusActivity() {
-        startActivity(new Intent(this, DeletionStatusActivity.class));
+    private void finishAndStartUserActivity() {
+        final Intent intent = new Intent(this, UserActivity.class);
+        startActivity(intent);
         finish();
         overridePendingTransition(0, 0);
     }
