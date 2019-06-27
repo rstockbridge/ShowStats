@@ -1,13 +1,15 @@
-package com.github.rstockbridge.showstats;
+package com.github.rstockbridge.showstats.screens.tabbed;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.api.models.City;
 import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
@@ -15,7 +17,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -46,14 +47,11 @@ public final class MapFragment extends Fragment {
             e.printStackTrace();
         }
 
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(final GoogleMap map) {
-                final UserStatistics statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
+        mapView.getMapAsync(map -> {
+            final UserStatistics statistics = User1StatisticsHolder.getSharedInstance().getStatistics();
 
-                if (statistics != null) {
-                    displayMap(map, statistics.getCities());
-                }
+            if (statistics != null) {
+                displayMap(map, statistics.getCities());
             }
         });
 

@@ -1,10 +1,10 @@
 package com.github.rstockbridge.showstats.appmodels;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.threeten.bp.LocalDate;
 
-public final class ArtistSetlist {
+final class ArtistSetlist {
 
     @NonNull
     private final LocalDate eventDate;
@@ -18,12 +18,12 @@ public final class ArtistSetlist {
     }
 
     @NonNull
-    public LocalDate getEventDate() {
+    LocalDate getEventDate() {
         return eventDate;
     }
 
     @NonNull
-    public String getVenue() {
+    String getVenue() {
         return venue;
     }
 }

@@ -1,15 +1,15 @@
-package com.github.rstockbridge.showstats;
+package com.github.rstockbridge.showstats.screens.tabbed;
 
 import android.content.Context;
-import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.appmodels.Show;
 import com.github.rstockbridge.showstats.ui.TextUtil;
 
@@ -72,13 +72,7 @@ public final class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView
             artistsLabel.setText(textUtil.getArtistListTextWithHeaderAndAttribution(show.getArtistNames(), show.getUrls()));
             artistsLabel.setMovementMethod(LinkMovementMethod.getInstance());
 
-            this.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final Intent intent = NoteActivity.newIntent(context, show.getId());
-                    context.startActivity(intent);
-                }
-            });
+            this.itemView.setOnClickListener(v -> context.startActivity(NoteActivity.newIntent(context, show.getId())));
         }
     }
 }

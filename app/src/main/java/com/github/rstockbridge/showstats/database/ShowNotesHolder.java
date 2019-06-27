@@ -1,7 +1,7 @@
 package com.github.rstockbridge.showstats.database;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,17 +11,12 @@ final class ShowNotesHolder {
     @NonNull
     private final List<ShowNote> showNotes = new ArrayList<>();
 
-    @NonNull
-    List<ShowNote> getShowNotes() {
-        return showNotes;
-    }
-
     // this method does not add a new empty note and will remove an empty updated note
     void updateShowNote(@NonNull final String id, @NonNull final String text) {
         final ShowNote showNote = getShowNoteFromId(id);
 
         if (showNote == null) {
-            if (!text.equals("")){
+            if (!text.equals("")) {
                 showNotes.add(new ShowNote(id, text));
             }
         } else {
@@ -34,7 +29,7 @@ final class ShowNotesHolder {
     }
 
     @Nullable
-    public ShowNote getShowNoteFromId(@NonNull final String id) {
+    ShowNote getShowNoteFromId(@NonNull final String id) {
         for (final ShowNote showNote : showNotes) {
             if (showNote.getId().equals(id)) {
                 return showNote;

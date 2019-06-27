@@ -1,13 +1,9 @@
-package com.github.rstockbridge.showstats;
+package com.github.rstockbridge.showstats.screens.tabbed;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.TextInputLayout;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -17,14 +13,20 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
+import com.google.android.material.textfield.TextInputLayout;
 
 import timber.log.Timber;
 
 public final class NoteActivity
-        extends BaseActivity
+        extends AppCompatActivity
         implements
         View.OnClickListener,
         DatabaseHelper.ShowNoteListener,
@@ -39,13 +41,10 @@ public final class NoteActivity
         return intent;
     }
 
-    @NonNull
     private AuthHelper authHelper;
 
-    @NonNull
     private DatabaseHelper databaseHelper;
 
-    @NonNull
     private String showId;
 
     private RelativeLayout noteLayout;
@@ -61,7 +60,7 @@ public final class NoteActivity
 
     private ProgressBar progressBar;
 
-    private boolean databaseCallIsInProgess;
+    private boolean databaseCallIsInProgress;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -75,7 +74,7 @@ public final class NoteActivity
 
         initializeUI();
 
-        setDabaseCallInProgess(true);
+        setDatabaseCallInProgress(true);
         databaseHelper.getShowNote(authHelper.getCurrentUserUid(), showId, this);
     }
 
@@ -105,12 +104,6 @@ public final class NoteActivity
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        authHelper.clearAuthListener();
-        super.onDestroy();
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     private void initializeUI() {
         noteLayout = findViewById(R.id.note_layout);
@@ -122,33 +115,26 @@ public final class NoteActivity
         saveNoteButton = findViewById(R.id.save_note_button);
         final Button exitButton = findViewById(R.id.exit_button);
 
-        editNoteView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(final View v, final MotionEvent event) {
-                final int DRAWABLE_RIGHT = 2;
+        editNoteView.setOnTouchListener((v, event) -> {
+            final int DRAWABLE_RIGHT = 2;
 
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (event.getRawX() >= (editNoteView.getRight() - editNoteView.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-                        editNoteView.setText(getString(R.string.empty_string));
-                        setDisplayedNoteText(getString(R.string.empty_string));
-                        return true;
-                    }
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (event.getRawX() >= (editNoteView.getRight() - editNoteView.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                    editNoteView.setText(getString(R.string.empty_string));
+                    setDisplayedNoteText(getString(R.string.empty_string));
+                    return true;
                 }
-                return false;
             }
-
+            return false;
         });
 
-        editNoteView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    saveToDatabase();
-                    handled = true;
-                }
-                return handled;
+        editNoteView.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                saveToDatabase();
+                handled = true;
             }
+            return handled;
         });
 
         editNoteButton.setOnClickListener(this);
@@ -158,8 +144,8 @@ public final class NoteActivity
         progressBar = findViewById(R.id.progress_bar);
     }
 
-    private void setDabaseCallInProgess(final boolean inProgress) {
-        databaseCallIsInProgess = inProgress;
+    private void setDatabaseCallInProgress(final boolean inProgress) {
+        databaseCallIsInProgress = inProgress;
         syncUI();
     }
 
@@ -173,7 +159,7 @@ public final class NoteActivity
     }
 
     private void syncUI() {
-        setProgessBarVisibility(databaseCallIsInProgess);
+        syncViewsWithDatabaseCall(databaseCallIsInProgress);
 
         if (setDisplayedNoteVisible) {
             displayedNoteView.setVisibility(View.VISIBLE);
@@ -191,14 +177,9 @@ public final class NoteActivity
         }
     }
 
-    private void setProgessBarVisibility(final boolean makeVisible) {
-        if (makeVisible) {
-            progressBar.setVisibility(View.VISIBLE);
-            noteLayout.setVisibility(View.INVISIBLE);
-        } else {
-            progressBar.setVisibility(View.INVISIBLE);
-            noteLayout.setVisibility(View.VISIBLE);
-        }
+    private void syncViewsWithDatabaseCall(final boolean makeVisible) {
+        progressBar.setVisibility(makeVisible ? View.VISIBLE : View.INVISIBLE);
+        noteLayout.setVisibility(makeVisible ? View.INVISIBLE : View.VISIBLE);
     }
 
     private void saveToDatabase() {
@@ -218,7 +199,7 @@ public final class NoteActivity
         }
 
         setDisplayedNoteVisible = true;
-        setDabaseCallInProgess(false);
+        setDatabaseCallInProgress(false);
     }
 
     @Override

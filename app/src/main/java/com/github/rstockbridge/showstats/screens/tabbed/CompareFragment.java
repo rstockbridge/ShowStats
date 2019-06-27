@@ -1,15 +1,11 @@
-package com.github.rstockbridge.showstats;
+package com.github.rstockbridge.showstats.screens.tabbed;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,7 +19,12 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.api.RetrofitWrapper;
 import com.github.rstockbridge.showstats.api.SetlistfmService;
 import com.github.rstockbridge.showstats.api.models.Setlist;
@@ -48,8 +49,6 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static android.content.Context.INPUT_METHOD_SERVICE;
 
 public final class CompareFragment extends Fragment {
 
@@ -125,51 +124,36 @@ public final class CompareFragment extends Fragment {
             }
         });
 
-        user2IdText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
+        user2IdText.setOnEditorActionListener((view, actionId, event) -> {
+            boolean handled = false;
 
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    processSubmittedUser2();
-
-                    handled = true;
-                }
-                return handled;
-            }
-        });
-
-        user2IdText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(final View v, final MotionEvent event) {
-                final int DRAWABLE_RIGHT = 2;
-
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (event.getRawX() >= (user2IdText.getRight() - user2IdText.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-                        user2IdText.setText("");
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-        });
-
-        user2IdText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(final View v, final boolean hasFocus) {
-                if (!hasFocus) {
-                    hideKeyboard();
-                }
-            }
-        });
-
-        goButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
                 processSubmittedUser2();
+
+                handled = true;
+            }
+            return handled;
+        });
+
+        user2IdText.setOnTouchListener((view, event) -> {
+            final int DRAWABLE_RIGHT = 2;
+
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (event.getRawX() >= (user2IdText.getRight() - user2IdText.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                    user2IdText.setText("");
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        user2IdText.setOnFocusChangeListener((view, hasFocus) -> {
+            if (!hasFocus) {
+                hideKeyboard();
             }
         });
+
+        goButton.setOnClickListener(view -> processSubmittedUser2());
         goButton.setEnabled(false);
 
         progressBar = v.findViewById(R.id.progress_bar);
@@ -178,12 +162,7 @@ public final class CompareFragment extends Fragment {
         barChart = v.findViewById(R.id.bar_chart);
 
         scrollView.setVisibility(View.INVISIBLE);
-        scrollViewLinearLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                scrollViewLinearLayout.requestFocus();
-            }
-        });
+        scrollViewLinearLayout.setOnClickListener(view -> scrollViewLinearLayout.requestFocus());
 
         commonArtistsLabel = v.findViewById(R.id.common_artists);
         commonVenuesLabel = v.findViewById(R.id.common_venues);

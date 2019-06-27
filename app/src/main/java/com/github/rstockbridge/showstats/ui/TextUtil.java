@@ -2,9 +2,9 @@ package com.github.rstockbridge.showstats.ui;
 
 import android.content.res.Resources;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;

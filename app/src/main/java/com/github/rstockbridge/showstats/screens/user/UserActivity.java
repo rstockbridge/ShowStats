@@ -1,12 +1,8 @@
-package com.github.rstockbridge.showstats;
+package com.github.rstockbridge.showstats.screens.user;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -16,6 +12,11 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.api.RetrofitWrapper;
 import com.github.rstockbridge.showstats.api.SetlistfmService;
 import com.github.rstockbridge.showstats.api.models.Setlist;
@@ -25,6 +26,9 @@ import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
+import com.github.rstockbridge.showstats.screens.googlesignin.GoogleSignInActivity;
+import com.github.rstockbridge.showstats.screens.tabbed.TabbedActivity;
+import com.github.rstockbridge.showstats.ui.MenuHelper;
 import com.github.rstockbridge.showstats.ui.MessageUtil;
 import com.github.rstockbridge.showstats.ui.SetlistfmUserStatus;
 import com.github.rstockbridge.showstats.utility.SimpleTextWatcher;
@@ -39,16 +43,16 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 public final class UserActivity
-        extends BaseActivity
-        implements AuthHelper.SignOutListener,
+        extends AppCompatActivity
+        implements
         DatabaseHelper.SetlistfmUserListener,
         DatabaseHelper.UpdateDatabaseListener,
-        DatabaseHelper.DeleteDatabaseListener {
+        AuthHelper.SignOutListener,
+        AuthHelper.RevokeAccessListener,
+        AuthHelper.DeleteAuthenticationListener {
 
-    @NonNull
+    private MenuHelper menuHelper;
     private AuthHelper authHelper;
-
-    @NonNull
     private DatabaseHelper databaseHelper;
 
     private LinearLayout storedUserLayout;
@@ -69,7 +73,8 @@ public final class UserActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
 
-        authHelper = new AuthHelper(this, this);
+        menuHelper = new MenuHelper(this);
+        authHelper = new AuthHelper(this);
         databaseHelper = new DatabaseHelper();
 
         initializeUI();
@@ -84,32 +89,15 @@ public final class UserActivity
     }
 
     @Override
-    protected void onDestroy() {
-        authHelper.clearAuthListener();
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onCreateSpecializedOptionsMenu(
-            @NonNull final Menu menu,
-            @NonNull final MenuInflater inflater) {
-
-        inflater.inflate(R.menu.menu_options, menu);
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        return menuHelper.onCreateAccountMenu(this, menu) && menuHelper.onCreateLicensesPrivacyMenu(this, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.sign_out:
-                authHelper.signOut(this);
-                return true;
-            case R.id.delete_account:
-                // if successful, Firebase account will then be removed
-                databaseHelper.deleteUserData(authHelper.getCurrentUserUid(), this);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        super.onOptionsItemSelected(item);
+        return menuHelper.onOptionsItemSelected(item);
     }
 
     private void initializeUI() {
@@ -133,31 +121,18 @@ public final class UserActivity
             }
         });
 
-        userIdEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    makeUserNetworkCall(userIdEditText.getText().toString());
-                    handled = true;
-                }
-                return handled;
-            }
-        });
-
-        clearButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                userIdEditText.setText("");
-            }
-        });
-
-        goButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
+        userIdEditText.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
                 makeUserNetworkCall(userIdEditText.getText().toString());
+                handled = true;
             }
+            return handled;
         });
+
+        clearButton.setOnClickListener(v -> userIdEditText.setText(""));
+
+        goButton.setOnClickListener(v -> makeUserNetworkCall(userIdEditText.getText().toString()));
 
         progressBar = findViewById(R.id.progress_bar);
 
@@ -245,9 +220,7 @@ public final class UserActivity
 
                         User1StatisticsHolder.getSharedInstance().setStatistics(new UserStatistics(userId, storedSetlists));
 
-                        final Intent intent = new Intent(UserActivity.this, TabbedActivity.class);
-                        startActivity(intent);
-                        finish();
+                        finishAndStartTabbedActivity();
                     }
                 } else {
                     setNetworkCallInProgress(false);
@@ -263,6 +236,12 @@ public final class UserActivity
         });
     }
 
+    private void finishAndStartTabbedActivity() {
+        startActivity(new Intent(UserActivity.this, TabbedActivity.class));
+        finish();
+        overridePendingTransition(0, 0);
+    }
+
     private void setNetworkCallInProgress(final boolean inProgress) {
         networkCallIsInProgress = inProgress;
         syncUI();
@@ -275,19 +254,15 @@ public final class UserActivity
 
     private void syncUI() {
         setUserLayout(setlistfmUserStatus);
-        setProgessBarVisibility(networkCallIsInProgress || setlistfmUserStatus == SetlistfmUserStatus.UNKNOWN);
+        syncViewsWithNetworkCall(networkCallIsInProgress || setlistfmUserStatus == SetlistfmUserStatus.UNKNOWN);
 
         if (setlistfmUserStatus == SetlistfmUserStatus.NOT_STORED) {
             syncNoStoredUserLayoutForNetworkCallStatus(networkCallIsInProgress);
         }
     }
 
-    private void setProgessBarVisibility(final boolean makeVisible) {
-        if (makeVisible) {
-            progressBar.setVisibility(View.VISIBLE);
-        } else {
-            progressBar.setVisibility(View.INVISIBLE);
-        }
+    private void syncViewsWithNetworkCall(final boolean makeVisible) {
+        progressBar.setVisibility(makeVisible ? View.VISIBLE : View.INVISIBLE);
     }
 
     private void setUserLayout(final SetlistfmUserStatus setlistfmUserStatus) {
@@ -326,53 +301,13 @@ public final class UserActivity
         }
     }
 
-    private void returnToSignInActivity() {
-        final Intent intent = new Intent(UserActivity.this, SignInActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    @Override
-    public void onSignOutFromFirebase() {
-        // return to signInActivity even if still signed in to Google - it doesn't
-        // make sense to stay in this activity if signed out of Firebase
-        returnToSignInActivity();
-    }
-
-    @Override
-    public void onFirebaseSignOutUnsucessful(@NonNull final Exception e) {
-        Timber.e(e, "Error signing out of Firebase!");
-        MessageUtil.makeToast(this, "Could not sign out of Firebase!");
-    }
-
-    @Override
-    public void onGoogleSignOutUnsuccessful(@NonNull final Exception e) {
-        Timber.e(e, "Error signing out of Google!");
-        MessageUtil.makeToast(this, "Could not sign out of Google!");
-    }
-
-    @Override
-    public void onFirebaseDeletionUnsuccessful(@NonNull final Exception e) {
-        Timber.e(e, "Error deleting Firebase account!");
-        MessageUtil.makeToast(this, "Could not delete user account! Signing out only");
-        authHelper.signOut(this);
-    }
-
-    @Override
-    public void onRevokeFirebaseAccessToGoogleUnsuccessful(@NonNull final Exception e) {
-        Timber.e(e, "Error revoking Firebase access to Google!");
-        MessageUtil.makeToast(this, "Could not revoke Firebase access to Google! Signing out of Google only.");
-    }
-
     @Override
     public void onStoredSetlistfmUser(final String setlistfmUserId) {
         setSetlistfmUserStatus(SetlistfmUserStatus.STORED);
-
-        final String storedUserId = setlistfmUserId;
-        storedUserIdLabel.setText(storedUserId);
+        storedUserIdLabel.setText(setlistfmUserId);
 
         final ArrayList<Setlist> storedSetlists = new ArrayList<>();
-        makeSetlistsNetworkCall(storedUserId, 1, storedSetlists);
+        makeSetlistsNetworkCall(setlistfmUserId, 1, storedSetlists);
     }
 
     @Override
@@ -395,14 +330,33 @@ public final class UserActivity
     }
 
     @Override
-    public void onDeleteUserDataSuccessful() {
-        authHelper.deleteAccount(this);
+    public void onSignOutSuccess() {
+        startActivity(new Intent(this, GoogleSignInActivity.class));
+        finish();
     }
 
     @Override
-    public void onDeleteUserDataUnsuccessful(@NonNull final Exception e) {
-        Timber.e(e, "Error deleting Firebase data!");
-        MessageUtil.makeToast(this, "Could not delete user data! Signing out only.");
+    public void onRevokeAccessSuccess() {
+        authHelper.deleteUserAuthentication(this);
+    }
+
+    @Override
+    public void onRevokeAccessFailure(@NonNull final String message) {
+        Timber.e(message);
+        MessageUtil.makeToast(this, "Could not delete account!");
+    }
+
+    @Override
+    public void onDeleteAuthenticationSuccess() {
+        authHelper.signOut(this);
+    }
+
+    @Override
+    public void onDeleteAuthenticationFailure(@NonNull final Exception exception) {
+        /* signing out is not an issue if access is revoked but deleting user authentication fails
+           - access will simply be granted again the next time the user signs in */
+        Timber.e(exception, "Error deleting Firebase user authentication record!");
+        MessageUtil.makeToast(this, "Could not delete account! Signing out only.");
         authHelper.signOut(this);
     }
 }

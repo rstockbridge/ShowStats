@@ -2,48 +2,57 @@ package com.github.rstockbridge.showstats.auth;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
-import com.firebase.ui.auth.AuthUI;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.functions.FirebaseFunctions;
 
-public final class AuthHelper implements FirebaseAuth.AuthStateListener {
+public class AuthHelper {
+
+    /* account deletion consists of:
+       1. revoking Firebase access to Google Account
+       2. deleting Firebase user authentication record
+       3. signing out
+
+       A scheduled cloud function will take care of deleting database data. Note that if a user deletes
+       their account and tries to sign back in before that account data is deleted, they will be allowed
+       to create a new account. The cloud function will still delete the previous account data.
+     */
 
     public interface SignInListener {
-        void onSignIn();
+        void onSignInSuccess();
 
-        void onGoogleSignInUnsuccessful(@NonNull final ApiException e);
+        void onSignInFailure(@NonNull Exception exception);
 
-        void onFirebaseAuthSuccessful();
-
-        void onFirebaseAuthUnsuccessful(@NonNull final Exception e);
+        void onSignInFailure(@NonNull String string);
     }
 
     public interface SignOutListener {
-        void onSignOutFromFirebase();
-
-        void onFirebaseSignOutUnsucessful(@NonNull final Exception e);
-
-        void onGoogleSignOutUnsuccessful(@NonNull final Exception e);
-
-        void onFirebaseDeletionUnsuccessful(@NonNull final Exception e);
-
-        void onRevokeFirebaseAccessToGoogleUnsuccessful(@NonNull final Exception e);
+        void onSignOutSuccess();
     }
 
-    @NonNull
-    private final Context appContext;
+    public interface RevokeAccessListener {
+        void onRevokeAccessSuccess();
+
+        void onRevokeAccessFailure(@NonNull String message);
+    }
+
+    public interface DeleteAuthenticationListener {
+        void onDeleteAuthenticationSuccess();
+
+        void onDeleteAuthenticationFailure(@NonNull Exception exception);
+    }
+
+    private static final int REQUEST_CODE_GOOGLE_SIGN_IN = 9001;
 
     @NonNull
     private final GoogleSignInClient googleSignInClient;
@@ -51,153 +60,104 @@ public final class AuthHelper implements FirebaseAuth.AuthStateListener {
     @NonNull
     private final FirebaseAuth firebaseAuth;
 
-    @Nullable
-    private SignOutListener signOutListener = null;
-
-    private boolean revokeFirebaseAccessOnGoogleSignOut;
-
     public AuthHelper(@NonNull final Context context) {
-        appContext = context.getApplicationContext();
+        final GoogleSignInClientWrapper googleSignInClientWrapper =
+                new GoogleSignInClientWrapper(context.getApplicationContext());
 
-        final GoogleSignInClientWrapper googleSignInClientWrapper = new GoogleSignInClientWrapper(context.getApplicationContext());
         googleSignInClient = googleSignInClientWrapper.getGoogleSignInClient();
 
         firebaseAuth = FirebaseAuth.getInstance();
-        firebaseAuth.addAuthStateListener(this);
-    }
-
-    public AuthHelper(@NonNull final Context context, @NonNull final SignOutListener signOutListener) {
-        this(context);
-        this.signOutListener = signOutListener;
-    }
-
-    public void startSignInActivity(@NonNull final SignInListener listener) {
-        listener.onSignIn();
-    }
-
-    public Intent getSignInIntent() {
-        return googleSignInClient.getSignInIntent();
-    }
-
-    public void finishSignIn(@Nullable final Intent data, @NonNull final SignInListener listener) {
-        final Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-
-        try {
-            final GoogleSignInAccount account = task.getResult(ApiException.class);
-            firebaseAuthWithGoogle(account, listener);
-        } catch (final ApiException e) {
-            listener.onGoogleSignInUnsuccessful(e);
-        }
     }
 
     public String getCurrentUserUid() {
-        /* Since we listen for authentication state changes, we will assume getCurrentUser() is
-           non-null and representing the same user in all other parts of the code */
-
         return firebaseAuth.getCurrentUser().getUid();
     }
 
-    public boolean isFullyLoggedIn() {
+    public boolean isUserLoggedIn() {
         return firebaseAuth.getCurrentUser() != null;
     }
 
-    @Override
-    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-        if (signOutListener != null) {
+    public void signIn(@NonNull final ActivityResultGetter activityResultGetter,
+                       @NonNull final SignInListener signInListener) {
 
-            if (firebaseAuth.getCurrentUser() == null) {
-                if (revokeFirebaseAccessOnGoogleSignOut) {
-                    googleRevokeFirebaseAccessAndSignOut(signOutListener);
+        activityResultGetter.setOnActivityResultListener(
+                REQUEST_CODE_GOOGLE_SIGN_IN,
+                data -> {
+                    signInToFirebase(data, signInListener);
+                    activityResultGetter.removeOnActivityResultListener(REQUEST_CODE_GOOGLE_SIGN_IN);
+                });
+
+        // Sign in to Google
+        activityResultGetter.startActivityForResult(
+                googleSignInClient.getSignInIntent(),
+                REQUEST_CODE_GOOGLE_SIGN_IN);
+    }
+
+    public void signOut(@NonNull final SignOutListener signOutListener) {
+        firebaseAuth.signOut();
+        signOutOfGoogle(signOutListener);
+    }
+
+    public void revokeAccountAccess(@NonNull final RevokeAccessListener listener) {
+        googleSignInClient
+                .revokeAccess()
+                .addOnSuccessListener(aVoid -> listener.onRevokeAccessSuccess())
+                .addOnFailureListener(e -> listener.onRevokeAccessFailure("Could not revoke Firebase access to Google account."));
+    }
+
+    public void deleteUserAuthentication(@NonNull final DeleteAuthenticationListener deleteAuthenticationListener) {
+        FirebaseFunctions
+                .getInstance()
+                .getHttpsCallable("deleteUserAuthentication")
+                .call()
+                .addOnSuccessListener(httpsCallableResult -> deleteAuthenticationListener.onDeleteAuthenticationSuccess())
+                .addOnFailureListener(deleteAuthenticationListener::onDeleteAuthenticationFailure);
+    }
+
+    private void signInToFirebase(
+            @Nullable final Intent data,
+            @NonNull final SignInListener signInListener
+    ) {
+        final Task<GoogleSignInAccount> task =
+                GoogleSignIn.getSignedInAccountFromIntent(data);
+
+        try {
+            final GoogleSignInAccount account = task.getResult(ApiException.class);
+
+            if (account != null) {
+                final String googleIdToken = account.getIdToken();
+
+                if (googleIdToken != null) {
+                    firebaseAuthWithGoogle(googleIdToken, signInListener);
                 } else {
-                    googleSignOut(signOutListener);
+                    signInListener.onSignInFailure("Google Sign In Account token was null.");
                 }
-
-                /* Don't wait for Google sign out to complete as app should take action on being signed
-                   out of Firebase immediately */
-                signOutListener.onSignOutFromFirebase();
+            } else {
+                signInListener.onSignInFailure("Google Sign In Account was null.");
             }
+        } catch (final ApiException e) {
+            signInListener.onSignInFailure(e);
         }
     }
 
-    public void clearAuthListener() {
-        firebaseAuth.removeAuthStateListener(this);
-    }
-
-    public void signOut(@NonNull final SignOutListener listener) {
-        revokeFirebaseAccessOnGoogleSignOut = false;
-        firebaseSignOut(listener);
-    }
-
-    public void deleteAccount(@NonNull final SignOutListener listener) {
-        revokeFirebaseAccessOnGoogleSignOut = true;
-
-        /* If Firebase deletion is successful,the Firebase authentication status will change and
-           trigger onAuthStateChanged(), which changes the Google account status as appropriate */
-
-        firebaseAuth.getCurrentUser().delete()
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull final Exception e) {
-                        listener.onFirebaseDeletionUnsuccessful(e);
-                    }
-                });
-    }
-
     private void firebaseAuthWithGoogle(
-            @NonNull final GoogleSignInAccount account,
-            @NonNull final SignInListener listener) {
-
-        final AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+            @NonNull final String googleIdToken,
+            @NonNull final SignInListener signInListener
+    ) {
+        final AuthCredential credential = GoogleAuthProvider.getCredential(googleIdToken, null);
         firebaseAuth
                 .signInWithCredential(credential)
-                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                    @Override
-                    public void onSuccess(final AuthResult authResult) {
-                        listener.onFirebaseAuthSuccessful();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull final Exception e) {
-                        listener.onFirebaseAuthUnsuccessful(e);
-                    }
-                });
+                .addOnSuccessListener(authResult -> signInListener.onSignInSuccess())
+                .addOnFailureListener(signInListener::onSignInFailure);
     }
 
-    private void firebaseSignOut(@NonNull final SignOutListener listener) {
-        /* If Firebase sign out is successful,the Firebase authentication status will change and
-           trigger onAuthStateChanged(), which changes the Google account status as appropriate */
-
-        AuthUI.getInstance()
-                .signOut(appContext)
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull final Exception e) {
-                        listener.onFirebaseSignOutUnsucessful(e);
-                    }
-                });
-    }
-
-    private void googleSignOut(@NonNull final SignOutListener listener) {
+    private void signOutOfGoogle(@NonNull final SignOutListener signOutListener) {
         googleSignInClient
                 .signOut()
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull final Exception e) {
-                        listener.onGoogleSignOutUnsuccessful(e);
-                    }
-                });
-    }
-
-    private void googleRevokeFirebaseAccessAndSignOut(@NonNull final SignOutListener listener) {
-        googleSignInClient
-                .revokeAccess()
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull final Exception e) {
-                        googleSignOut(listener);
-                        listener.onRevokeFirebaseAccessToGoogleUnsuccessful(e);
-                    }
+                .addOnSuccessListener(aVoid -> signOutListener.onSignOutSuccess())
+                .addOnFailureListener(e -> {
+                    // Force user to re-authenticate despite partial failure.
+                    signOutListener.onSignOutSuccess();
                 });
     }
 }

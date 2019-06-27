@@ -1,9 +1,8 @@
 package com.github.rstockbridge.showstats.utility;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,17 +22,14 @@ public final class MapUtil {
 
         final List<Map.Entry<T, U>> sortedList = new LinkedList<>(mapEntries);
 
-        Collections.sort(sortedList, new Comparator<Map.Entry<T, U>>() {
-            @Override
-            public int compare(final Map.Entry<T, U> entry1, final Map.Entry<T, U> entry2) {
-                // if values are equal, sort by key in descending order
-                // (so that keys are in ascending order after reversing below)
-                if (entry1.getValue().compareTo(entry2.getValue()) == 0) {
-                    return -entry1.getKey().compareTo(entry2.getKey());
-                } else {
+        Collections.sort(sortedList, (entry1, entry2) -> {
+            // if values are equal, sort by key in descending order
+            // (so that keys are in ascending order after reversing below)
+            if (entry1.getValue().compareTo(entry2.getValue()) == 0) {
+                return -entry1.getKey().compareTo(entry2.getKey());
+            } else {
 
-                    return entry1.getValue().compareTo(entry2.getValue());
-                }
+                return entry1.getValue().compareTo(entry2.getValue());
             }
         });
 

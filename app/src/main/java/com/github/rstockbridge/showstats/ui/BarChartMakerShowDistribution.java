@@ -1,20 +1,16 @@
 package com.github.rstockbridge.showstats.ui;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
-import com.github.mikephil.charting.formatter.IValueFormatter;
-import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.github.rstockbridge.showstats.R;
 
 import java.util.ArrayList;
@@ -91,12 +87,7 @@ public final class BarChartMakerShowDistribution {
         result.setBarWidth(0.9f);
         result.setValueTextSize(16f);
 
-        result.setValueFormatter(new IValueFormatter() {
-            @Override
-            public String getFormattedValue(final float value, final Entry entry, final int dataSetIndex, final ViewPortHandler viewPortHandler) {
-                return String.valueOf((int) value);
-            }
-        });
+        result.setValueFormatter((value, entry, dataSetIndex, viewPortHandler) -> String.valueOf((int) value));
 
         return result;
     }
@@ -110,12 +101,7 @@ public final class BarChartMakerShowDistribution {
         xAxis.setLabelCount(NUMBER_OF_MONTHS);
         xAxis.setTextSize(16f);
 
-        xAxis.setValueFormatter(new IAxisValueFormatter() {
-            @Override
-            public String getFormattedValue(final float value, final AxisBase axis) {
-                return getLabels().get((int) value);
-            }
-        });
+        xAxis.setValueFormatter((value, axis) -> getLabels().get((int) value));
     }
 
     private void configureYAxis(@NonNull final Context context) {

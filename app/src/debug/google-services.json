@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "282700676578-215b0gddtalcdvaqf5a5rj7uvjv5srdc.apps.googleusercontent.com",
+          "client_id": "282700676578-qfqk0rdc027luu3um6qh8kac21lu57e6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.github.rstockbridge.showstats.debug",
-            "certificate_hash": "58cda45a88b7eeb80d4e70f625d8a909f8d02ab2"
+            "certificate_hash": "92be72a1720125eb1755f269687f03ec2852bbae"
           }
         },
         {
@@ -41,20 +41,13 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
               "client_id": "282700676578-jcg7f66qufvh1jpb4vm699qkjnio3be3.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
       }
     }

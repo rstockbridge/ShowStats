@@ -1,6 +1,6 @@
 package com.github.rstockbridge.showstats.api.models;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public final class SetlistArtist {
 
