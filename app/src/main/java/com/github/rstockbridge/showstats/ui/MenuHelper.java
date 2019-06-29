@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import androidx.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
+
+import com.crashlytics.android.Crashlytics;
+import com.github.rstockbridge.showstats.BuildConfig;
 import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
@@ -26,6 +29,11 @@ public final class MenuHelper {
     public final boolean onCreateLicensesPrivacyMenu(@NonNull final Activity activity, final Menu menu) {
         final MenuInflater inflater = activity.getMenuInflater();
         inflater.inflate(R.menu.menu_legal, menu);
+
+        if (BuildConfig.ALLOW_FORCE_CRASH) {
+            addForceCrashButton(menu);
+        }
+
         return true;
     }
 
@@ -90,5 +98,13 @@ public final class MenuHelper {
             default:
                 throw new IllegalStateException("This line should not be reached.");
         }
+    }
+
+    private void addForceCrashButton(final Menu menu) {
+        final MenuItem menuItem = menu.add(R.string.force_crash);
+        menuItem.setOnMenuItemClickListener(item -> {
+            Crashlytics.getInstance().crash();
+            return true;
+        });
     }
 }

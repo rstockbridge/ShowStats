@@ -47,7 +47,8 @@ public final class TabbedActivity
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         super.onCreateOptionsMenu(menu);
-        return menuHelper.onCreateAccountMenu(this, menu) && menuHelper.onCreateLicensesPrivacyMenu(this, menu);
+        return menuHelper.onCreateAccountMenu(this, menu)
+                && menuHelper.onCreateLicensesPrivacyMenu(this, menu);
     }
 
     @Override

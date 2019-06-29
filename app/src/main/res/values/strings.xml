@@ -41,6 +41,7 @@
     <string name="privacy_policy_url">https://github.com/rstockbridge/ShowStats/tree/master/playstore/privacy_policy.md</string>
     <string name="sign_out">Sign Out</string>
     <string name="delete_account">Delete Account</string>
+    <string name="force_crash">Force Crash</string>
     <plurals name="day_plural">
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
