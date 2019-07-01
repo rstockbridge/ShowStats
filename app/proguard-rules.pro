@@ -9,5 +9,5 @@
 -keep class com.github.rstockbridge.showstats.database.** { *; }
 
 # Don't obfuscate Firebase Crashlytics crash reports
--keepattributes *Annotation*                      // Keep Crashlytics annotations
--keepattributes SourceFile,LineNumberTable        // Keep file names/line numbers
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
