@@ -7,3 +7,7 @@
 # Application classes that will be serialized/deserialized over Gson
 -keep class com.github.rstockbridge.showstats.api.models.** { *; }
 -keep class com.github.rstockbridge.showstats.database.** { *; }
+
+# Don't obfuscate Firebase Crashlytics crash reports
+-keepattributes *Annotation*                      // Keep Crashlytics annotations
+-keepattributes SourceFile,LineNumberTable        // Keep file names/line numbers
