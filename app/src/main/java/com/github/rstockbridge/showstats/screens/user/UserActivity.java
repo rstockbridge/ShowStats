@@ -26,6 +26,7 @@ import com.github.rstockbridge.showstats.appmodels.User1StatisticsHolder;
 import com.github.rstockbridge.showstats.appmodels.UserStatistics;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
 import com.github.rstockbridge.showstats.database.DatabaseHelper;
+import com.github.rstockbridge.showstats.screens.DeleteDialogFragment;
 import com.github.rstockbridge.showstats.screens.googlesignin.GoogleSignInActivity;
 import com.github.rstockbridge.showstats.screens.tabbed.TabbedActivity;
 import com.github.rstockbridge.showstats.ui.MenuHelper;
@@ -48,6 +49,7 @@ public final class UserActivity
         DatabaseHelper.SetlistfmUserListener,
         DatabaseHelper.UpdateDatabaseListener,
         AuthHelper.SignOutListener,
+        DeleteDialogFragment.NetworkCallListener,
         AuthHelper.RevokeAccessListener,
         AuthHelper.DeleteAuthenticationListener {
 
@@ -254,14 +256,14 @@ public final class UserActivity
 
     private void syncUI() {
         setUserLayout(setlistfmUserStatus);
-        syncViewsWithNetworkCall(networkCallIsInProgress || setlistfmUserStatus == SetlistfmUserStatus.UNKNOWN);
+        syncProgressBarWithNetworkCall(networkCallIsInProgress || setlistfmUserStatus == SetlistfmUserStatus.UNKNOWN);
 
         if (setlistfmUserStatus == SetlistfmUserStatus.NOT_STORED) {
             syncNoStoredUserLayoutForNetworkCallStatus(networkCallIsInProgress);
         }
     }
 
-    private void syncViewsWithNetworkCall(final boolean makeVisible) {
+    private void syncProgressBarWithNetworkCall(final boolean makeVisible) {
         progressBar.setVisibility(makeVisible ? View.VISIBLE : View.INVISIBLE);
     }
 
@@ -336,12 +338,22 @@ public final class UserActivity
     }
 
     @Override
+    public void updateUiForDeletionInProgress() {
+        setSetlistfmUserStatus(SetlistfmUserStatus.UNKNOWN);
+        setNetworkCallInProgress(true);
+        syncUI();
+    }
+
+    @Override
     public void onRevokeAccessSuccess() {
         authHelper.deleteUserAuthentication(this);
     }
 
     @Override
     public void onRevokeAccessFailure(@NonNull final String message) {
+        setNetworkCallInProgress(false);
+        syncUI();
+
         Timber.e(message);
         MessageUtil.makeToast(this, "Could not delete account!");
     }
@@ -355,6 +367,10 @@ public final class UserActivity
     public void onDeleteAuthenticationFailure(@NonNull final Exception exception) {
         /* signing out is not an issue if access is revoked but deleting user authentication fails
            - access will simply be granted again the next time the user signs in */
+
+        setNetworkCallInProgress(false);
+        syncUI();
+
         Timber.e(exception, "Error deleting Firebase user authentication record!");
         MessageUtil.makeToast(this, "Could not delete account! Signing out only.");
         authHelper.signOut(this);

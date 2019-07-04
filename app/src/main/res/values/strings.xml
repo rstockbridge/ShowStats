@@ -42,6 +42,10 @@
     <string name="sign_out">Sign Out</string>
     <string name="delete_account">Delete Account</string>
     <string name="force_crash">Force Crash</string>
+    <string name="confirm_delete">Are you sure you want to delete your account?</string>
+    <string name="Yes">yes</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <plurals name="day_plural">
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>

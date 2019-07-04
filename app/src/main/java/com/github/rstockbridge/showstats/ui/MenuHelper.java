@@ -9,19 +9,22 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.crashlytics.android.Crashlytics;
 import com.github.rstockbridge.showstats.BuildConfig;
 import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
+import com.github.rstockbridge.showstats.screens.DeleteDialogFragment;
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 
 public final class MenuHelper {
 
-    private Activity activity;
+    private FragmentActivity activity;
     private AuthHelper authHelper;
 
-    public MenuHelper(@NonNull final Activity activity) {
+    public MenuHelper(@NonNull final FragmentActivity activity) {
         this.activity = activity;
         authHelper = new AuthHelper(this.activity);
     }
@@ -93,7 +96,8 @@ public final class MenuHelper {
                 authHelper.signOut(signOutListener);
                 return true;
             case R.id.delete_account:
-                authHelper.revokeAccountAccess(revokeAccessListener);
+                showDeleteDialog();
+//                authHelper.revokeAccountAccess(revokeAccessListener);
                 return true;
             default:
                 throw new IllegalStateException("This line should not be reached.");
@@ -106,5 +110,10 @@ public final class MenuHelper {
             Crashlytics.getInstance().crash();
             return true;
         });
+    }
+
+    private void showDeleteDialog() {
+        final DialogFragment newFragment = new DeleteDialogFragment();
+        newFragment.show(activity.getSupportFragmentManager(), "dialog");
     }
 }
