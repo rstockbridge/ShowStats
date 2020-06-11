@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 
-import com.crashlytics.android.Crashlytics;
 import com.github.rstockbridge.showstats.BuildConfig;
 import com.github.rstockbridge.showstats.R;
 import com.github.rstockbridge.showstats.auth.AuthHelper;
@@ -107,8 +106,7 @@ public final class MenuHelper {
     private void addForceCrashButton(final Menu menu) {
         final MenuItem menuItem = menu.add(R.string.force_crash);
         menuItem.setOnMenuItemClickListener(item -> {
-            Crashlytics.getInstance().crash();
-            return true;
+            throw new RuntimeException("Test Crash");
         });
     }
 
