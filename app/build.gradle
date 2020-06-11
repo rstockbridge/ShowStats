@@ -8,8 +8,8 @@ android {
         applicationId "com.github.rstockbridge.showstats"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 4
-        versionName "2.0.2"
+        versionCode 5
+        versionName "2.0.3"
         buildConfigField "String", "SETLISTFM_KEY", setlistfmKey
     }
 
