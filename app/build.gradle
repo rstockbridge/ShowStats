@@ -42,7 +42,7 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
-            buildConfigField "boolean", "ALLOW_FORCE_CRASH", "true"
+            buildConfigField "boolean", "ALLOW_FORCE_CRASH", "false"
             resValue "string", "app_name", "ShowStats"
             resValue "string", "maps_api_key", "AIzaSyCIBaQpFBNgpinWKxQS8IlGa1g4Uzou4BE"
 
